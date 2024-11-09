@@ -1,5 +1,9 @@
 package ARLib.network;
+
+import net.minecraft.nbt.CompoundTag;
+
 // INetworkPacket.java
 public interface INetworkByteReceiver {
-    void read_bytes(int packetid, byte[] bytes);
+    void readServer(CompoundTag tag);
+    void readClient(CompoundTag tag);
 }

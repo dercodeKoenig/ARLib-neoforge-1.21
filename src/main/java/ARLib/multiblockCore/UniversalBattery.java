@@ -19,4 +19,10 @@ public class UniversalBattery extends EnergyStorage {
     public UniversalBattery(int capacity, int maxReceive, int maxExtract, int energy) {
         super(capacity, maxReceive, maxExtract, energy);
     }
+    public void setEnergy(int e){
+        energy = e;
+    }
+    public void setCapacity(int c){
+        this.capacity = c;
+    }
 }

@@ -1,17 +1,28 @@
 package ARLib.blockentities;
 
+import ARLib.gui.IModularGui;
+import ARLib.gui.guiModuleEnergy;
+import ARLib.gui.guiModulebase;
 import ARLib.multiblockCore.UniversalBattery;
 import ARLib.network.INetworkByteReceiver;
+import ARLib.network.PacketBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.network.PacketDistributor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static ARLib.ARLibRegistry.ENTITY_ENERGY_INPUT_BLOCK;
 
-public class EntityEnergyInputBlock extends BlockEntity implements IEnergyStorage, INetworkByteReceiver {
+public class EntityEnergyInputBlock extends BlockEntity implements IEnergyStorage, INetworkByteReceiver, IModularGui {
 
     protected UniversalBattery energyStorage;
 
@@ -58,17 +69,64 @@ public class EntityEnergyInputBlock extends BlockEntity implements IEnergyStorag
 
     @Override
     public boolean canExtract() {
-        return energyStorage.canExtract();
+        return false;
     }
 
     @Override
     public boolean canReceive() {
-        return energyStorage.canReceive();
+        return true;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    void sendRequestDataUpdate(){
+        CompoundTag tag = new CompoundTag();
+        tag.putInt("requestId",0);
+        PacketDistributor.sendToServer(PacketBlockEntity.getBlockEntityPacket(this, tag));
+    }
+
+    void sendDataUpdate(){
+        CompoundTag tag = new CompoundTag();
+        tag.putInt("energy_stored", getEnergyStored());
+        tag.putInt("energy_capacity", getMaxEnergyStored());
+
+        PacketDistributor.sendToPlayersTrackingChunk(
+                (ServerLevel) level,
+                level.getChunkAt(getBlockPos()).getPos(),
+                PacketBlockEntity.getBlockEntityPacket(this, tag)
+        );
     }
 
     @Override
-    public void read_bytes(int packetid, byte[] bytes) {
-        System.out.println("incoming data:"+level.isClientSide()+":"+packetid);
+    public void readServer(CompoundTag tagIn) {
+        if(tagIn.contains("requestId")){
+            int id = tagIn.getInt("requestId");
+
+            // send required data for gui
+            if(id==0){
+                sendDataUpdate();
+            }
+        }
+    }
+    @Override
+    public void readClient(CompoundTag tag) {
+        if (tag.contains("energy_stored")){
+            energyStorage.setEnergy(tag.getInt("energy_stored"));
+        }
+        if (tag.contains("energy_capacity")){
+            energyStorage.setCapacity(tag.getInt("energy_capacity"));
+        }
     }
 
+    @Override
+    public List<guiModulebase> getModules() {
+        List<guiModulebase> modules = new ArrayList<>();
+        modules.add(new guiModuleEnergy(this, 10,10,10,50));
+        return  modules;
+    }
+
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public void onGuiTick() {
+        sendRequestDataUpdate();
+    }
 }

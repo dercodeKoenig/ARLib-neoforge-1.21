@@ -2,7 +2,7 @@ package ARLib;
 
 import ARLib.blockentities.EntityEnergyInputBlock;
 import ARLib.multiblocks.MultiblockRegistry;
-import ARLib.network.BlockEntityPacket;
+import ARLib.network.PacketBlockEntity;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -11,7 +11,6 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 @Mod(ARLib.MODID)
@@ -38,15 +37,7 @@ public class ARLib
     public void registerNetworkStuff(RegisterPayloadHandlersEvent event) {
         // Sets the current network version
         final PayloadRegistrar registrar = event.registrar("1");
-
-        registrar.playBidirectional(
-                BlockEntityPacket.TYPE,
-                BlockEntityPacket.STREAM_CODEC,
-                new DirectionalPayloadHandler<>(
-                        BlockEntityPacket::handleData,
-                        BlockEntityPacket::handleData
-                )
-        );
+       PacketBlockEntity. register(registrar);
     }
 
     private void RegisterCapabilities(RegisterCapabilitiesEvent e){
