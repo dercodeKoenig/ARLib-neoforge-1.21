@@ -35,6 +35,9 @@ public class BlockEnergyInputBlock extends Block  implements EntityBlock {
     public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hitResult) {
         BlockEntity e = world.getBlockEntity(pos);
         if (e instanceof EntityEnergyInputBlock tile) {
+            if (!world.isClientSide()) {
+                //tile.extractEnergy(1000, false);
+            }
 
             if (world.isClientSide) {
                 Minecraft.getInstance().setScreen(new modularScreen((IModularGui) e));

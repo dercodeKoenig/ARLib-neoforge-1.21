@@ -2,12 +2,12 @@ package ARLib.gui;
 
 import net.minecraft.client.gui.GuiGraphics;
 
-public class guiModulebase {
+public class guiModuleBase {
 
     int x;
     int y;
 
-    public guiModulebase(int x,int y){
+    public guiModuleBase(int x, int y){
         this.x = x;
         this.y = y;
     }

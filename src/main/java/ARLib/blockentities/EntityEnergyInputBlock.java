@@ -2,7 +2,7 @@ package ARLib.blockentities;
 
 import ARLib.gui.IModularGui;
 import ARLib.gui.guiModuleEnergy;
-import ARLib.gui.guiModulebase;
+import ARLib.gui.guiModuleBase;
 import ARLib.multiblockCore.UniversalBattery;
 import ARLib.network.INetworkByteReceiver;
 import ARLib.network.PacketBlockEntity;
@@ -79,12 +79,14 @@ public class EntityEnergyInputBlock extends BlockEntity implements IEnergyStorag
 
     @OnlyIn(Dist.CLIENT)
     void sendRequestDataUpdate(){
+        //System.out.println("request update");
         CompoundTag tag = new CompoundTag();
         tag.putInt("requestId",0);
         PacketDistributor.sendToServer(PacketBlockEntity.getBlockEntityPacket(this, tag));
     }
 
     void sendDataUpdate(){
+
         CompoundTag tag = new CompoundTag();
         tag.putInt("energy_stored", getEnergyStored());
         tag.putInt("energy_capacity", getMaxEnergyStored());
@@ -98,6 +100,7 @@ public class EntityEnergyInputBlock extends BlockEntity implements IEnergyStorag
 
     @Override
     public void readServer(CompoundTag tagIn) {
+        //System.out.println(tagIn);
         if(tagIn.contains("requestId")){
             int id = tagIn.getInt("requestId");
 
@@ -108,7 +111,9 @@ public class EntityEnergyInputBlock extends BlockEntity implements IEnergyStorag
         }
     }
     @Override
+    @OnlyIn(Dist.CLIENT)
     public void readClient(CompoundTag tag) {
+        //System.out.println(tag);
         if (tag.contains("energy_stored")){
             energyStorage.setEnergy(tag.getInt("energy_stored"));
         }
@@ -118,15 +123,20 @@ public class EntityEnergyInputBlock extends BlockEntity implements IEnergyStorag
     }
 
     @Override
-    public List<guiModulebase> getModules() {
-        List<guiModulebase> modules = new ArrayList<>();
-        modules.add(new guiModuleEnergy(this, 10,10,10,50));
+    public List<guiModuleBase> getModules() {
+        List<guiModuleBase> modules = new ArrayList<>();
+        modules.add(new guiModuleEnergy(this, 10,10));
         return  modules;
     }
 
+    int last_gui_update = 0;
     @Override
     @OnlyIn(Dist.CLIENT)
     public void onGuiTick() {
-        sendRequestDataUpdate();
+        last_gui_update+=1;
+        if (last_gui_update > 10){
+            last_gui_update = 0;
+            sendRequestDataUpdate();
+        }
     }
 }

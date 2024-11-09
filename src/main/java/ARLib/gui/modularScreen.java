@@ -9,13 +9,13 @@ import java.util.List;
 
 public class modularScreen extends Screen {
 
-    ResourceLocation background = ResourceLocation.fromNamespaceAndPath("arlib","textures/gui/simple_gui_background.png");
+    ResourceLocation background = ResourceLocation.fromNamespaceAndPath("arlib", "textures/gui/simple_gui_background.png");
 
 
     int guiW = 176;
     int guiH = 166;
 
-    List<guiModulebase> modules;
+    List<guiModuleBase> modules;
     IModularGui c;
 
     public modularScreen(IModularGui c, int w, int h) {
@@ -23,8 +23,9 @@ public class modularScreen extends Screen {
         this.c = c;
         modules = c.getModules();
     }
+
     public modularScreen(IModularGui c) {
-         this(c,176,166);
+        this(c, 176, 166);
     }
 
 
@@ -36,12 +37,13 @@ public class modularScreen extends Screen {
     @Override
     public void tick() {
         c.onGuiTick();
-        for (guiModulebase m : modules){
+        for (guiModuleBase m : modules) {
             m.tick();
         }
         super.tick();
 
     }
+
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         int left = (this.width - guiW) / 2;
@@ -52,16 +54,14 @@ public class modularScreen extends Screen {
                 background,
                 left, top, 0, 0, 0, guiW, guiH, 176, 171
         );
-
-
-
-
-        for (guiModulebase m : modules){
-            m.render(guiGraphics,mouseX,mouseY,partialTick,left, top);
+        for (guiModuleBase m : modules) {
+            m.render(guiGraphics, mouseX, mouseY, partialTick, left, top);
         }
+    }
 
-
-
+    @Override
+    public boolean isPauseScreen() {
+        return false;
     }
 
 }
