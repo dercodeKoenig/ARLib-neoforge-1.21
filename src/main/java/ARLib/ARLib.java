@@ -2,24 +2,14 @@ package ARLib;
 
 import ARLib.blockentities.EntityEnergyInputBlock;
 import ARLib.multiblocks.MultiblockRegistry;
-import ARLib.network.MyData;
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.level.Level;
-import net.neoforged.bus.api.EventPriority;
+import ARLib.network.BlockEntityPacket;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.capabilities.ICapabilityProvider;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.event.server.ServerStartedEvent;
-import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -50,11 +40,11 @@ public class ARLib
         final PayloadRegistrar registrar = event.registrar("1");
 
         registrar.playBidirectional(
-                MyData.TYPE,
-                MyData.STREAM_CODEC,
+                BlockEntityPacket.TYPE,
+                BlockEntityPacket.STREAM_CODEC,
                 new DirectionalPayloadHandler<>(
-                        MyData::handleData,
-                        MyData::handleData
+                        BlockEntityPacket::handleData,
+                        BlockEntityPacket::handleData
                 )
         );
     }
