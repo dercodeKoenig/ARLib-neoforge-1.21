@@ -2,6 +2,7 @@ package ARLib.blocks;
 
 import ARLib.blockentities.EntityEnergyInputBlock;
 import ARLib.network.BlockEntityPacket;
+import ARLib.utils.DimensionUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -39,7 +40,7 @@ public class BlockEnergyInputBlock extends Block  implements EntityBlock {
 
 
         if (world.isClientSide()){
-            PacketDistributor.sendToServer(new BlockEntityPacket(1,new byte[128]));
+            PacketDistributor.sendToServer(new BlockEntityPacket(1, DimensionUtils.getLevelId(world),pos.getX(),pos.getY(),pos.getZ(),new byte[128]));
         }
 
         return InteractionResult.SUCCESS;

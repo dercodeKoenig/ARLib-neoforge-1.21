@@ -1,23 +1,17 @@
 package ARLib.blockentities;
 
-import ARLib.ARLib;
 import ARLib.multiblockCore.UniversalBattery;
+import ARLib.network.INetworkByteReceiver;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.capabilities.BlockCapability;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.capabilities.ICapabilityProvider;
 import net.neoforged.neoforge.energy.IEnergyStorage;
-import org.jetbrains.annotations.Nullable;
 
 import static ARLib.ARLibRegistry.ENTITY_ENERGY_INPUT_BLOCK;
 
-public class EntityEnergyInputBlock extends BlockEntity implements IEnergyStorage{
+public class EntityEnergyInputBlock extends BlockEntity implements IEnergyStorage, INetworkByteReceiver {
 
     protected UniversalBattery energyStorage;
 
@@ -70,6 +64,11 @@ public class EntityEnergyInputBlock extends BlockEntity implements IEnergyStorag
     @Override
     public boolean canReceive() {
         return energyStorage.canReceive();
+    }
+
+    @Override
+    public void read_bytes(int packetid, byte[] bytes) {
+        System.out.println("incoming data:"+level.isClientSide()+":"+packetid);
     }
 
 }

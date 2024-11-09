@@ -1,6 +1,5 @@
 package ARLib.network;
 // INetworkPacket.java
-public interface INetworkBlockEntity {
+public interface INetworkByteReceiver {
     void read_bytes(int packetid, byte[] bytes);
-    byte[] write_bytes(int packetid);
 }
