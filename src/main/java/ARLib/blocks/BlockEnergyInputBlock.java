@@ -2,6 +2,7 @@ package ARLib.blocks;
 
 import ARLib.blockentities.EntityEnergyInputBlock;
 import ARLib.multiblockCore.BlockEntityMultiblock;
+import ARLib.network.MyData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -11,6 +12,7 @@ import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import static ARLib.ARLibRegistry.ENTITY_ENERGY_INPUT_BLOCK;
@@ -35,6 +37,13 @@ public class BlockEnergyInputBlock extends Block  implements EntityBlock {
         if (e instanceof EntityEnergyInputBlock tile){
             System.out.println(tile.getEnergyStored());
         }
+
+
+        if (world.isClientSide()){
+            PacketDistributor.sendToServer(new MyData(1,new byte[128]));
+        }
+
         return InteractionResult.SUCCESS;
     }
+
 }

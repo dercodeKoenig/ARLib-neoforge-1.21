@@ -2,6 +2,7 @@ package ARLib;
 
 import ARLib.blockentities.EntityEnergyInputBlock;
 import ARLib.multiblocks.MultiblockRegistry;
+import ARLib.network.MyData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -19,6 +20,9 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 @Mod(ARLib.MODID)
 public class ARLib
@@ -30,12 +34,29 @@ public class ARLib
 
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::addCreative);
-    modEventBus.addListener(this::RegisterCapabilities);
+        modEventBus.addListener(this::RegisterCapabilities);
+        modEventBus.addListener(this::registerNetworkStuff);
+
 
         ARLibRegistry.register(modEventBus);
         MultiblockRegistry.register(modEventBus);
 
 
+    }
+
+
+    public void registerNetworkStuff(RegisterPayloadHandlersEvent event) {
+        // Sets the current network version
+        final PayloadRegistrar registrar = event.registrar("1");
+
+        registrar.playBidirectional(
+                MyData.TYPE,
+                MyData.STREAM_CODEC,
+                new DirectionalPayloadHandler<>(
+                        MyData::handleData,
+                        MyData::handleData
+                )
+        );
     }
 
     private void RegisterCapabilities(RegisterCapabilitiesEvent e){
