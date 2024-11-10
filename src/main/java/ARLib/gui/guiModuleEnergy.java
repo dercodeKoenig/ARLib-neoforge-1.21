@@ -1,7 +1,9 @@
 package ARLib.gui;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
@@ -99,5 +101,10 @@ public class guiModuleEnergy extends guiModuleBase {
                 energy_bar_tw,energy_bar_th-v_offset_tex,
                 energy_bar_tw,energy_bar_th
                 );
+        if(client_isMouseOver(mouseX,mouseY,onGuiX,onGuiY,w,h)){
+            String info = energy+"/"+maxEnergy+"RF";
+            guiGraphics.renderTooltip(Minecraft.getInstance().font, Component.literal(info),mouseX,mouseY);
+        }
+
     }
 }

@@ -37,7 +37,8 @@ public abstract class guiModuleInventorySlotBase extends guiModuleBase {
 
             if (carriedStack.isEmpty() && !stack.isEmpty()) {
                 // Pick up the stack
-                inventoryMenu.setCarried(extractItemFromSlot(player,Math.min(stack.getCount(),stack.getMaxStackSize())));
+                int max_pickup = Math.min(stack.getCount(),stack.getMaxStackSize());
+                inventoryMenu.setCarried(extractItemFromSlot(player,max_pickup));
 
             } else if (stack.isEmpty() && !carriedStack.isEmpty()) {
                 // Place down the carried item
@@ -144,6 +145,7 @@ public abstract class guiModuleInventorySlotBase extends guiModuleBase {
 
         if(client_isMouseOver(mouseX,mouseY,onGuiX,onGuiY,w,h)){
             guiGraphics.fill(onGuiX,onGuiY,w+onGuiX,h+onGuiY, 0x30FFFFFF); // Semi-transparent white
+            guiGraphics.renderTooltip(Minecraft.getInstance().font, client_getItemStackToRender(),mouseX,mouseY);
         }
 
     }
