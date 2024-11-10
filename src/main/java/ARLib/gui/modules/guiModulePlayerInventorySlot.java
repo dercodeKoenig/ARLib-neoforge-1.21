@@ -1,22 +1,12 @@
-package ARLib.gui;
+package ARLib.gui.modules;
 
-import com.mojang.blaze3d.platform.InputConstants;
+import ARLib.gui.IGuiHandler;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class guiModulePlayerInventorySlot extends guiModuleInventorySlotBase{
 
@@ -65,14 +55,14 @@ public class guiModulePlayerInventorySlot extends guiModuleInventorySlotBase{
         return player.getInventory().getMaxStackSize(stack);
     }
 
-    public guiModulePlayerInventorySlot(int id, int targetSlot, int inventoryGroupId, int instantTransferTargetGroup,  GuiHandler guiHandler, int x, int y) {
+    public guiModulePlayerInventorySlot(int id, int targetSlot, int inventoryGroupId, int instantTransferTargetGroup, IGuiHandler guiHandler, int x, int y) {
         super(id,guiHandler,inventoryGroupId,instantTransferTargetGroup,x, y);
         this.targetSlot = targetSlot;
     }
 
 
 
-    public static List<guiModulePlayerInventorySlot> makePlayerHotbarModules(int x, int y, int startingId, int inventoryGroup, int instantTransferTargetGroup, GuiHandler guiHandler){
+    public static List<guiModulePlayerInventorySlot> makePlayerHotbarModules(int x, int y, int startingId, int inventoryGroup, int instantTransferTargetGroup, IGuiHandler guiHandler){
         List<guiModulePlayerInventorySlot> modules = new ArrayList<>();
 
         for (int i = 0; i < 9; i++) {
@@ -83,7 +73,7 @@ public class guiModulePlayerInventorySlot extends guiModuleInventorySlotBase{
         return modules;
     }
 
-    public static List<guiModulePlayerInventorySlot> makePlayerInventoryModules(int x, int y, int startingId, int inventoryGroup, int instantTransferTargetGroup,  GuiHandler guiHandler){
+    public static List<guiModulePlayerInventorySlot> makePlayerInventoryModules(int x, int y, int startingId, int inventoryGroup, int instantTransferTargetGroup,  IGuiHandler guiHandler){
         List<guiModulePlayerInventorySlot> modules = new ArrayList<>();
 
         for (int j = 0; j < 3; j++) {

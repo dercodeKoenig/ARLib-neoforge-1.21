@@ -1,16 +1,13 @@
-package ARLib.gui;
+package ARLib.gui.modules;
 
+import ARLib.gui.IGuiHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class guiModuleItemHandlerSlot extends guiModuleInventorySlotBase {
 
@@ -59,7 +56,7 @@ public class guiModuleItemHandlerSlot extends guiModuleInventorySlotBase {
         }
     }
 
-    public guiModuleItemHandlerSlot(int id, IItemHandler itemHandler, int targetSlot, int inventoryGroupId, int instantTransferTargetGroup, GuiHandler guiHandler, int x, int y) {
+    public guiModuleItemHandlerSlot(int id, IItemHandler itemHandler, int targetSlot, int inventoryGroupId, int instantTransferTargetGroup, IGuiHandler guiHandler, int x, int y) {
         super(id,guiHandler,inventoryGroupId,instantTransferTargetGroup,x, y);
         this.targetSlot = targetSlot;
         this.itemHandler = itemHandler;

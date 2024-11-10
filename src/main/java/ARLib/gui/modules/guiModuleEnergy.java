@@ -1,5 +1,6 @@
-package ARLib.gui;
+package ARLib.gui.modules;
 
+import ARLib.gui.IGuiHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
@@ -7,7 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
-public class guiModuleEnergy extends guiModuleBase {
+public class guiModuleEnergy extends GuiModuleBase {
 
     ResourceLocation energy_bar_background = ResourceLocation.fromNamespaceAndPath("arlib","textures/gui/gui_vertical_progress_bar_background.png");
     ResourceLocation energy_bar = ResourceLocation.fromNamespaceAndPath("arlib","textures/gui/gui_vertical_progress_bar.png");
@@ -70,7 +71,7 @@ public class guiModuleEnergy extends guiModuleBase {
         }
     }
 
-    public guiModuleEnergy(int id, IEnergyStorage energyStorage, GuiHandler guiHandler, int x, int y){
+    public guiModuleEnergy(int id, IEnergyStorage energyStorage, IGuiHandler guiHandler, int x, int y){
         super(id,guiHandler,x,y);
         this.energyStorage = energyStorage;
         serverTick();

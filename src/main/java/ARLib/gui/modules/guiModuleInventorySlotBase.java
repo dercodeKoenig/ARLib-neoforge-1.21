@@ -1,5 +1,7 @@
-package ARLib.gui;
+package ARLib.gui.modules;
 
+import ARLib.gui.IGuiHandler;
+import ARLib.gui.ModularScreen;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -12,7 +14,7 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.util.UUID;
 
-public abstract class guiModuleInventorySlotBase extends guiModuleBase {
+public abstract class guiModuleInventorySlotBase extends GuiModuleBase {
 
     ResourceLocation slot_background = ResourceLocation.fromNamespaceAndPath("arlib","textures/gui/gui_item_slot_background.png");
     int slot_bg_w = 18;
@@ -74,7 +76,7 @@ public abstract class guiModuleInventorySlotBase extends guiModuleBase {
             // move all items in the current slot to slots of the instant transfer target group
             // loop over all modules and try to find a module where the group id matches the transfer target
 
-            for (guiModuleBase i : this.guiHandler.getModules()) {
+            for (GuiModuleBase i : this.guiHandler.getModules()) {
                 if (i instanceof guiModuleInventorySlotBase j) {
                     if (j.invGroup == instantTransferTarget) {
                         ItemStack toTransfer = getStackInSlot(player);
@@ -127,7 +129,7 @@ public abstract class guiModuleInventorySlotBase extends guiModuleBase {
     }
 
 
-    public guiModuleInventorySlotBase(int id, GuiHandler guiHandler, int inventoryGroup, int instantTransferTargetGroup, int x, int y) {
+    public guiModuleInventorySlotBase(int id, IGuiHandler guiHandler, int inventoryGroup, int instantTransferTargetGroup, int x, int y) {
         super(id,guiHandler,x, y);
         this. invGroup = inventoryGroup;
         this. instantTransferTarget = instantTransferTargetGroup;
@@ -141,7 +143,7 @@ public abstract class guiModuleInventorySlotBase extends guiModuleBase {
             float partialTick
     ) {
         guiGraphics.blit(slot_background,onGuiX,onGuiY,0f,0f,w,h,slot_bg_w,slot_bg_h);
-        modularScreen.renderItemStack(guiGraphics,onGuiX,onGuiY, client_getItemStackToRender());
+        ModularScreen.renderItemStack(guiGraphics,onGuiX,onGuiY, client_getItemStackToRender());
 
         if(client_isMouseOver(mouseX,mouseY,onGuiX,onGuiY,w,h)){
             guiGraphics.fill(onGuiX,onGuiY,w+onGuiX,h+onGuiY, 0x30FFFFFF); // Semi-transparent white

@@ -1,19 +1,20 @@
-package ARLib.gui;
+package ARLib.gui.modules;
 
+import ARLib.gui.IGuiHandler;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
 
-public class guiModuleBase {
+public class GuiModuleBase {
 
-    int x;
-    int y;
-    int id;
+    protected int x;
+    protected int y;
+    protected int id;
 
-    int onGuiX;
-    int onGuiY;
+    protected int onGuiX;
+    protected int onGuiY;
 
-    GuiHandler guiHandler;
-    public guiModuleBase(int id, GuiHandler guiHandler, int x, int y) {
+    protected IGuiHandler guiHandler;
+    public GuiModuleBase(int id, IGuiHandler guiHandler, int x, int y) {
         this.x = x;
         this.y = y;
         this.id = id;
@@ -63,7 +64,7 @@ public class guiModuleBase {
 
     }
 
-    String getMyTagKey(){
+    protected String getMyTagKey(){
         return "moduleTag"+this.id;
     }
 }

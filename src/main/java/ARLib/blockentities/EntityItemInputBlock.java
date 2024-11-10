@@ -1,10 +1,10 @@
 package ARLib.blockentities;
 
 
-import ARLib.gui.GuiHandler;
+import ARLib.gui.IGuiHandler;
 import ARLib.gui.GuiHandlerBlockEntity;
-import ARLib.gui.guiModuleItemHandlerSlot;
-import ARLib.gui.guiModulePlayerInventorySlot;
+import ARLib.gui.modules.guiModuleItemHandlerSlot;
+import ARLib.gui.modules.guiModulePlayerInventorySlot;
 import ARLib.network.INetworkTagReceiver;
 import ARLib.utils.BlockEntityItemStackHandler;
 import net.minecraft.core.BlockPos;
@@ -24,7 +24,7 @@ import static ARLib.ARLibRegistry.ENTITY_ITEM_INPUT_BLOCK;
 public class EntityItemInputBlock extends BlockEntity implements IItemHandler, INetworkTagReceiver {
 
     BlockEntityItemStackHandler inventory;
-    GuiHandler guiHandler;
+    IGuiHandler guiHandler;
 
     public EntityItemInputBlock(BlockPos pos, BlockState blockState) {
         super(ENTITY_ITEM_INPUT_BLOCK.get(), pos, blockState);
@@ -116,6 +116,6 @@ public class EntityItemInputBlock extends BlockEntity implements IItemHandler, I
 
     public static <x extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, x t) {
         if(!level.isClientSide)
-            GuiHandler.serverTick(((EntityItemInputBlock)t).guiHandler);
+            IGuiHandler.serverTick(((EntityItemInputBlock)t).guiHandler);
     }
 }

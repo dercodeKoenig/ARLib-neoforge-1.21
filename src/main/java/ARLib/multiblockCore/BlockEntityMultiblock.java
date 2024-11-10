@@ -1,5 +1,7 @@
 package ARLib.multiblockCore;
 
+import ARLib.blockentities.EntityEnergyInputBlock;
+import ARLib.gui.IGuiHandler;
 import ARLib.multiblocks.lathe.EntityLathe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,7 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class BlockEntityMultiblock extends BlockEntity implements BlockEntityTicker<EntityLathe> {
+public class BlockEntityMultiblock extends BlockEntity{
 
     // scan by block
     protected static HashMap<Character, List<Block>> charMapping = new HashMap<>();
@@ -145,8 +147,7 @@ public class BlockEntityMultiblock extends BlockEntity implements BlockEntityTic
 
 
 
-    @Override
-    public void tick(Level level, BlockPos blockPos, BlockState blockState, EntityLathe entityLathe) {
+    public static <x extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, x t) {
 
     }
 }

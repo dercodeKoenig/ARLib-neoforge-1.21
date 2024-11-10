@@ -1,8 +1,8 @@
 package ARLib.blockentities;
 
-import ARLib.gui.GuiHandler;
+import ARLib.gui.IGuiHandler;
 import ARLib.gui.GuiHandlerBlockEntity;
-import ARLib.gui.guiModuleEnergy;
+import ARLib.gui.modules.guiModuleEnergy;
 import ARLib.multiblockCore.UniversalBattery;
 import ARLib.network.INetworkTagReceiver;
 import net.minecraft.core.BlockPos;
@@ -18,7 +18,7 @@ import static ARLib.ARLibRegistry.ENTITY_ENERGY_INPUT_BLOCK;
 public class EntityEnergyInputBlock extends BlockEntity implements IEnergyStorage, INetworkTagReceiver {
 
     protected UniversalBattery energyStorage;
-    GuiHandler guiHandler;
+    IGuiHandler guiHandler;
 
     public EntityEnergyInputBlock(BlockPos p_155229_, BlockState p_155230_) {
         super(ENTITY_ENERGY_INPUT_BLOCK.get(), p_155229_, p_155230_);
@@ -88,7 +88,7 @@ public class EntityEnergyInputBlock extends BlockEntity implements IEnergyStorag
     public static <x extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, x t) {
 
         if(!level.isClientSide)
-            GuiHandler.serverTick(((EntityEnergyInputBlock)t).guiHandler);
+            IGuiHandler.serverTick(((EntityEnergyInputBlock)t).guiHandler);
 
         ((EntityEnergyInputBlock)t).extractEnergy(100,false);
     }

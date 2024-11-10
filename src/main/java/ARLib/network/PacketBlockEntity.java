@@ -11,6 +11,8 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -75,13 +77,18 @@ public class PacketBlockEntity implements CustomPacketPayload {
             PacketBlockEntity::new
     );
 
-    public static void readClient(final PacketBlockEntity data, final IPayloadContext context) {
+    @OnlyIn(Dist.CLIENT)     // <- this is bc the server shits itself on this: Minecraft.getInstance().level;
+    public static void readClient_onlyonclient(final PacketBlockEntity data, final IPayloadContext context) {
         // use the current Dimension, the client does not need to find the dimension by String
         Level world = Minecraft.getInstance().level;
         BlockEntity tile = world.getBlockEntity(new BlockPos(data.x(),data.y(),data.z()));
         if (tile instanceof INetworkTagReceiver){
             ((INetworkTagReceiver) tile).readClient(data.getTag());
         }
+    }
+    //  this can not be dist.client because it is used in register method
+    public static void readClient(final PacketBlockEntity data, final IPayloadContext context) {
+        readClient_onlyonclient(data,context);
     }
     public static void readServer(final PacketBlockEntity data, final IPayloadContext context) {
         Level world = DimensionUtils.getDimensionLevelServer(data.dim);
