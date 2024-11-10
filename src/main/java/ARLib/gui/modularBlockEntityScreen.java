@@ -1,9 +1,9 @@
 package ARLib.gui;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -17,8 +17,8 @@ public class modularBlockEntityScreen extends Screen {
     int guiH = 166;
 
     List<guiModuleBase> modules;
-    GuiCapableBlockEntity c;
-    public modularBlockEntityScreen(GuiCapableBlockEntity c, List<guiModuleBase> modules, int w, int h) {
+    GuiHandlerBlockEntity c;
+    public modularBlockEntityScreen(GuiHandlerBlockEntity c, List<guiModuleBase> modules, int w, int h) {
         super(Component.literal("Screen"));
         this.c = c;
         this.modules = modules;
@@ -39,6 +39,20 @@ public class modularBlockEntityScreen extends Screen {
         super.onClose();
     }
 
+    // In some Screen subclass
+    @Override
+    public boolean mouseClicked(double x, double y, int button) {
+
+        System.out.println(InputConstants.Type.MOUSE.getOrCreate(button));
+        boolean isShiftDown = InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(),
+                InputConstants.KEY_LSHIFT) ||
+                InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(),
+                        InputConstants.KEY_RSHIFT);
+        System.out.println(isShiftDown);
+
+        return super.mouseClicked(x, y, button);
+    }
+
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
@@ -53,6 +67,8 @@ public class modularBlockEntityScreen extends Screen {
         for (guiModuleBase m : modules) {
             m.render(guiGraphics, mouseX, mouseY, partialTick, left, top);
         }
+
+        guiGraphics.renderItem(Minecraft.getInstance().player.inventoryMenu.getCarried(),mouseX,mouseY);
     }
 
 

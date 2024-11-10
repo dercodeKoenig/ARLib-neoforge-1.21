@@ -1,10 +1,11 @@
 package ARLib.blocks;
 
-import ARLib.gui.GuiCapableBlockEntity;
 import ARLib.blockentities.EntityItemInputBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -34,14 +35,10 @@ public class BlockItemInputBlock extends Block  implements EntityBlock {
     @Override
     public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hitResult) {
         BlockEntity e = world.getBlockEntity(pos);
-        if (e instanceof GuiCapableBlockEntity) {
-
+        if (e instanceof EntityItemInputBlock ee) {
             if (world.isClientSide) {
-                ((GuiCapableBlockEntity)e).openGui();
+                ee.openGui();
             }
-                //player.inventoryMenu.setCarried(new ItemStack(Items.NAME_TAG));
-
-
         }
 
         return InteractionResult.SUCCESS;

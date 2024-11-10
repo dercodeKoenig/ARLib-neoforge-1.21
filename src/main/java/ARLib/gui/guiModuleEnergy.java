@@ -40,31 +40,36 @@ public class guiModuleEnergy extends guiModuleBase {
 
     @Override
     public void writeDataToTag(CompoundTag tag){
-        tag.putInt("moduleId",this.id);
-        tag.putInt("energy",energy);
+        CompoundTag myTag = new CompoundTag();
+        myTag.putInt("moduleId",this.id);
+        myTag.putInt("energy",energyStorage.getEnergyStored());
+        tag.put(getMyTagKey(),myTag);
     }
+
+    int last_update = 0;
     @Override
     public void serverTick(){
+        last_update+=1;
         energy = energyStorage.getEnergyStored();
-        if (energy != last_energy){
+        // update every 5 ticks
+        if (energy != last_energy && last_update > 5){
+            last_update = 0;
+            last_energy = energy;
             CompoundTag tag = new CompoundTag();
             writeDataToTag(tag);
-            this.guiTile. sendToTrackingClients(tag);
+            this.guiHandler. sendToTrackingClients(tag);
         }
-        last_energy = energy;
     }
     @Override
     public void readClient(CompoundTag tag){
-        if(tag.contains("moduleId")){
-            int moduleId=tag.getInt("moduleId");
-            if(moduleId == this.id){
-                this.energy = tag.getInt("energy");
-            }
+        if(tag.contains(getMyTagKey())){
+            CompoundTag myTag = tag.getCompound(getMyTagKey());
+            this.energy = myTag.getInt("energy");
         }
     }
 
-    public guiModuleEnergy(int id, IEnergyStorage energyStorage, GuiCapableBlockEntity guiTile, int x, int y){
-        super(id,guiTile,x,y);
+    public guiModuleEnergy(int id, IEnergyStorage energyStorage, GuiHandlerBlockEntity guiHandler, int x, int y){
+        super(id,guiHandler,x,y);
         this.energyStorage = energyStorage;
         serverTick();
         maxEnergy = energyStorage.getMaxEnergyStored();

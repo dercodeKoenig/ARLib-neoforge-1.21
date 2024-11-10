@@ -79,15 +79,15 @@ public class PacketBlockEntity implements CustomPacketPayload {
         // use the current Dimension, the client does not need to find the dimension by String
         Level world = Minecraft.getInstance().level;
         BlockEntity tile = world.getBlockEntity(new BlockPos(data.x(),data.y(),data.z()));
-        if (tile instanceof INetworkByteReceiver){
-            ((INetworkByteReceiver) tile).readClient(data.getTag());
+        if (tile instanceof INetworkTagReceiver){
+            ((INetworkTagReceiver) tile).readClient(data.getTag());
         }
     }
     public static void readServer(final PacketBlockEntity data, final IPayloadContext context) {
         Level world = DimensionUtils.getDimensionLevelServer(data.dim);
         BlockEntity tile = world.getBlockEntity(new BlockPos(data.x(),data.y(),data.z()));
-        if (tile instanceof INetworkByteReceiver){
-            ((INetworkByteReceiver) tile).readServer(data.getTag());
+        if (tile instanceof INetworkTagReceiver){
+            ((INetworkTagReceiver) tile).readServer(data.getTag());
         }
     }
 

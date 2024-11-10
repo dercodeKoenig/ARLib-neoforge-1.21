@@ -8,12 +8,12 @@ public class guiModuleBase {
     int x;
     int y;
     int id;
-    GuiCapableBlockEntity guiTile;
-    public guiModuleBase(int id, GuiCapableBlockEntity guiTile, int x, int y){
+    GuiHandlerBlockEntity guiHandler;
+    public guiModuleBase(int id, GuiHandlerBlockEntity guiHandler, int x, int y){
         this.x = x;
         this.y = y;
         this.id=id;
-        this.guiTile = guiTile;
+        this.guiHandler = guiHandler;
     }
 
     public void readServer(CompoundTag tag) {
@@ -41,5 +41,9 @@ public class guiModuleBase {
             int top
     ) {
 
+    }
+
+    String getMyTagKey(){
+        return "moduleTag"+this.id;
     }
 }

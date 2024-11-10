@@ -2,9 +2,6 @@ package ARLib.blocks;
 
 import ARLib.blockentities.EntityEnergyInputBlock;
 import ARLib.blockentities.EntityItemInputBlock;
-import ARLib.gui.GuiCapableBlockEntity;
-import ARLib.gui.modularBlockEntityScreen;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -38,12 +35,10 @@ public class BlockEnergyInputBlock extends Block  implements EntityBlock {
     @Override
     public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hitResult) {
         BlockEntity e = world.getBlockEntity(pos);
-        if (e instanceof GuiCapableBlockEntity) {
-
+        if (e instanceof EntityEnergyInputBlock ee) {
             if (world.isClientSide) {
-                ((GuiCapableBlockEntity)e).openGui();
+                ee.openGui();
             }
-
         }
 
         return InteractionResult.SUCCESS;

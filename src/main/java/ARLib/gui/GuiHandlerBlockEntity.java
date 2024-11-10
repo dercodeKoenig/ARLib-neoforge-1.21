@@ -1,30 +1,27 @@
 package ARLib.gui;
 
-import ARLib.network.INetworkByteReceiver;
 import ARLib.network.PacketBlockEntity;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.util.*;
 
-public abstract class GuiCapableBlockEntity extends BlockEntity implements INetworkByteReceiver {
+public class GuiHandlerBlockEntity {
 
     Map<UUID, Integer> playersTrackingGui;
     List<guiModuleBase> modules;
     int last_ping = 0;
+    BlockEntity parentBE;
 
-    public GuiCapableBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
-        super(type, pos, blockState);
+    public GuiHandlerBlockEntity(BlockEntity parentBlockEntity) {
         this.playersTrackingGui = new HashMap<>();
         modules = new ArrayList<>();
+        this.parentBE = parentBlockEntity;
     }
 
     public void registerModule(guiModuleBase guiModule) {
@@ -32,23 +29,21 @@ public abstract class GuiCapableBlockEntity extends BlockEntity implements INetw
     }
 
 
-    public static void tick(Level level, BlockPos pos, BlockState state, GuiCapableBlockEntity tile) {
-        if (!level.isClientSide) {
-            if (!tile.playersTrackingGui.isEmpty()) {
+    public static void serverTick(GuiHandlerBlockEntity guiHandler) {
+            if (!guiHandler.playersTrackingGui.isEmpty()) {
 
-                for (guiModuleBase m : tile.modules) {
+                for (guiModuleBase m : guiHandler.modules) {
                     m.serverTick();
                 }
 
                 // if a player has not sent a gui ping for 2 seconds, he no longer has the gui open
-                for (UUID uid : tile.playersTrackingGui.keySet()) {
-                    tile.playersTrackingGui.put(uid, tile.playersTrackingGui.get(uid) + 1);
-                    if (tile.playersTrackingGui.get(uid) > 40) {
-                        tile.playersTrackingGui.remove(uid);
+                for (UUID uid : guiHandler.playersTrackingGui.keySet()) {
+                    guiHandler.playersTrackingGui.put(uid, guiHandler.playersTrackingGui.get(uid) + 1);
+                    if (guiHandler.playersTrackingGui.get(uid) > 40) {
+                        guiHandler.playersTrackingGui.remove(uid);
                     }
                 }
             }
-        }
     }
 
     public void openGui() {
@@ -62,7 +57,7 @@ public abstract class GuiCapableBlockEntity extends BlockEntity implements INetw
     public void onGuiClose() {
         CompoundTag tag = new CompoundTag();
         tag.putUUID("closeGui",Minecraft.getInstance().player.getUUID());
-        PacketDistributor.sendToServer(PacketBlockEntity.getBlockEntityPacket(this, tag));
+        PacketDistributor.sendToServer(PacketBlockEntity.getBlockEntityPacket(parentBE, tag));
     }
 
 
@@ -72,7 +67,7 @@ public abstract class GuiCapableBlockEntity extends BlockEntity implements INetw
             last_ping = 0;
             CompoundTag tag = new CompoundTag();
             tag.putUUID("guiPing", Minecraft.getInstance().player.getUUID());
-            PacketDistributor.sendToServer(PacketBlockEntity.getBlockEntityPacket(this, tag));
+            PacketDistributor.sendToServer(PacketBlockEntity.getBlockEntityPacket(parentBE, tag));
         }
 
     }
@@ -80,11 +75,10 @@ public abstract class GuiCapableBlockEntity extends BlockEntity implements INetw
     public void sendToTrackingClients(CompoundTag tag) {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         for (UUID uid : playersTrackingGui.keySet()) {
-            PacketDistributor.sendToPlayer(server.getPlayerList().getPlayer(uid), PacketBlockEntity.getBlockEntityPacket(this, tag));
+            PacketDistributor.sendToPlayer(server.getPlayerList().getPlayer(uid), PacketBlockEntity.getBlockEntityPacket(parentBE, tag));
         }
     }
 
-    @Override
     public void readServer(CompoundTag tag) {
         if (tag.contains("guiPing")) {
             UUID uid = tag.getUUID("guiPing");
@@ -95,7 +89,7 @@ public abstract class GuiCapableBlockEntity extends BlockEntity implements INetw
                     guiModule.writeDataToTag(guiData);
                 }
                 MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-                PacketDistributor.sendToPlayer(server.getPlayerList().getPlayer(uid),PacketBlockEntity.getBlockEntityPacket(this,guiData));
+                PacketDistributor.sendToPlayer(server.getPlayerList().getPlayer(uid),PacketBlockEntity.getBlockEntityPacket(parentBE,guiData));
             }
             playersTrackingGui.put(uid, 0);
         }
@@ -111,7 +105,6 @@ public abstract class GuiCapableBlockEntity extends BlockEntity implements INetw
         }
     }
 
-    @Override
     public void readClient(CompoundTag tag) {
         for (guiModuleBase m : modules) {
             m.readClient(tag);
