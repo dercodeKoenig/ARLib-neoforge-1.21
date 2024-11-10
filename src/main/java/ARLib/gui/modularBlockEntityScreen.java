@@ -43,13 +43,14 @@ public class modularBlockEntityScreen extends Screen {
     @Override
     public boolean mouseClicked(double x, double y, int button) {
 
+        for (guiModuleBase m : modules){
+            m.onMouseCLick(x,y,button);
+        }
         System.out.println(InputConstants.Type.MOUSE.getOrCreate(button));
-        boolean isShiftDown = InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(),
-                InputConstants.KEY_LSHIFT) ||
-                InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(),
-                        InputConstants.KEY_RSHIFT);
+        boolean isShiftDown =
+                InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), InputConstants.KEY_LSHIFT) ||
+                InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(),InputConstants.KEY_RSHIFT);
         System.out.println(isShiftDown);
-
         return super.mouseClicked(x, y, button);
     }
 

@@ -16,6 +16,10 @@ public class guiModuleBase {
         this.guiHandler = guiHandler;
     }
 
+    public void onMouseCLick(double x, double y, int button) {
+
+    }
+
     public void readServer(CompoundTag tag) {
 
     }

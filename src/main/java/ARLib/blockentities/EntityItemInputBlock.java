@@ -3,6 +3,7 @@ package ARLib.blockentities;
 
 import ARLib.gui.GuiHandlerBlockEntity;
 import ARLib.gui.guiModuleItemSlot;
+import ARLib.gui.guiModulePlayerInventorySlot;
 import ARLib.network.INetworkTagReceiver;
 import ARLib.utils.ItemStackHandler;
 import net.minecraft.core.BlockPos;
@@ -14,6 +15,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
 
+import java.util.List;
+
 import static ARLib.ARLibRegistry.ENTITY_ITEM_INPUT_BLOCK;
 
 // TODO this IITEMHANDLER should go into its own class
@@ -24,11 +27,25 @@ public class EntityItemInputBlock extends BlockEntity implements IItemHandler, I
 
     public EntityItemInputBlock(BlockPos pos, BlockState blockState) {
         super(ENTITY_ITEM_INPUT_BLOCK.get(), pos, blockState);
+
+
         guiHandler = new GuiHandlerBlockEntity(this);
+
         this.guiHandler.registerModule(new guiModuleItemSlot(0,this, 0,this.guiHandler,20,20) );
         this.guiHandler.registerModule(new guiModuleItemSlot(1,this, 1,this.guiHandler,20,50) );
         this.guiHandler.registerModule(new guiModuleItemSlot(2,this, 2,this.guiHandler,50,20) );
         this.guiHandler.registerModule(new guiModuleItemSlot(3,this, 3,this.guiHandler,50,50) );
+
+        List<guiModulePlayerInventorySlot> playerHotBar =  guiModulePlayerInventorySlot.makePlayerHotbarModules(7,140,100,this.guiHandler);
+        for (guiModulePlayerInventorySlot i:playerHotBar){
+            this.guiHandler.registerModule(i);
+        }
+
+        List<guiModulePlayerInventorySlot> playerInv =  guiModulePlayerInventorySlot.makePlayerInventoryModules(7,80,200,this.guiHandler);
+        for (guiModulePlayerInventorySlot i:playerInv){
+            this.guiHandler.registerModule(i);
+        }
+
 
         inventory = new ItemStackHandler(4,this);
     }

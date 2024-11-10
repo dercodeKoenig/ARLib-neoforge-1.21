@@ -41,8 +41,6 @@ public class guiModuleItemSlot extends guiModuleBase{
     public void serverTick(){
         stack = itemHandler.getStackInSlot(targetSlot);
         if (!ItemStack.isSameItemSameComponents(stack,lastStack) || stack.getCount() != lastStack.getCount()){
-            System.out.println("Stack changed: " + stack.getCount() + "x " + stack.getItem());
-
             CompoundTag tag = new CompoundTag();
             writeDataToTag(tag);
             this.guiHandler. sendToTrackingClients(tag);
@@ -82,8 +80,8 @@ public class guiModuleItemSlot extends guiModuleBase{
         guiGraphics.blit(slot_background,x+left,y+top,0f,0f,w,h,slot_bg_w,slot_bg_h);
 
         if(!stack.isEmpty()){
-            guiGraphics.renderItem(stack,x+left,y+top);
-            guiGraphics.renderItemDecorations(Minecraft.getInstance().font, stack,x+left,y+top);
+            guiGraphics.renderItem(stack,x+left+2,y+top+2);
+            guiGraphics.renderItemDecorations(Minecraft.getInstance().font, stack,x+left+2,y+top+2);
         }
     }
 }
