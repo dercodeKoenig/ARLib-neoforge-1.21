@@ -7,7 +7,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
@@ -61,7 +60,7 @@ public class GuiHandlerBlockEntity {
     public void onGuiClose() {
         CompoundTag tag = new CompoundTag();
         tag.putUUID("closeGui",Minecraft.getInstance().player.getUUID());
-        PacketDistributor.sendToServer(PacketBlockEntity.getBlockEntityPacket(parentBE, tag));
+        sendToServer(tag);
     }
 
     public void removePlayerFromGui(UUID uid){
@@ -108,7 +107,7 @@ public class GuiHandlerBlockEntity {
             if (!playersTrackingGui.containsKey(uid)){
                 CompoundTag guiData = new CompoundTag();
                 for (guiModuleBase guiModule:modules){
-                    guiModule.writeDataToTag(guiData);
+                    guiModule.server_writeDataToSyncToClient(guiData);
                 }
                 MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
                 PacketDistributor.sendToPlayer(server.getPlayerList().getPlayer(uid),PacketBlockEntity.getBlockEntityPacket(parentBE,guiData));
@@ -123,13 +122,13 @@ public class GuiHandlerBlockEntity {
             }
         }
         for (guiModuleBase m : modules) {
-            m.readServer(tag);
+            m.server_readNetworkData(tag);
         }
     }
 
     public void readClient(CompoundTag tag) {
         for (guiModuleBase m : modules) {
-            m.readClient(tag);
+            m.client_handleDataSyncedToClient(tag);
         }
     }
 }

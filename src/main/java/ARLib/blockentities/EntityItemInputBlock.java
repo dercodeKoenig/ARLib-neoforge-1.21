@@ -2,10 +2,10 @@ package ARLib.blockentities;
 
 
 import ARLib.gui.GuiHandlerBlockEntity;
-import ARLib.gui.guiModuleItemSlot;
+import ARLib.gui.guiModuleItemHandlerSlot;
 import ARLib.gui.guiModulePlayerInventorySlot;
 import ARLib.network.INetworkTagReceiver;
-import ARLib.utils.ItemStackHandler;
+import ARLib.utils.BlockEntityItemStackHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -22,7 +22,7 @@ import static ARLib.ARLibRegistry.ENTITY_ITEM_INPUT_BLOCK;
 // TODO this IITEMHANDLER should go into its own class
 public class EntityItemInputBlock extends BlockEntity implements IItemHandler, INetworkTagReceiver {
 
-    ItemStackHandler inventory;
+    BlockEntityItemStackHandler inventory;
     GuiHandlerBlockEntity guiHandler;
 
     public EntityItemInputBlock(BlockPos pos, BlockState blockState) {
@@ -31,23 +31,25 @@ public class EntityItemInputBlock extends BlockEntity implements IItemHandler, I
 
         guiHandler = new GuiHandlerBlockEntity(this);
 
-        this.guiHandler.registerModule(new guiModuleItemSlot(0,this, 0,this.guiHandler,20,20) );
-        this.guiHandler.registerModule(new guiModuleItemSlot(1,this, 1,this.guiHandler,20,50) );
-        this.guiHandler.registerModule(new guiModuleItemSlot(2,this, 2,this.guiHandler,50,20) );
-        this.guiHandler.registerModule(new guiModuleItemSlot(3,this, 3,this.guiHandler,50,50) );
+        int containergroup = 0;
+        int playerinventorygroup = 1;
+        this.guiHandler.registerModule(new guiModuleItemHandlerSlot(0,this, 0,containergroup,playerinventorygroup,this.guiHandler,20,20) );
+        this.guiHandler.registerModule(new guiModuleItemHandlerSlot(1,this, 1,containergroup,playerinventorygroup,this.guiHandler,20,50) );
+        this.guiHandler.registerModule(new guiModuleItemHandlerSlot(2,this, 2,containergroup,playerinventorygroup,this.guiHandler,50,20) );
+        this.guiHandler.registerModule(new guiModuleItemHandlerSlot(3,this, 3,containergroup,playerinventorygroup,this.guiHandler,50,50) );
 
-        List<guiModulePlayerInventorySlot> playerHotBar =  guiModulePlayerInventorySlot.makePlayerHotbarModules(7,140,100,this.guiHandler);
+        List<guiModulePlayerInventorySlot> playerHotBar =  guiModulePlayerInventorySlot.makePlayerHotbarModules(7,140,100,playerinventorygroup,containergroup,this.guiHandler);
         for (guiModulePlayerInventorySlot i:playerHotBar){
             this.guiHandler.registerModule(i);
         }
 
-        List<guiModulePlayerInventorySlot> playerInv =  guiModulePlayerInventorySlot.makePlayerInventoryModules(7,80,200,this.guiHandler);
+        List<guiModulePlayerInventorySlot> playerInv =  guiModulePlayerInventorySlot.makePlayerInventoryModules(7,80,200,playerinventorygroup,containergroup,this.guiHandler);
         for (guiModulePlayerInventorySlot i:playerInv){
             this.guiHandler.registerModule(i);
         }
 
 
-        inventory = new ItemStackHandler(4,this);
+        inventory = new BlockEntityItemStackHandler(4,this);
     }
 
 
@@ -101,9 +103,9 @@ public class EntityItemInputBlock extends BlockEntity implements IItemHandler, I
         return inventory.extractItem(slot,amount,simulate);
     }
 
-    @Override
+        @Override
     public int getSlotLimit(int slot) {
-        return inventory.getSlotLimit(slot);
+        return 99;
     }
 
     @Override

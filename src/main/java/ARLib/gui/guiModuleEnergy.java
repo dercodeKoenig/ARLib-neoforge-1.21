@@ -39,7 +39,7 @@ public class guiModuleEnergy extends guiModuleBase {
     int last_energy;
 
     @Override
-    public void writeDataToTag(CompoundTag tag){
+    public void server_writeDataToSyncToClient(CompoundTag tag){
         CompoundTag myTag = new CompoundTag();
         myTag.putInt("moduleId",this.id);
         myTag.putInt("energy",energyStorage.getEnergyStored());
@@ -56,12 +56,12 @@ public class guiModuleEnergy extends guiModuleBase {
             last_update = 0;
             last_energy = energy;
             CompoundTag tag = new CompoundTag();
-            writeDataToTag(tag);
+            server_writeDataToSyncToClient(tag);
             this.guiHandler. sendToTrackingClients(tag);
         }
     }
     @Override
-    public void readClient(CompoundTag tag){
+    public void client_handleDataSyncedToClient(CompoundTag tag){
         if(tag.contains(getMyTagKey())){
             CompoundTag myTag = tag.getCompound(getMyTagKey());
             this.energy = myTag.getInt("energy");

@@ -1,6 +1,5 @@
 package ARLib.gui;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -48,7 +47,7 @@ public class modularBlockEntityScreen extends Screen {
     @Override
     public boolean mouseClicked(double x, double y, int button) {
         for (guiModuleBase m : modules) {
-            m.onMouseCLick(x, y, button);
+            m.client_onMouseCLick(x, y, button);
         }
         return super.mouseClicked(x, y, button);
     }
@@ -57,7 +56,7 @@ public class modularBlockEntityScreen extends Screen {
         leftOffset = (this.width - guiW) / 2;
         topOffset = (this.height - guiH) / 2;
         for (guiModuleBase m:modules){
-            m.setGuiOffset(leftOffset,topOffset);
+            m.client_setGuiOffset(leftOffset,topOffset);
         }
     }
     @Override
@@ -78,8 +77,8 @@ public class modularBlockEntityScreen extends Screen {
         for (guiModuleBase m : modules) {
             m.render(guiGraphics, mouseX, mouseY, partialTick);
         }
-
-        guiGraphics.renderItem(Minecraft.getInstance().player.inventoryMenu.getCarried().copy(),mouseX,mouseY);
+guiGraphics.pose().translate(0,0,100);
+       modularBlockEntityScreen.renderItemStack (guiGraphics,mouseX-9,mouseY-9,Minecraft.getInstance().player.inventoryMenu.getCarried());
     }
 
     public static void renderItemStack(GuiGraphics g, int x, int y, ItemStack stack){

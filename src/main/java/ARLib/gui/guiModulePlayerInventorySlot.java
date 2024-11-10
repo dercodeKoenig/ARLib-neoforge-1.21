@@ -1,76 +1,89 @@
 package ARLib.gui;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
-public class guiModulePlayerInventorySlot extends guiModuleBase{
+public class guiModulePlayerInventorySlot extends guiModuleInventorySlotBase{
 
-    ResourceLocation slot_background = ResourceLocation.fromNamespaceAndPath("arlib","textures/gui/gui_item_slot_background.png");
-    int slot_bg_w = 18;
-    int slot_bg_h = 18;
-
-    int w = 18;
-    int h = 18;
     int targetSlot;
 
 
     @Override
-    public void writeDataToTag(CompoundTag tag){
-
+    public ItemStack client_getItemStackToRender() {
+        return  Minecraft.getInstance().player.getInventory().getItem(targetSlot);
     }
+
+
     @Override
-    public void serverTick(){
-
+    public ItemStack getStackInSlot(Player player) {
+        return player.getInventory().getItem(targetSlot);
     }
+
     @Override
-    public void readClient(CompoundTag tag) {
-
+    public ItemStack insertItemIntoSlot(Player player, ItemStack stack, int amount) {
+        if(!player.getInventory().getItem(targetSlot).isEmpty() && !ItemStack.isSameItemSameComponents(player.getInventory().getItem(targetSlot),stack)){
+            //stack does not match item in slot, return
+            return stack;
+        }
+        int max_size = getSlotLimit(player,stack);
+        int current_count = player.getInventory().getItem(targetSlot).getCount();
+        int to_insert = Math.min(max_size - current_count, amount);
+        if (current_count == 0){
+            player.getInventory().setItem(targetSlot,stack.copyWithCount(to_insert));
+        }else{
+            player.getInventory().getItem(targetSlot).grow(to_insert);
+        }
+        return stack.copyWithCount(stack.getCount()-to_insert);
     }
 
-    public guiModulePlayerInventorySlot(int id, int targetSlot, GuiHandlerBlockEntity guiHandler, int x, int y) {
-        super(id,guiHandler,x, y);
+    @Override
+    public ItemStack extractItemFromSlot(Player player, int amount) {
+        int current_count = player.getInventory().getItem(targetSlot).getCount();
+        int to_extract = Math.min(current_count,amount);
+        ItemStack ret =player.getInventory().getItem(targetSlot).copyWithCount(to_extract);
+        player.getInventory().getItem(targetSlot).shrink(to_extract);
+        return ret;
+    }
+
+    @Override
+    public int getSlotLimit(Player player,ItemStack stack) {
+        return player.getInventory().getMaxStackSize(stack);
+    }
+
+    public guiModulePlayerInventorySlot(int id, int targetSlot, int inventoryGroupId, int instantTransferTargetGroup,  GuiHandlerBlockEntity guiHandler, int x, int y) {
+        super(id,guiHandler,inventoryGroupId,instantTransferTargetGroup,x, y);
         this.targetSlot = targetSlot;
     }
 
-    @Override
-    public  void render(
-            GuiGraphics guiGraphics,
-            int mouseX,
-            int mouseY,
-            float partialTick
-    ) {
-        guiGraphics.blit(slot_background,onGuiX,onGuiY,0f,0f,w,h,slot_bg_w,slot_bg_h);
-        if(isMouseOver(mouseX,mouseY,onGuiX,onGuiY,w,h)){
-            guiGraphics.fill(onGuiX,onGuiY,w+onGuiX,h+onGuiY, 0x30FFFFFF); // Semi-transparent white
-        }
 
-        ItemStack stack = Minecraft.getInstance().player.getInventory().getItem(targetSlot);
-        modularBlockEntityScreen.renderItemStack(guiGraphics,onGuiX,onGuiY,stack);
 
-    }
-
-    public static List<guiModulePlayerInventorySlot> makePlayerHotbarModules(int x, int y, int startingId, GuiHandlerBlockEntity guiHandler){
+    public static List<guiModulePlayerInventorySlot> makePlayerHotbarModules(int x, int y, int startingId, int inventoryGroup, int instantTransferTargetGroup, GuiHandlerBlockEntity guiHandler){
         List<guiModulePlayerInventorySlot> modules = new ArrayList<>();
 
         for (int i = 0; i < 9; i++) {
-            guiModulePlayerInventorySlot s = new guiModulePlayerInventorySlot(startingId+i,0+i,guiHandler,x+i*18,y);
+            guiModulePlayerInventorySlot s = new guiModulePlayerInventorySlot(startingId+i,0+i,inventoryGroup,instantTransferTargetGroup,guiHandler,x+i*18,y);
             modules.add(s);
         }
 
         return modules;
     }
 
-    public static List<guiModulePlayerInventorySlot> makePlayerInventoryModules(int x, int y, int startingId, GuiHandlerBlockEntity guiHandler){
+    public static List<guiModulePlayerInventorySlot> makePlayerInventoryModules(int x, int y, int startingId, int inventoryGroup, int instantTransferTargetGroup,  GuiHandlerBlockEntity guiHandler){
         List<guiModulePlayerInventorySlot> modules = new ArrayList<>();
 
         for (int j = 0; j < 3; j++) {
@@ -78,6 +91,8 @@ public class guiModulePlayerInventorySlot extends guiModuleBase{
                 guiModulePlayerInventorySlot s = new guiModulePlayerInventorySlot(
                         startingId+i+9*j,
                         9+i+9*j,
+                        inventoryGroup,
+                        instantTransferTargetGroup,
                         guiHandler,
                         x+i*18,
                         y+j*18
