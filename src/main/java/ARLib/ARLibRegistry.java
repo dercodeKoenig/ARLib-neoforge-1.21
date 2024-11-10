@@ -69,6 +69,7 @@ public class ARLibRegistry {
     public static void addCreative(BuildCreativeModeTabContentsEvent e){
         if (e.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS){
             e.accept(BLOCK_ENERGY_INPUT_BLOCK.get());
+            e.accept(BLOCK_ITEM_INPUT_BLOCK.get());
         }
     }
 }
