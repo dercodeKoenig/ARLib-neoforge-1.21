@@ -4,6 +4,9 @@ import ARLib.network.PacketBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -36,11 +39,12 @@ public class GuiHandlerBlockEntity {
                     m.serverTick();
                 }
 
-                // if a player has not sent a gui ping for 2 seconds, he no longer has the gui open
+                // if a player has not sent a gui ping for 10 seconds, he no longer has the gui open
+                // this should usually not happen because the client will unregister itself on gui close but just to be safe....
                 for (UUID uid : guiHandler.playersTrackingGui.keySet()) {
                     guiHandler.playersTrackingGui.put(uid, guiHandler.playersTrackingGui.get(uid) + 1);
-                    if (guiHandler.playersTrackingGui.get(uid) > 40) {
-                        guiHandler.playersTrackingGui.remove(uid);
+                    if (guiHandler.playersTrackingGui.get(uid) > 200) {
+                        guiHandler.removePlayerFromGui(uid);
                     }
                 }
             }
@@ -50,7 +54,7 @@ public class GuiHandlerBlockEntity {
         openGui(176, 166);
     }
     public void openGui(int w, int h) {
-        last_ping = 99999; // ping asap
+        sendPing();
         Minecraft.getInstance().setScreen(new modularBlockEntityScreen(this,modules,w,h));
     }
 
@@ -60,16 +64,34 @@ public class GuiHandlerBlockEntity {
         PacketDistributor.sendToServer(PacketBlockEntity.getBlockEntityPacket(parentBE, tag));
     }
 
+    public void removePlayerFromGui(UUID uid){
+        playersTrackingGui.remove(uid);
+        Player p = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(uid);
+        if (p!=null) {
+            ItemStack carried = p.inventoryMenu.getCarried();
+            if (!carried.isEmpty()) {
+                ItemEntity itemEntity = new ItemEntity(p.level(),p.position().x,p.position().y,p.position().z,carried);
+                p.inventoryMenu.setCarried(ItemStack.EMPTY);
+                p.level().addFreshEntity(itemEntity);
+            }
+        }
+    }
+
+    void sendPing(){
+        CompoundTag tag = new CompoundTag();
+        tag.putUUID("guiPing", Minecraft.getInstance().player.getUUID());
+        sendToServer(tag);
+    }
 
     public void onGuiClientTick() {
         last_ping += 1;
         if (last_ping > 20) {
             last_ping = 0;
-            CompoundTag tag = new CompoundTag();
-            tag.putUUID("guiPing", Minecraft.getInstance().player.getUUID());
-            PacketDistributor.sendToServer(PacketBlockEntity.getBlockEntityPacket(parentBE, tag));
+            sendPing();
         }
-
+    }
+    public void sendToServer(CompoundTag tag){
+        PacketDistributor.sendToServer(PacketBlockEntity.getBlockEntityPacket(parentBE,tag));
     }
 
     public void sendToTrackingClients(CompoundTag tag) {
@@ -97,7 +119,7 @@ public class GuiHandlerBlockEntity {
             UUID uid = tag.getUUID("closeGui");
             // a client said he no longer has the gui open
             if (playersTrackingGui.containsKey(uid)){
-                playersTrackingGui.remove(uid);
+                removePlayerFromGui(uid);
             }
         }
         for (guiModuleBase m : modules) {

@@ -6,6 +6,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
@@ -15,6 +16,8 @@ public class modularBlockEntityScreen extends Screen {
 
     int guiW = 176;
     int guiH = 166;
+    int leftOffset;
+    int topOffset;
 
     List<guiModuleBase> modules;
     GuiHandlerBlockEntity c;
@@ -23,11 +26,13 @@ public class modularBlockEntityScreen extends Screen {
         this.c = c;
         this.modules = modules;
 
+
     }
 
     @Override
     protected void init() {
         super.init();
+        calculateGuiOffsetAndNotifyModules();
     }
     @Override
     public void tick(){
@@ -42,36 +47,46 @@ public class modularBlockEntityScreen extends Screen {
     // In some Screen subclass
     @Override
     public boolean mouseClicked(double x, double y, int button) {
-
-        for (guiModuleBase m : modules){
-            m.onMouseCLick(x,y,button);
+        for (guiModuleBase m : modules) {
+            m.onMouseCLick(x, y, button);
         }
-        System.out.println(InputConstants.Type.MOUSE.getOrCreate(button));
-        boolean isShiftDown =
-                InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), InputConstants.KEY_LSHIFT) ||
-                InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(),InputConstants.KEY_RSHIFT);
-        System.out.println(isShiftDown);
         return super.mouseClicked(x, y, button);
     }
 
+    void calculateGuiOffsetAndNotifyModules(){
+        leftOffset = (this.width - guiW) / 2;
+        topOffset = (this.height - guiH) / 2;
+        for (guiModuleBase m:modules){
+            m.setGuiOffset(leftOffset,topOffset);
+        }
+    }
+    @Override
+    public void resize(Minecraft minecraft, int width, int height) {
+        super.resize(minecraft,width,height);
+        calculateGuiOffsetAndNotifyModules();
+    }
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        int left = (this.width - guiW) / 2;
-        int top = (this.height - guiH) / 2;
+
 
         guiGraphics.fill(0, 0, this.width, this.height, 0x30000000); // Semi-transparent black
         guiGraphics.blit(
                 background,
-                left, top, 0, 0, 0, guiW, guiH, 176, 171
+                leftOffset, topOffset, 0, 0, 0, guiW, guiH, 176, 171
         );
         for (guiModuleBase m : modules) {
-            m.render(guiGraphics, mouseX, mouseY, partialTick, left, top);
+            m.render(guiGraphics, mouseX, mouseY, partialTick);
         }
 
-        guiGraphics.renderItem(Minecraft.getInstance().player.inventoryMenu.getCarried(),mouseX,mouseY);
+        guiGraphics.renderItem(Minecraft.getInstance().player.inventoryMenu.getCarried().copy(),mouseX,mouseY);
     }
 
+    public static void renderItemStack(GuiGraphics g, int x, int y, ItemStack stack){
+        if(stack.isEmpty())return;
+        g.renderItem(stack,x+1,y+1);
+        g.renderItemDecorations(Minecraft.getInstance().font, stack,x+1,y+1);
+    }
 
     @Override
     public boolean isPauseScreen() {

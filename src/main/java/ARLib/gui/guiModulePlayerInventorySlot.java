@@ -47,18 +47,16 @@ public class guiModulePlayerInventorySlot extends guiModuleBase{
             GuiGraphics guiGraphics,
             int mouseX,
             int mouseY,
-            float partialTick,
-            int left,
-            int top
+            float partialTick
     ) {
-        guiGraphics.blit(slot_background,x+left,y+top,0f,0f,w,h,slot_bg_w,slot_bg_h);
+        guiGraphics.blit(slot_background,onGuiX,onGuiY,0f,0f,w,h,slot_bg_w,slot_bg_h);
+        if(isMouseOver(mouseX,mouseY,onGuiX,onGuiY,w,h)){
+            guiGraphics.fill(onGuiX,onGuiY,w+onGuiX,h+onGuiY, 0x30FFFFFF); // Semi-transparent white
+        }
 
         ItemStack stack = Minecraft.getInstance().player.getInventory().getItem(targetSlot);
+        modularBlockEntityScreen.renderItemStack(guiGraphics,onGuiX,onGuiY,stack);
 
-        if(!stack.isEmpty()){
-            guiGraphics.renderItem(stack,x+left+2,y+top+2);
-            guiGraphics.renderItemDecorations(Minecraft.getInstance().font, stack,x+left+2,y+top+2);
-        }
     }
 
     public static List<guiModulePlayerInventorySlot> makePlayerHotbarModules(int x, int y, int startingId, GuiHandlerBlockEntity guiHandler){
