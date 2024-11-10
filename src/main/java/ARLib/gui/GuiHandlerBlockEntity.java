@@ -21,15 +21,23 @@ import java.util.*;
  *
  *
  *  - register gui modules:
- *                  guiHandler.registerModule(new guiModuleEnergy(0,[your IEnergyStorage],guiHandler,10,10));
- *
+ *                  [your_gui_handler_instance].registerModule(
+ *                      new guiModuleEnergy(0,[your_IEnergyStorage_object],guiHandler,10,10)
+ *                  );
  *
  *  - implement INetworkTagReceiver in your BlockEntity class
- *    Gui module sync uses PacketBlockEntity to send data to your BlockEntity.
+ *    This GuiHandlr uses PacketBlockEntity to send data to your BlockEntity.
  *    You need to forward this data to the GuiHandler:
  *
- *          in  readServer(CompoundTag tag) call guiHandler.readServer(CompoundTag tag)
- *          in  readClient(CompoundTag tag) call guiHandler.readClient(CompoundTag tag)
+ *          in  readServer(CompoundTag tag) call [your_gui_handler_instance].readServer(CompoundTag tag)
+ *          in  readClient(CompoundTag tag) call [your_gui_handler_instance].readClient(CompoundTag tag)
+ *
+ *  - register your BlockEntity to have a tick() method
+ *    In GuiHandler.serverTick(...), the server scans for changes in the gui data if one or more clients watch the gui.
+ *    You need to call guiHandler.serverTick([your_gui_handler_instance]) on server side every tick to allow data sync.
+ *    If no clients watch the gui, serverTick will instantly return to keep the code efficient and not waste time.
+ *
+ *  - open your gui from anywhere using [your_gui_handler_instance].openGui(), for example on block click.
  */
 public class GuiHandlerBlockEntity implements GuiHandler {
 

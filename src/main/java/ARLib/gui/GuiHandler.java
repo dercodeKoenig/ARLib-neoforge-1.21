@@ -21,7 +21,6 @@ public interface GuiHandler {
 
     void onGuiClientTick();
 
-
     void registerModule(guiModuleBase guiModule);
 
     List<guiModuleBase> getModules();
