@@ -59,7 +59,7 @@ public class guiModuleItemHandlerSlot extends guiModuleInventorySlotBase {
         }
     }
 
-    public guiModuleItemHandlerSlot(int id, IItemHandler itemHandler, int targetSlot, int inventoryGroupId, int instantTransferTargetGroup, GuiHandlerBlockEntity guiHandler, int x, int y) {
+    public guiModuleItemHandlerSlot(int id, IItemHandler itemHandler, int targetSlot, int inventoryGroupId, int instantTransferTargetGroup, GuiHandler guiHandler, int x, int y) {
         super(id,guiHandler,inventoryGroupId,instantTransferTargetGroup,x, y);
         this.targetSlot = targetSlot;
         this.itemHandler = itemHandler;

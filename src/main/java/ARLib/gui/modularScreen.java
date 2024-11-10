@@ -9,7 +9,7 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
-public class modularBlockEntityScreen extends Screen {
+public class modularScreen extends Screen {
 
     ResourceLocation background = ResourceLocation.fromNamespaceAndPath("arlib", "textures/gui/simple_gui_background.png");
 
@@ -18,12 +18,10 @@ public class modularBlockEntityScreen extends Screen {
     int leftOffset;
     int topOffset;
 
-    List<guiModuleBase> modules;
-    GuiHandlerBlockEntity c;
-    public modularBlockEntityScreen(GuiHandlerBlockEntity c, List<guiModuleBase> modules, int w, int h) {
+    GuiHandler c;
+    public modularScreen(GuiHandler c, int w, int h) {
         super(Component.literal("Screen"));
         this.c = c;
-        this.modules = modules;
 
 
     }
@@ -46,7 +44,7 @@ public class modularBlockEntityScreen extends Screen {
     // In some Screen subclass
     @Override
     public boolean mouseClicked(double x, double y, int button) {
-        for (guiModuleBase m : modules) {
+        for (guiModuleBase m : c.getModules()) {
             m.client_onMouseCLick(x, y, button);
         }
         return super.mouseClicked(x, y, button);
@@ -55,7 +53,7 @@ public class modularBlockEntityScreen extends Screen {
     void calculateGuiOffsetAndNotifyModules(){
         leftOffset = (this.width - guiW) / 2;
         topOffset = (this.height - guiH) / 2;
-        for (guiModuleBase m:modules){
+        for (guiModuleBase m:c.getModules()){
             m.client_setGuiOffset(leftOffset,topOffset);
         }
     }
@@ -74,11 +72,11 @@ public class modularBlockEntityScreen extends Screen {
                 background,
                 leftOffset, topOffset, 0, 0, 0, guiW, guiH, 176, 171
         );
-        for (guiModuleBase m : modules) {
+        for (guiModuleBase m : c.getModules()) {
             m.render(guiGraphics, mouseX, mouseY, partialTick);
         }
 guiGraphics.pose().translate(0,0,100);
-       modularBlockEntityScreen.renderItemStack (guiGraphics,mouseX-9,mouseY-9,Minecraft.getInstance().player.inventoryMenu.getCarried());
+       modularScreen.renderItemStack (guiGraphics,mouseX-9,mouseY-9,Minecraft.getInstance().player.inventoryMenu.getCarried());
     }
 
     public static void renderItemStack(GuiGraphics g, int x, int y, ItemStack stack){

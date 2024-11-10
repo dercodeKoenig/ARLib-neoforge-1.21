@@ -70,7 +70,7 @@ public class guiModuleEnergy extends guiModuleBase {
         }
     }
 
-    public guiModuleEnergy(int id, IEnergyStorage energyStorage, GuiHandlerBlockEntity guiHandler, int x, int y){
+    public guiModuleEnergy(int id, IEnergyStorage energyStorage, GuiHandler guiHandler, int x, int y){
         super(id,guiHandler,x,y);
         this.energyStorage = energyStorage;
         serverTick();

@@ -65,14 +65,14 @@ public class guiModulePlayerInventorySlot extends guiModuleInventorySlotBase{
         return player.getInventory().getMaxStackSize(stack);
     }
 
-    public guiModulePlayerInventorySlot(int id, int targetSlot, int inventoryGroupId, int instantTransferTargetGroup,  GuiHandlerBlockEntity guiHandler, int x, int y) {
+    public guiModulePlayerInventorySlot(int id, int targetSlot, int inventoryGroupId, int instantTransferTargetGroup,  GuiHandler guiHandler, int x, int y) {
         super(id,guiHandler,inventoryGroupId,instantTransferTargetGroup,x, y);
         this.targetSlot = targetSlot;
     }
 
 
 
-    public static List<guiModulePlayerInventorySlot> makePlayerHotbarModules(int x, int y, int startingId, int inventoryGroup, int instantTransferTargetGroup, GuiHandlerBlockEntity guiHandler){
+    public static List<guiModulePlayerInventorySlot> makePlayerHotbarModules(int x, int y, int startingId, int inventoryGroup, int instantTransferTargetGroup, GuiHandler guiHandler){
         List<guiModulePlayerInventorySlot> modules = new ArrayList<>();
 
         for (int i = 0; i < 9; i++) {
@@ -83,7 +83,7 @@ public class guiModulePlayerInventorySlot extends guiModuleInventorySlotBase{
         return modules;
     }
 
-    public static List<guiModulePlayerInventorySlot> makePlayerInventoryModules(int x, int y, int startingId, int inventoryGroup, int instantTransferTargetGroup,  GuiHandlerBlockEntity guiHandler){
+    public static List<guiModulePlayerInventorySlot> makePlayerInventoryModules(int x, int y, int startingId, int inventoryGroup, int instantTransferTargetGroup,  GuiHandler guiHandler){
         List<guiModulePlayerInventorySlot> modules = new ArrayList<>();
 
         for (int j = 0; j < 3; j++) {

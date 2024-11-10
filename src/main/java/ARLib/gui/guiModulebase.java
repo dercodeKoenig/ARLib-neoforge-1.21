@@ -12,8 +12,8 @@ public class guiModuleBase {
     int onGuiX;
     int onGuiY;
 
-    GuiHandlerBlockEntity guiHandler;
-    public guiModuleBase(int id, GuiHandlerBlockEntity guiHandler, int x, int y) {
+    GuiHandler guiHandler;
+    public guiModuleBase(int id, GuiHandler guiHandler, int x, int y) {
         this.x = x;
         this.y = y;
         this.id = id;

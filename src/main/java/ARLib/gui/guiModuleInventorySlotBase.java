@@ -74,7 +74,7 @@ public abstract class guiModuleInventorySlotBase extends guiModuleBase {
             // move all items in the current slot to slots of the instant transfer target group
             // loop over all modules and try to find a module where the group id matches the transfer target
 
-            for (guiModuleBase i : this.guiHandler.modules) {
+            for (guiModuleBase i : this.guiHandler.getModules()) {
                 if (i instanceof guiModuleInventorySlotBase j) {
                     if (j.invGroup == instantTransferTarget) {
                         ItemStack toTransfer = getStackInSlot(player);
@@ -127,7 +127,7 @@ public abstract class guiModuleInventorySlotBase extends guiModuleBase {
     }
 
 
-    public guiModuleInventorySlotBase(int id, GuiHandlerBlockEntity guiHandler, int inventoryGroup, int instantTransferTargetGroup, int x, int y) {
+    public guiModuleInventorySlotBase(int id, GuiHandler guiHandler, int inventoryGroup, int instantTransferTargetGroup, int x, int y) {
         super(id,guiHandler,x, y);
         this. invGroup = inventoryGroup;
         this. instantTransferTarget = instantTransferTargetGroup;
@@ -141,7 +141,7 @@ public abstract class guiModuleInventorySlotBase extends guiModuleBase {
             float partialTick
     ) {
         guiGraphics.blit(slot_background,onGuiX,onGuiY,0f,0f,w,h,slot_bg_w,slot_bg_h);
-        modularBlockEntityScreen.renderItemStack(guiGraphics,onGuiX,onGuiY, client_getItemStackToRender());
+        modularScreen.renderItemStack(guiGraphics,onGuiX,onGuiY, client_getItemStackToRender());
 
         if(client_isMouseOver(mouseX,mouseY,onGuiX,onGuiY,w,h)){
             guiGraphics.fill(onGuiX,onGuiY,w+onGuiX,h+onGuiY, 0x30FFFFFF); // Semi-transparent white

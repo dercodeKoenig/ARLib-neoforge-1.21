@@ -1,5 +1,6 @@
 package ARLib.blockentities;
 
+import ARLib.gui.GuiHandler;
 import ARLib.gui.GuiHandlerBlockEntity;
 import ARLib.gui.guiModuleEnergy;
 import ARLib.multiblockCore.UniversalBattery;
@@ -17,7 +18,7 @@ import static ARLib.ARLibRegistry.ENTITY_ENERGY_INPUT_BLOCK;
 public class EntityEnergyInputBlock extends BlockEntity implements IEnergyStorage, INetworkTagReceiver {
 
     protected UniversalBattery energyStorage;
-    GuiHandlerBlockEntity guiHandler;
+    GuiHandler guiHandler;
 
     public EntityEnergyInputBlock(BlockPos p_155229_, BlockState p_155230_) {
         super(ENTITY_ENERGY_INPUT_BLOCK.get(), p_155229_, p_155230_);
@@ -87,7 +88,7 @@ public class EntityEnergyInputBlock extends BlockEntity implements IEnergyStorag
     public static <x extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, x t) {
 
         if(!level.isClientSide)
-            GuiHandlerBlockEntity.serverTick(((EntityEnergyInputBlock)t).guiHandler);
+            GuiHandler.serverTick(((EntityEnergyInputBlock)t).guiHandler);
 
         ((EntityEnergyInputBlock)t).extractEnergy(100,false);
     }
