@@ -28,9 +28,9 @@ import java.util.List;
 
 import static ARLib.ARLibRegistry.ENTITY_ITEM_INPUT_BLOCK;
 
-
+// TODO this IITEMHANDLER should go into its own class
 public class EntityItemInputBlock extends GuiCapableBlockEntity implements IItemHandler {
-
+    
     SimpleContainer inventory;
 
     @Override
@@ -101,13 +101,9 @@ public class EntityItemInputBlock extends GuiCapableBlockEntity implements IItem
             int limit = Math.min(stack.getMaxStackSize(), getSlotLimit(slot));
 
             if (!existing.isEmpty()) {
-                System.out.println(ItemStack.isSameItemSameComponents(existing,stack));
-
-
                 if (!ItemStack.isSameItemSameComponents(existing,stack)) {
                     return stack;
                 }
-
                 limit -= existing.getCount();
             }
 
