@@ -1,10 +1,7 @@
 package ARLib.blocks;
 
-import ARLib.blockentities.EntityEnergyInputBlock;
-import ARLib.blockentities.EntityItemInputBlock;
 import ARLib.gui.GuiCapableBlockEntity;
-import ARLib.gui.modularBlockEntityScreen;
-import net.minecraft.client.Minecraft;
+import ARLib.blockentities.EntityItemInputBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -18,12 +15,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
-import static ARLib.ARLibRegistry.ENTITY_ENERGY_INPUT_BLOCK;
 import static ARLib.ARLibRegistry.ENTITY_ITEM_INPUT_BLOCK;
 
 
-public class BlockEnergyInputBlock extends Block  implements EntityBlock {
-    public BlockEnergyInputBlock(Properties p_49795_) {
+public class BlockItemInputBlock extends Block  implements EntityBlock {
+    public BlockItemInputBlock(Properties p_49795_) {
         super(p_49795_);
     }
 
@@ -31,7 +27,7 @@ public class BlockEnergyInputBlock extends Block  implements EntityBlock {
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return ENTITY_ENERGY_INPUT_BLOCK.get().create(blockPos,blockState);
+        return ENTITY_ITEM_INPUT_BLOCK.get().create(blockPos,blockState);
     }
 
 
@@ -44,8 +40,10 @@ public class BlockEnergyInputBlock extends Block  implements EntityBlock {
             }
 
             if (world.isClientSide) {
-                ((GuiCapableBlockEntity)e).openGui();
+                //Minecraft.getInstance().setScreen(new modularScreen((IModularGui) e,player));
             }
+                //player.inventoryMenu.setCarried(new ItemStack(Items.NAME_TAG));
+
 
         }
 
@@ -57,6 +55,7 @@ public class BlockEnergyInputBlock extends Block  implements EntityBlock {
         // You can return different tickers here, depending on whatever factors you want. A common use case would be
         // to return different tickers on the client or server, only tick one side to begin with,
         // or only return a ticker for some blockstates (e.g. when using a "my machine is working" blockstate property).
-        return type == ENTITY_ENERGY_INPUT_BLOCK.get() ? EntityEnergyInputBlock::tick : null;
+        return type == ENTITY_ITEM_INPUT_BLOCK.get() ? EntityItemInputBlock::tick : null;
     }
+
 }

@@ -2,7 +2,9 @@ package ARLib;
 
 
 import ARLib.blockentities.EntityEnergyInputBlock;
+import ARLib.blockentities.EntityItemInputBlock;
 import ARLib.blocks.BlockEnergyInputBlock;
+import ARLib.blocks.BlockItemInputBlock;
 import ARLib.multiblocks.lathe.BlockLathe;
 import ARLib.multiblocks.lathe.EntityLathe;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -37,11 +39,19 @@ public class ARLibRegistry {
             "block_energy_input_block",
             () -> new BlockEnergyInputBlock(BlockBehaviour.Properties.of())
     );
-
-
     public static final Supplier<BlockEntityType<?>> ENTITY_ENERGY_INPUT_BLOCK  = BLOCK_ENTITIES.register(
             "entity_energy_input_block",
             () -> BlockEntityType.Builder.of(EntityEnergyInputBlock::new, BLOCK_ENERGY_INPUT_BLOCK.get()).build(null)
+    );
+
+
+    public static final Supplier<Block> BLOCK_ITEM_INPUT_BLOCK = BLOCKS.register(
+            "block_item_input_block",
+            () -> new BlockItemInputBlock(BlockBehaviour.Properties.of())
+    );
+    public static final Supplier<BlockEntityType<?>> ENTITY_ITEM_INPUT_BLOCK  = BLOCK_ENTITIES.register(
+            "entity_item_input_block",
+            () -> BlockEntityType.Builder.of(EntityItemInputBlock::new, BLOCK_ITEM_INPUT_BLOCK.get()).build(null)
     );
 
 
@@ -49,6 +59,8 @@ public class ARLibRegistry {
 
     public static void register(IEventBus modBus) {
         registerBlockItem("block_energy_input_block",BLOCK_ENERGY_INPUT_BLOCK);
+        registerBlockItem("block_item_input_block",BLOCK_ITEM_INPUT_BLOCK);
+
         BLOCKS.register(modBus);
         ITEMS.register(modBus);
         BLOCK_ENTITIES.register(modBus);

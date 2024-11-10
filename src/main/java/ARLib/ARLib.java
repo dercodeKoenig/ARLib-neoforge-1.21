@@ -1,6 +1,7 @@
 package ARLib;
 
 import ARLib.blockentities.EntityEnergyInputBlock;
+import ARLib.blockentities.EntityItemInputBlock;
 import ARLib.multiblocks.MultiblockRegistry;
 import ARLib.network.PacketBlockEntity;
 import net.neoforged.bus.api.IEventBus;
@@ -41,11 +42,19 @@ public class ARLib
     }
 
     private void RegisterCapabilities(RegisterCapabilitiesEvent e){
+
         e.registerBlockEntity(
                 Capabilities.EnergyStorage.BLOCK,
                 ARLibRegistry.ENTITY_ENERGY_INPUT_BLOCK.get(),
-                (EntityEnergyInputBlock, side) -> ((EntityEnergyInputBlock) EntityEnergyInputBlock)
+                (x, y) -> ((EntityEnergyInputBlock) x)
         );
+
+        e.registerBlockEntity(
+                Capabilities.ItemHandler.BLOCK,
+                ARLibRegistry.ENTITY_ITEM_INPUT_BLOCK.get(),
+                (x,y) -> ((EntityItemInputBlock)x)
+        );
+
     }
     private void addCreative(BuildCreativeModeTabContentsEvent e){
         ARLibRegistry.addCreative(e);

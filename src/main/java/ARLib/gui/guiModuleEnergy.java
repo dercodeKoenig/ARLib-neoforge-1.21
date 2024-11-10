@@ -1,7 +1,7 @@
 package ARLib.gui;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
@@ -34,10 +34,40 @@ public class guiModuleEnergy extends guiModuleBase {
     int energy_bar_offset_y = (int) ((double)borderpx / energy_bar_background_th * h);
 
 
+    int maxEnergy;
+    int energy;
+    int last_energy;
 
-    public guiModuleEnergy(IEnergyStorage energyStorage, int x, int y){
-        super(x,y);
+    @Override
+    public void writeDataToTag(CompoundTag tag){
+        tag.putInt("moduleId",this.id);
+        tag.putInt("energy",energy);
+    }
+    @Override
+    public void serverTick(){
+        energy = energyStorage.getEnergyStored();
+        if (energy != last_energy){
+            CompoundTag tag = new CompoundTag();
+            writeDataToTag(tag);
+            this.guiTile. sendToTrackingClients(tag);
+        }
+        last_energy = energy;
+    }
+    @Override
+    public void readClient(CompoundTag tag){
+        if(tag.contains("moduleId")){
+            int moduleId=tag.getInt("moduleId");
+            if(moduleId == this.id){
+                this.energy = tag.getInt("energy");
+            }
+        }
+    }
+
+    public guiModuleEnergy(int id, IEnergyStorage energyStorage, GuiCapableBlockEntity guiTile, int x, int y){
+        super(id,guiTile,x,y);
         this.energyStorage = energyStorage;
+        serverTick();
+        maxEnergy = energyStorage.getMaxEnergyStored();
     }
 
     @Override
@@ -50,7 +80,7 @@ public class guiModuleEnergy extends guiModuleBase {
             int top
     ) {
 
-        double relative_energy_level = (double) energyStorage.getEnergyStored() / energyStorage.getMaxEnergyStored();
+        double relative_energy_level = (double)  energy / maxEnergy;
         int v_offset = (int) ((1-relative_energy_level)*bar_size_h);
 
         guiGraphics.blit(energy_bar_background,x+left,y+top,0,0,energy_bar_background_tw, energy_bar_background_th);
