@@ -82,8 +82,9 @@ public class guiModuleEnergy extends guiModuleBase {
 
         double relative_energy_level = (double)  energy / maxEnergy;
         int v_offset = (int) ((1-relative_energy_level)*bar_size_h);
+        int v_offset_tex = (int) ((1-relative_energy_level)*energy_bar_th);
 
-        guiGraphics.blit(energy_bar_background,x+left,y+top,0,0,energy_bar_background_tw, energy_bar_background_th);
+        guiGraphics.blit(energy_bar_background,x+left,y+top,0,0,w, h,energy_bar_background_tw,energy_bar_background_th);
 
         //guiGraphics.blit(energy_bar,x+left+energy_bar_offset_x,y+top+energy_bar_offset_y,0,v_offset,energy_bar_tw, energy_bar_th-v_offset);
 
@@ -91,8 +92,8 @@ public class guiModuleEnergy extends guiModuleBase {
                 energy_bar,
                 x+left+energy_bar_offset_x,y+top+v_offset+energy_bar_offset_y,
                 bar_size_w,bar_size_h-v_offset,
-                (float)0,(float)0+v_offset,
-                energy_bar_tw,energy_bar_th-v_offset,
+                (float)0,(float)0+v_offset_tex,
+                energy_bar_tw,energy_bar_th-v_offset_tex,
                 energy_bar_tw,energy_bar_th
                 );
     }

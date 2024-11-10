@@ -39,9 +39,6 @@ public class BlockEnergyInputBlock extends Block  implements EntityBlock {
     public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hitResult) {
         BlockEntity e = world.getBlockEntity(pos);
         if (e instanceof GuiCapableBlockEntity) {
-            if (!world.isClientSide()) {
-                //tile.extractEnergy(1000, false);
-            }
 
             if (world.isClientSide) {
                 ((GuiCapableBlockEntity)e).openGui();

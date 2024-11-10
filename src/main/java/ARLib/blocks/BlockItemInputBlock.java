@@ -35,12 +35,9 @@ public class BlockItemInputBlock extends Block  implements EntityBlock {
     public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hitResult) {
         BlockEntity e = world.getBlockEntity(pos);
         if (e instanceof GuiCapableBlockEntity) {
-            if (!world.isClientSide()) {
-                //tile.extractEnergy(1000, false);
-            }
 
             if (world.isClientSide) {
-                //Minecraft.getInstance().setScreen(new modularScreen((IModularGui) e,player));
+                ((GuiCapableBlockEntity)e).openGui();
             }
                 //player.inventoryMenu.setCarried(new ItemStack(Items.NAME_TAG));
 

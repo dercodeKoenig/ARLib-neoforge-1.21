@@ -9,8 +9,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -27,32 +29,33 @@ import java.util.List;
 import static ARLib.ARLibRegistry.ENTITY_ITEM_INPUT_BLOCK;
 
 
-public class EntityItemInputBlock extends GuiCapableBlockEntity implements IItemHandler, Container {
+public class EntityItemInputBlock extends GuiCapableBlockEntity implements IItemHandler {
 
-    private final NonNullList<ItemStack> inventory = NonNullList.withSize(
-            // The size of the list, i.e. the amount of slots in our container.
-            4,
-            // The default value to be used in place of where you'd use null in normal lists.
-            ItemStack.EMPTY
-    );
+    SimpleContainer inventory;
+
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        ContainerHelper.loadAllItems(tag.getCompound("inventory"),inventory,registries);
-
+        ListTag lt = tag.getList("container", ListTag.TAG_LIST);
+        inventory.fromTag(lt,registries);
     }
 
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag,registries);
-        CompoundTag inv = new CompoundTag();
-        ContainerHelper.saveAllItems(inv,inventory,registries);
-        tag.put("inventory",inv);
+        ListTag lt = inventory.createTag(registries);
+        tag.put("inventory",lt);
     }
 
     public EntityItemInputBlock(BlockPos pos, BlockState blockState) {
         super(ENTITY_ITEM_INPUT_BLOCK.get(), pos, blockState);
+        this.registerModule(new guiModuleItemSlot(0,this, 0,this,20,20) );
+        this.registerModule(new guiModuleItemSlot(1,this, 1,this,20,50) );
+        this.registerModule(new guiModuleItemSlot(2,this, 2,this,50,20) );
+        this.registerModule(new guiModuleItemSlot(3,this, 3,this,50,50) );
+
+        inventory = new SimpleContainer(4);
     }
 
 
@@ -66,61 +69,16 @@ public class EntityItemInputBlock extends GuiCapableBlockEntity implements IItem
         super.readClient(tagIn);
     }
 
-    @Override
-    public int getContainerSize() {
-        return inventory.size();
-    }
 
-    @Override
-    public boolean isEmpty() {
-        return this.inventory.stream().allMatch(ItemStack::isEmpty);
-    }
-
-    @Override
-    public ItemStack getItem(int slot) {
-        return this.inventory.get(slot);
-    }
-
-    @Override
-    public ItemStack removeItem(int slot, int amount) {
-        ItemStack stack = ContainerHelper.removeItem(this.inventory, slot, amount);
-        this.setChanged();
-        return stack;
-    }
-
-    @Override
-    public ItemStack removeItemNoUpdate(int slot) {
-        ItemStack stack = ContainerHelper.takeItem(this.inventory, slot);
-        this.setChanged();
-        return stack;
-    }
-
-    @Override
-    public void setItem(int slot, ItemStack stack) {
-        stack.limitSize(this.getMaxStackSize(stack));
-        this.inventory.set(slot, stack);
-        this.setChanged();
-    }
-
-    @Override
-    public boolean stillValid(Player player) {
-        return true;
-    }
-
-    @Override
-    public void clearContent() {
-        inventory.clear();
-        this.setChanged();
-    }
 
     @Override
     public int getSlots() {
-        return inventory.size();
+        return inventory.getContainerSize();
     }
 
     @Override
     public ItemStack getStackInSlot(int slot) {
-        return inventory.get(slot);
+        return inventory.getItem(slot);
     }
 
     @Override
@@ -130,7 +88,7 @@ public class EntityItemInputBlock extends GuiCapableBlockEntity implements IItem
                 return ItemStack.EMPTY;
             }
 
-            if (slot < 0 || slot >= inventory.size()) {
+            if (slot < 0 || slot >= inventory.getContainerSize()) {
                 return stack;
             }
 
@@ -138,12 +96,15 @@ public class EntityItemInputBlock extends GuiCapableBlockEntity implements IItem
                 return stack;
             }
 
-            ItemStack existing = inventory.get(slot);
+            ItemStack existing = inventory.getItem(slot);
 
             int limit = Math.min(stack.getMaxStackSize(), getSlotLimit(slot));
 
             if (!existing.isEmpty()) {
-                if (!existing.getItem().equals(stack.getItem()) || !existing.getTags().equals(stack.getTags())) {
+                System.out.println(ItemStack.isSameItemSameComponents(existing,stack));
+
+
+                if (!ItemStack.isSameItemSameComponents(existing,stack)) {
                     return stack;
                 }
 
@@ -158,13 +119,17 @@ public class EntityItemInputBlock extends GuiCapableBlockEntity implements IItem
 
             if (!simulate) {
                 if (existing.isEmpty()) {
-                    inventory.set(slot, new ItemStack(stack.getItem(), Math.min(limit,stack.getCount()) ));
+                    ItemStack newStack = stack.copy();
+                    newStack. setCount(Math.min(limit,stack.getCount()));
+                    inventory.setItem(slot, newStack);
                 } else {
                     existing.grow(Math.min( limit, stack.getCount()));
                 }
             }
 
-        boolean reachedLimit = stack.getCount() >= limit;
+            setChanged();
+
+            boolean reachedLimit = stack.getCount() >= limit;
             return reachedLimit ? new ItemStack(stack.getItem(), stack.getCount() - limit) : ItemStack.EMPTY;
 
     }
@@ -175,11 +140,11 @@ public class EntityItemInputBlock extends GuiCapableBlockEntity implements IItem
             return ItemStack.EMPTY;
         }
 
-        if (slot < 0 || slot >= inventory.size()) {
+        if (slot < 0 || slot >= inventory.getContainerSize()) {
             return ItemStack.EMPTY;
         }
 
-        ItemStack existing = inventory.get(slot);
+        ItemStack existing = inventory.getItem(slot);
 
         if (existing.isEmpty()) {
             return ItemStack.EMPTY;
@@ -192,12 +157,13 @@ public class EntityItemInputBlock extends GuiCapableBlockEntity implements IItem
 
         if (!simulate) {
             if (existing.getCount() <= toExtract) {
-                inventory.set(slot, ItemStack.EMPTY);
+                inventory.setItem(slot, ItemStack.EMPTY);
             } else {
-                inventory.set(slot, new ItemStack(existing.getItem(), existing.getCount()- toExtract));
+                inventory.setItem(slot, new ItemStack(existing.getItem(), existing.getCount()- toExtract));
             }
         }
 
+        setChanged();
         return extracted;
     }
 

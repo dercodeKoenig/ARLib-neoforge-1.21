@@ -40,8 +40,6 @@ public abstract class GuiCapableBlockEntity extends BlockEntity implements INetw
                     m.serverTick();
                 }
 
-                System.out.println(tile.playersTrackingGui.size() + " players are tracking a gui");
-
                 // if a player has not sent a gui ping for 2 seconds, he no longer has the gui open
                 for (UUID uid : tile.playersTrackingGui.keySet()) {
                     tile.playersTrackingGui.put(uid, tile.playersTrackingGui.get(uid) + 1);
