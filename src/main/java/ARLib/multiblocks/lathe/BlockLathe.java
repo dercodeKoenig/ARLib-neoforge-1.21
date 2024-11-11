@@ -33,7 +33,7 @@ public class BlockLathe extends BlockMultiblock {
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return type == ENTITY_LATHE.get() ? EntityLathe::tick : null;
+        return EntityLathe::tick;
     }
 
     @Override

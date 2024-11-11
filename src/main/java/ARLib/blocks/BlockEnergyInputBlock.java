@@ -46,9 +46,6 @@ public class BlockEnergyInputBlock extends Block  implements EntityBlock {
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        // You can return different tickers here, depending on whatever factors you want. A common use case would be
-        // to return different tickers on the client or server, only tick one side to begin with,
-        // or only return a ticker for some blockstates (e.g. when using a "my machine is working" blockstate property).
-        return type == ENTITY_ENERGY_INPUT_BLOCK.get() ? EntityEnergyInputBlock::tick : null;
+        return EntityEnergyInputBlock::tick;
     }
 }

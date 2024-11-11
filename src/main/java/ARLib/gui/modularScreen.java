@@ -21,7 +21,8 @@ public class ModularScreen extends Screen {
     public ModularScreen(IGuiHandler c, int w, int h) {
         super(Component.literal("Screen"));
         this.c = c;
-
+this.guiW = w;
+this.guiH=h;
 
     }
 

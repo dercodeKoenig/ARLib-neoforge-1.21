@@ -38,23 +38,12 @@ public class ARLib
     public void registerNetworkStuff(RegisterPayloadHandlersEvent event) {
         // Sets the current network version
         final PayloadRegistrar registrar = event.registrar("1");
+
        PacketBlockEntity. register(registrar);
     }
 
     private void RegisterCapabilities(RegisterCapabilitiesEvent e){
-
-        e.registerBlockEntity(
-                Capabilities.EnergyStorage.BLOCK,
-                ARLibRegistry.ENTITY_ENERGY_INPUT_BLOCK.get(),
-                (x, y) -> ((EntityEnergyInputBlock) x)
-        );
-
-        e.registerBlockEntity(
-                Capabilities.ItemHandler.BLOCK,
-                ARLibRegistry.ENTITY_ITEM_INPUT_BLOCK.get(),
-                (x,y) -> ((EntityItemInputBlock)x)
-        );
-
+        ARLibRegistry.registerCapabilities(e);
     }
     private void addCreative(BuildCreativeModeTabContentsEvent e){
         ARLibRegistry.addCreative(e);

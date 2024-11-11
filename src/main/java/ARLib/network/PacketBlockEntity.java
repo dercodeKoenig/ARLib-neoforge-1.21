@@ -19,24 +19,6 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 public class PacketBlockEntity implements CustomPacketPayload {
 
-    public static PacketBlockEntity getBlockEntityPacket(BlockEntity be, CompoundTag tag){
-        return new PacketBlockEntity(
-                be.getLevel().isClientSide ? DimensionUtils.getLevelId(be.getLevel()) : "",
-                be.getBlockPos().getX(),
-                be.getBlockPos().getY(),
-                be.getBlockPos().getZ(),
-                tag
-        );
-    }
-    public static PacketBlockEntity getBlockEntityPacket(Level l, BlockPos p, CompoundTag tag){
-        return new PacketBlockEntity(
-               l.isClientSide ? DimensionUtils.getLevelId(l) : "",
-                p.getX(),
-                p.getY(),
-                p.getZ(),
-                tag
-        );
-    }
 
 
     public static final CustomPacketPayload.Type<PacketBlockEntity> TYPE =
@@ -111,6 +93,20 @@ public class PacketBlockEntity implements CustomPacketPayload {
                         PacketBlockEntity::readClient,
                         PacketBlockEntity::readServer
                 )
+        );
+    }
+
+
+    public static PacketBlockEntity getBlockEntityPacket(BlockEntity be, CompoundTag tag){
+        return getBlockEntityPacket(be.getLevel(), be.getBlockPos(), tag);
+    }
+    public static PacketBlockEntity getBlockEntityPacket(Level l, BlockPos p, CompoundTag tag){
+        return new PacketBlockEntity(
+                l.isClientSide ? DimensionUtils.getLevelId(l) : "",
+                p.getX(),
+                p.getY(),
+                p.getZ(),
+                tag
         );
     }
 

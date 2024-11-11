@@ -35,10 +35,10 @@ import java.util.*;
  *    If no clients watch the gui, serverTick will instantly return to keep the code efficient and not waste time.
  *
  *    example to use for your Block class:
- *      @Override
- *      public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
- *         return type == ENTITY_LATHE.get() ? EntityLathe::tick : null;
- *      }
+ *     @Override
+ *     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+ *         return EntityLathe::tick;
+ *     }
  *    example to use for your BlockEntity class:
  *     public static <x extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, x t) {
  *         if(!level.isClientSide)
