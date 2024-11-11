@@ -5,6 +5,7 @@ import ARLib.blockentities.EntityItemInputBlock;
 import ARLib.multiblocks.MultiblockRegistry;
 import ARLib.network.PacketBlockEntity;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
@@ -15,6 +16,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -31,21 +33,22 @@ public class ARLib
         modEventBus.addListener(this::addCreative);
         modEventBus.addListener(this::RegisterCapabilities);
         modEventBus.addListener(this::registerNetworkStuff);
-
+modEventBus.addListener(this::registerEntityRenderers);
 
         ARLibRegistry.register(modEventBus);
         MultiblockRegistry.register(modEventBus);
 
-        
+
 
 
     }
 
+    public  void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+MultiblockRegistry.registerRenderers(event);
+    }
 
     public void registerNetworkStuff(RegisterPayloadHandlersEvent event) {
-        // Sets the current network version
         final PayloadRegistrar registrar = event.registrar("1");
-
        PacketBlockEntity. register(registrar);
     }
 

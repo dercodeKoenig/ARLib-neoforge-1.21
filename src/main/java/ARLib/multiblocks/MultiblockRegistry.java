@@ -3,14 +3,18 @@ package ARLib.multiblocks;
 import ARLib.ARLib;
 import ARLib.multiblocks.lathe.BlockLathe;
 import ARLib.multiblocks.lathe.EntityLathe;
+import ARLib.multiblocks.lathe.RenderLathe;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
@@ -26,13 +30,22 @@ public class MultiblockRegistry {
     // lathe
     public static final DeferredHolder<Block, Block> BLOCK_LATHE = BLOCKS.register(
             "block_lathe",
-            () -> new BlockLathe(BlockBehaviour.Properties.of().strength(5.0F))
+            () -> new BlockLathe(BlockBehaviour.Properties.of().strength(5.0F).noOcclusion())
+
     );
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<?>> ENTITY_LATHE = BLOCK_ENTITIES.register(
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EntityLathe>> ENTITY_LATHE = BLOCK_ENTITIES.register(
             "entity_lathe",
             () -> BlockEntityType.Builder.of(EntityLathe::new, BLOCK_LATHE.get()).build(null)
     );
 
+    public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer(
+                // The block entity type to register the renderer for.
+                ENTITY_LATHE.get(),
+                // A function of BlockEntityRendererProvider.Context to BlockEntityRenderer.
+                RenderLathe::new
+        );
+    }
 
     public static void register(IEventBus modBus) {
         registerBlockItem("block_lathe", BLOCK_LATHE);

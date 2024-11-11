@@ -5,7 +5,9 @@ import ARLib.multiblockCore.BlockMultiblock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -29,7 +31,10 @@ public class BlockLathe extends BlockMultiblock {
     public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
         return ENTITY_LATHE.get().create(blockPos,blockState);
     }
-
+    @Override
+    public RenderShape getRenderShape(BlockState state){
+        return RenderShape.INVISIBLE;
+    }
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
