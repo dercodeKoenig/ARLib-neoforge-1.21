@@ -70,7 +70,8 @@ this.guiH=h;
         guiGraphics.fill(0, 0, this.width, this.height, 0x30000000); // Semi-transparent black
         guiGraphics.blit(
                 background,
-                leftOffset, topOffset, 0, 0, 0, guiW, guiH, 176, 171
+                leftOffset, topOffset,
+                guiW,guiH, 0, 0, 176, 171, 176, 171
         );
         for (GuiModuleBase m : c.getModules()) {
             m.render(guiGraphics, mouseX, mouseY, partialTick);

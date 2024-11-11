@@ -108,6 +108,8 @@ public abstract class guiModuleInventorySlotBase extends GuiModuleBase {
 
             tag.put(getMyTagKey(), myTag);
             guiHandler.sendToServer(tag);
+
+            server_handleInventoryClick(Minecraft.getInstance().player,button,isShiftDown);
         }
     }
 
