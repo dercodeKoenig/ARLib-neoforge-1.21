@@ -9,31 +9,40 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.PushReaction;
 
 import javax.annotation.Nonnull;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static ARLib.multiblockCore.BlockMultiblockMaster.STATE_MULTIBLOCK_FORMED;
 
 public class BlockMultiblockPart extends Block {
 
-
-    BlockPos masterBlockPos = null;
+    private final Map<BlockPos, BlockPos> multiblockMasterPositions = new HashMap<>();
 
     public BlockMultiblockPart(Properties properties) {
         super(properties.noOcclusion().pushReaction(PushReaction.IGNORE));
-        this.registerDefaultState(this.stateDefinition.any().setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH).setValue(STATE_MULTIBLOCK_FORMED, false));
+        this.registerDefaultState(this.stateDefinition.any()
+                .setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH).
+                setValue(STATE_MULTIBLOCK_FORMED, false));
 
     }
 
-    public BlockPos getMasterBlockPos() {
-        return masterBlockPos;
+    public void setMaster(BlockPos mypos, BlockPos masterpos) {
+        if (masterpos == null && multiblockMasterPositions.containsKey(mypos))
+            multiblockMasterPositions.remove(mypos);
+        else
+            multiblockMasterPositions.put(mypos, masterpos);
     }
-    public void setMasterBlockPos(BlockPos pos) {
-        this.masterBlockPos = pos;
+    public BlockPos getMaster(BlockPos mypos){
+        return multiblockMasterPositions.get(mypos);
     }
 
     @Override
@@ -61,9 +70,13 @@ public class BlockMultiblockPart extends Block {
 
     @Override
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (getMasterBlockPos() != null && level.getBlockEntity(getMasterBlockPos()) instanceof BlockEntityMultiblockMaster master) {
-            master.scanStructure();
+        if (state.getBlock() instanceof BlockMultiblockPart t) {
+            BlockPos master = t.getMaster(pos);
+            if (master != null && level.getBlockEntity(master) instanceof BlockEntityMultiblockMaster masterTile) {
+                masterTile.scanStructure();
+            }
+            multiblockMasterPositions.remove(pos);
+            super.onRemove(state, level, pos, newState, movedByPiston);
         }
-        super.onRemove(state,level,pos,newState,movedByPiston);
     }
 }

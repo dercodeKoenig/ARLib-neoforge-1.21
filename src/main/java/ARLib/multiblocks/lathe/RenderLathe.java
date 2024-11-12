@@ -51,9 +51,9 @@ public class RenderLathe implements BlockEntityRenderer<EntityLathe> {
                 return;
             }
             stack.pushPose();
+
             // Get the facing direction of the block
             Direction facing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
-
             // Apply rotation to the PoseStack based on the facing direction
             Vector3f axis = new Vector3f(0, 1, 0);
             float angle = 0;
@@ -76,6 +76,8 @@ public class RenderLathe implements BlockEntityRenderer<EntityLathe> {
             Quaternionf quaternion = new Quaternionf().fromAxisAngleRad(axis, angle);
             stack.rotateAround(quaternion, 0.5f, 0, 0.5f);
 
+// move so that the model aligns with the structure
+            stack.translate(0,-1,-2);
 
             model.renderAll(stack, bufferSource, packedLight, packedOverlay);
             stack.popPose();

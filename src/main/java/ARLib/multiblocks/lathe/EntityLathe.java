@@ -15,6 +15,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ARLib.ARLibRegistry.BLOCK_MOTOR;
+import static ARLib.ARLibRegistry.BLOCK_STRUCTURE;
 import static ARLib.multiblocks.MultiblockRegistry.BLOCK_LATHE;
 import static ARLib.multiblocks.MultiblockRegistry.ENTITY_LATHE;
 
@@ -37,7 +39,8 @@ public class EntityLathe extends BlockEntityMultiblockMaster implements INetwork
     }
 
     public static final Object[][][] structure = {
-            {{Blocks.DIAMOND_BLOCK, 'c', Blocks.DIAMOND_BLOCK}},
+            {{'c',BLOCK_MOTOR.get(), Blocks.AIR,'I'}},
+            {{'P', BLOCK_STRUCTURE.get(),BLOCK_STRUCTURE.get(),'O'}},
     };
 
     @Override
