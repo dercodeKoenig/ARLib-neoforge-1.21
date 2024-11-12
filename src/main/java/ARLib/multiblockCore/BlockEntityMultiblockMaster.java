@@ -82,11 +82,16 @@ public class BlockEntityMultiblockMaster extends BlockEntity{
     void un_replace_blocks(){
         Object[][][] structure = getStructure();
 
-        BlockState state = level.getBlockState(getBlockPos());
-        Direction front = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
+        Direction front = getFront();
+        if (front == null)return;
+
         Vec3i offset = getControllerOffset(structure);
 
-        level.setBlock(getBlockPos(),level.getBlockState(getBlockPos()).setValue(STATE_MULTIBLOCK_FORMED,false),3);
+        BlockState masterState = level.getBlockState(getBlockPos());
+        if (masterState.hasProperty(STATE_MULTIBLOCK_FORMED)) {
+            // if the master was removed, this can not be set so it goes in an if()
+            level.setBlock(getBlockPos(),masterState.setValue(STATE_MULTIBLOCK_FORMED, false), 3);
+        }
         setMultiblockFormed(false);
 
         for(int y = 0; y < structure.length; y++) {
@@ -129,8 +134,9 @@ public class BlockEntityMultiblockMaster extends BlockEntity{
     void replace_blocks(){
         Object[][][] structure = getStructure();
 
-        BlockState state = level.getBlockState(getBlockPos());
-        Direction front = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
+        Direction front = getFront();
+        if (front == null)return;
+
         Vec3i offset = getControllerOffset(structure);
 
         level.setBlock(getBlockPos(),level.getBlockState(getBlockPos()).setValue(STATE_MULTIBLOCK_FORMED,true),3);
@@ -183,13 +189,33 @@ public boolean scanStructure(){
         }
         return canComplete;
 }
+
+    Direction directionFallbackWhenAfterDestroy ;
+    Direction getFront(){
+        BlockState state = level.getBlockState(getBlockPos());
+        Direction front;
+        if(state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
+            front = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
+            directionFallbackWhenAfterDestroy = front;
+            return front;
+        }else{
+            if (directionFallbackWhenAfterDestroy != null){
+                front = directionFallbackWhenAfterDestroy;
+                return front;
+            }else{
+                return null;
+            }
+        }
+    }
     public boolean canCompleteStructure() {
         //Chunk chunk = level.getChunk(x, z, ChunkStatus.FULL, false); to force the chunk to load
 
         Object[][][] structure = getStructure();
 
-        BlockState state = level.getBlockState(getBlockPos());
-        Direction front = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
+        Direction front = getFront();
+        if (front == null)return false;
+
+
         Vec3i offset = getControllerOffset(structure);
 
         for (int y = 0; y < structure.length; y++) {
