@@ -50,7 +50,11 @@ public class BlockEntityMultiblockMaster extends BlockEntity{
 
     public void setMultiblockFormed(boolean formed) {
         this.isMultiblockFormed = formed;
-        level.setBlock(this.getBlockPos(),level.getBlockState(getBlockPos()).setValue(STATE_MULTIBLOCK_FORMED,formed),3);
+        BlockState masterState = level.getBlockState(getBlockPos());
+        if (masterState.hasProperty(STATE_MULTIBLOCK_FORMED)) {
+            // if the master was removed, this can not be set so it goes in an if()
+            level.setBlock(getBlockPos(),masterState.setValue(STATE_MULTIBLOCK_FORMED, formed), 3);
+        }
     }
 
     public boolean isMultiblockFormed() {
@@ -87,11 +91,6 @@ public class BlockEntityMultiblockMaster extends BlockEntity{
 
         Vec3i offset = getControllerOffset(structure);
 
-        BlockState masterState = level.getBlockState(getBlockPos());
-        if (masterState.hasProperty(STATE_MULTIBLOCK_FORMED)) {
-            // if the master was removed, this can not be set so it goes in an if()
-            level.setBlock(getBlockPos(),masterState.setValue(STATE_MULTIBLOCK_FORMED, false), 3);
-        }
         setMultiblockFormed(false);
 
         for(int y = 0; y < structure.length; y++) {
@@ -139,7 +138,6 @@ public class BlockEntityMultiblockMaster extends BlockEntity{
 
         Vec3i offset = getControllerOffset(structure);
 
-        level.setBlock(getBlockPos(),level.getBlockState(getBlockPos()).setValue(STATE_MULTIBLOCK_FORMED,true),3);
         setMultiblockFormed(true);
 
         for(int y = 0; y < structure.length; y++) {
