@@ -61,13 +61,21 @@ public abstract class BlockMultiblockMaster extends Block implements EntityBlock
 
     @Override
     public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hitResult) {
-        //if (!world.isClientSide) {
+        if (!world.isClientSide) {
             BlockEntity e = world.getBlockEntity(pos);
             if (e instanceof BlockEntityMultiblockMaster) {
                 boolean res = ((BlockEntityMultiblockMaster) e).scanStructure();
                 System.out.println(res);
             }
-        //}
+        }
         return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (level.getBlockEntity(pos) instanceof BlockEntityMultiblockMaster master) {
+            master.scanStructure();
+        }
+        super.onRemove(state,level,pos,newState,movedByPiston);
     }
 }

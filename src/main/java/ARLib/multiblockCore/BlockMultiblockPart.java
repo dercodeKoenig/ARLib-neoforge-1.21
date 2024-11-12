@@ -55,5 +55,6 @@ public class BlockMultiblockPart extends Block {
         if (getMasterBlockPos() != null && level.getBlockEntity(getMasterBlockPos()) instanceof BlockEntityMultiblockMaster master) {
             master.scanStructure();
         }
+        super.onRemove(state,level,pos,newState,movedByPiston);
     }
 }
