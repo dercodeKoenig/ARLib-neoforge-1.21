@@ -1,11 +1,11 @@
 package ARLib.blocks;
 
 import ARLib.blockentities.EntityItemInputBlock;
+import ARLib.multiblockCore.BlockMultiblockPart;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import static ARLib.ARLibRegistry.ENTITY_ITEM_INPUT_BLOCK;
 
 
-public class BlockItemInputBlock extends Block  implements EntityBlock {
+public class BlockItemInputBlock extends BlockMultiblockPart implements EntityBlock {
     public BlockItemInputBlock(Properties p_49795_) {
         super(p_49795_);
     }
@@ -48,5 +48,4 @@ public class BlockItemInputBlock extends Block  implements EntityBlock {
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         return EntityItemInputBlock::tick;
     }
-
 }

@@ -4,9 +4,9 @@
         "facing=south,state=false": { "model": "arlib:block/block_lathe", "y": 180 },
         "facing=west,state=false": { "model": "arlib:block/block_lathe", "y": 270 },
         "facing=east,state=false": { "model": "arlib:block/block_lathe", "y": 90 },
-        "facing=north,state=true": { "model": "arlib:block/block_lathe" },
-        "facing=south,state=true": { "model": "arlib:block/block_lathe", "y": 180 },
-        "facing=west,state=true": { "model": "arlib:block/block_lathe", "y": 270 },
-        "facing=east,state=true": { "model": "arlib:block/block_lathe", "y": 90 }
+        "facing=north,state=true": { "model": "minecraft:block/air" },
+        "facing=south,state=true": { "model": "minecraft:block/air", "y": 180 },
+        "facing=west,state=true": { "model": "minecraft:block/air", "y": 270 },
+        "facing=east,state=true": { "model": "minecraft:block/air", "y": 90 }
     }
 }

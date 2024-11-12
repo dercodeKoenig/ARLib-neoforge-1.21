@@ -84,7 +84,6 @@ public class EntityItemInputBlock extends BlockEntity implements IItemHandler, I
 
     public void openGui(){
         guiHandler.        openGui(176, 126);
-
     }
 
 

@@ -30,8 +30,7 @@ public class MultiblockRegistry {
     // lathe
     public static final DeferredHolder<Block, Block> BLOCK_LATHE = BLOCKS.register(
             "block_lathe",
-            () -> new BlockLathe(BlockBehaviour.Properties.of().strength(5.0F).noOcclusion())
-
+            () -> new BlockLathe(BlockBehaviour.Properties.of().strength(5.0F))
     );
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EntityLathe>> ENTITY_LATHE = BLOCK_ENTITIES.register(
             "entity_lathe",
@@ -39,16 +38,12 @@ public class MultiblockRegistry {
     );
 
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerBlockEntityRenderer(
-                // The block entity type to register the renderer for.
-                ENTITY_LATHE.get(),
-                // A function of BlockEntityRendererProvider.Context to BlockEntityRenderer.
-                RenderLathe::new
-        );
+        event.registerBlockEntityRenderer(ENTITY_LATHE.get(),RenderLathe::new);
     }
 
     public static void register(IEventBus modBus) {
         registerBlockItem("block_lathe", BLOCK_LATHE);
+
         BLOCKS.register(modBus);
         ITEMS.register(modBus);
         BLOCK_ENTITIES.register(modBus);

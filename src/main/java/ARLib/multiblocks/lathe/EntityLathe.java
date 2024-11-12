@@ -1,9 +1,8 @@
 package ARLib.multiblocks.lathe;
 
-import ARLib.blockentities.EntityEnergyInputBlock;
 import ARLib.gui.GuiHandlerBlockEntity;
 import ARLib.gui.IGuiHandler;
-import ARLib.multiblockCore.BlockEntityMultiblock;
+import ARLib.multiblockCore.BlockEntityMultiblockMaster;
 import ARLib.network.INetworkTagReceiver;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -20,30 +19,36 @@ import static ARLib.multiblocks.MultiblockRegistry.BLOCK_LATHE;
 import static ARLib.multiblocks.MultiblockRegistry.ENTITY_LATHE;
 
 
-public class EntityLathe extends BlockEntityMultiblock implements INetworkTagReceiver {
+public class EntityLathe extends BlockEntityMultiblockMaster implements INetworkTagReceiver {
 
     IGuiHandler guiHandler;
 
     public EntityLathe(BlockPos pos, BlockState state) {
         super(ENTITY_LATHE.get(), pos, state);
-        setupCharmappings();
-        guiHandler=new GuiHandlerBlockEntity(this);
+        guiHandler = new GuiHandlerBlockEntity(this);
     }
 
-
-    void setupCharmappings(){
+    @Override
+    public void setupCharmappings() {
+        super.setupCharmappings();
         List<Block> c = new ArrayList<>();
         c.add(BLOCK_LATHE.get());
-        addMapping('c',c);
+        setMapping('c', c);
     }
+
     public static final Object[][][] structure = {
             {{'c', Blocks.DIAMOND_BLOCK}},
     };
+
     @Override
     public Object[][][] getStructure() {
         return structure;
     }
 
+
+    public void openGui() {
+        guiHandler.openGui(176, 126);
+    }
 
     @Override
     public void readServer(CompoundTag tag) {
@@ -56,7 +61,7 @@ public class EntityLathe extends BlockEntityMultiblock implements INetworkTagRec
     }
 
     public static <x extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, x t) {
-        if(!level.isClientSide)
-            IGuiHandler.serverTick(((EntityLathe)t).guiHandler);
+        if (!level.isClientSide)
+            IGuiHandler.serverTick(((EntityLathe) t).guiHandler);
     }
 }

@@ -1,19 +1,13 @@
 package ARLib.multiblockCore;
 
-import ARLib.blockentities.EntityEnergyInputBlock;
-import ARLib.gui.IGuiHandler;
-import ARLib.multiblocks.lathe.EntityLathe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Connection;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -23,31 +17,43 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class BlockEntityMultiblock extends BlockEntity{
+import static ARLib.ARLibRegistry.BLOCK_ITEM_INPUT_BLOCK;
+import static ARLib.ARLibRegistry.BLOCK_ITEM_OUTPUT_BLOCK;
+import static ARLib.multiblockCore.BlockMultiblockMaster.STATE_MULTIBLOCK_FORMED;
 
-    // scan by block
+public class BlockEntityMultiblockMaster extends BlockEntity{
+
+
     protected static HashMap<Character, List<Block>> charMapping = new HashMap<>();
-    boolean isComplete = false;
+    private boolean isMultiblockFormed = false;
 
 
-    public BlockEntityMultiblock(BlockEntityType<?> p_155228_, BlockPos p_155229_, BlockState p_155230_) {
+    public BlockEntityMultiblockMaster(BlockEntityType<?> p_155228_, BlockPos p_155229_, BlockState p_155230_) {
         super(p_155228_, p_155229_, p_155230_);
-        isComplete = false;
+        setupCharmappings();
     }
+    public void setupCharmappings(){
+        List<Block> i = new ArrayList<>();
+        i.add(BLOCK_ITEM_INPUT_BLOCK.get());
+        setMapping('i',i);
 
-    public static void addMapping(char character, List<Block> listToAdd) {
+        List<Block> I = new ArrayList<>();
+        I.add(BLOCK_ITEM_OUTPUT_BLOCK.get());
+        setMapping('I',I);
+    }
+    public static void setMapping(char character, List<Block> listToAdd) {
         charMapping.put(character, listToAdd);
     }
-    public static List<Block> getMapping(char character) {
-        return charMapping.get(character);
+
+
+    public void setMultiblockFormed(boolean formed) {
+        this.isMultiblockFormed = formed;
+        level.setBlock(this.getBlockPos(),level.getBlockState(getBlockPos()).setValue(STATE_MULTIBLOCK_FORMED,formed),3);
     }
 
-    public boolean getIsComplete() {
-        return isComplete;
+    public boolean isMultiblockFormed() {
+        return isMultiblockFormed;
     }
-
-
-
 
     public Object[][][] getStructure() {
         return null;
@@ -63,9 +69,12 @@ public class BlockEntityMultiblock extends BlockEntity{
         }
         return null;
     }
-    public boolean completeStructure(BlockState state) {
+    public boolean completeStructure() {
+        //Chunk chunk = level.getChunk(x, z, ChunkStatus.FULL, false); to force the chunk to load
+
         Object[][][] structure = getStructure();
 
+        BlockState state = level.getBlockState(getBlockPos());
         Direction front = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
         Vec3i offset = getControllerOffset(structure);
 
@@ -95,8 +104,7 @@ public class BlockEntityMultiblock extends BlockEntity{
 
                 }}}
 
-        isComplete = true;
-        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+        setMultiblockFormed(true);
         setChanged();
         return true;
     }
@@ -129,18 +137,15 @@ public class BlockEntityMultiblock extends BlockEntity{
 
 
 
-    // This is for saving to disk - your main save method now
-    // Replaces the old writeToNBT basically
+
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.putBoolean("isComplete", isComplete);
     }
-    // LOAD from disk
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag,registries);
-        isComplete = tag.getBoolean("isComplete");
+        completeStructure();
     }
 
 

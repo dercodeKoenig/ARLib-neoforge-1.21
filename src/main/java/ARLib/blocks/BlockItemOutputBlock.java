@@ -4,6 +4,7 @@ import ARLib.blockentities.EntityItemOutputBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -27,4 +28,5 @@ public class BlockItemOutputBlock extends BlockItemInputBlock{
     public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
         return ENTITY_ITEM_OUTPUT_BLOCK.get().create(blockPos,blockState);
     }
+
 }
