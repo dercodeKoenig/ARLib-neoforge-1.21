@@ -1,5 +1,6 @@
 package ARLib.multiblockCore;
 
+import ARLib.blocks.BlockMultiblockPlaceholder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -12,13 +13,13 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static ARLib.ARLibRegistry.BLOCK_ITEM_INPUT_BLOCK;
-import static ARLib.ARLibRegistry.BLOCK_ITEM_OUTPUT_BLOCK;
+import static ARLib.ARLibRegistry.*;
 import static ARLib.multiblockCore.BlockMultiblockMaster.STATE_MULTIBLOCK_FORMED;
 
 public class BlockEntityMultiblockMaster extends BlockEntity{
@@ -69,6 +70,42 @@ public class BlockEntityMultiblockMaster extends BlockEntity{
         }
         return null;
     }
+
+    void replace_blocks(){
+        Object[][][] structure = getStructure();
+
+        BlockState state = level.getBlockState(getBlockPos());
+        Direction front = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
+        Vec3i offset = getControllerOffset(structure);
+
+        for(int y = 0; y < structure.length; y++) {
+            for(int z = 0; z < structure[0].length; z++) {
+                for(int x = 0; x< structure[0][0].length; x++) {
+                    //Ignore nulls
+                    if (structure[y][z][x] == null)
+                        continue;
+
+                    int globalX = getBlockPos().getX() + (x - offset.getX()) * front.getStepZ() - (z - offset.getZ()) * front.getStepX();
+                    int globalY = getBlockPos().getY() - y + offset.getY();
+                    int globalZ = getBlockPos().getZ() - (x - offset.getX()) * front.getStepX() - (z - offset.getZ()) * front.getStepZ();
+                    BlockPos globalPos = new BlockPos(globalX, globalY, globalZ);
+
+                    // this should load the chunk if it is not loaded
+                    ChunkAccess chunk = level.getChunk(globalPos);
+                    level.getChunk(chunk.getPos().x, chunk.getPos().z, ChunkStatus.FULL, true);
+
+                    BlockState blockState = level.getBlockState(globalPos);
+                    if (!(blockState.getBlock() instanceof BlockMultiblockPart) &&
+                            !(blockState.getBlock() instanceof BlockMultiblockMaster)
+                    ) {
+                        BlockState newState = BLOCK_PLACEHOLDER.get().defaultBlockState();
+                        level.setBlock(globalPos, newState, 3);
+                        ((BlockMultiblockPart) newState.getBlock()).setMasterBlockPos(newState, getBlockPos());
+                        ((BlockMultiblockPlaceholder) newState.getBlock()).setReplacedBlock(blockState);
+                    }
+                }}}
+    }
+
     public boolean completeStructure() {
         //Chunk chunk = level.getChunk(x, z, ChunkStatus.FULL, false); to force the chunk to load
 
@@ -90,20 +127,24 @@ public class BlockEntityMultiblockMaster extends BlockEntity{
                     int globalZ = getBlockPos().getZ() - (x - offset.getX())*front.getStepX()  - (z-offset.getZ())*front.getStepZ();
                     BlockPos globalPos = new BlockPos(globalX, globalY, globalZ);
 
+                    // this should load the chunk if it is not loaded
                     ChunkAccess chunk = level.getChunk(globalPos);
-                    boolean isLoaded = level.hasChunk(chunk.getPos().x, chunk.getPos().z);
-                    if(!isLoaded)
-                        return false;
+                    level.getChunk(chunk.getPos().x,chunk.getPos().z,ChunkStatus.FULL,true);
+
 
                     BlockState blockState = level.getBlockState(globalPos);
                     Block block = blockState.getBlock();
 
-                    if (!getAllowableBlocks(structure[y][z][x]).contains(block)){
+                    if (block instanceof BlockMultiblockPart mbp && !mbp.masterBlockPos.equals(getBlockPos())){
+                        return false;
+                    }
+                    else if (!getAllowableBlocks(structure[y][z][x]).contains(block)){
                         return false;
                     }
 
                 }}}
 
+        replace_blocks();
         setMultiblockFormed(true);
         setChanged();
         return true;

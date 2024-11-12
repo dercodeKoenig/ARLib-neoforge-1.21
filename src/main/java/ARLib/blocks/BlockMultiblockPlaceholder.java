@@ -31,7 +31,7 @@ public class BlockMultiblockPlaceholder extends BlockMultiblockPart {
                 popResource(world, pos, stack);
             }
 
-            if (super.getMasterBlockPos() != null && world.getBlockEntity(super.getMasterBlockPos()) instanceof BlockEntityMultiblockMaster) {
+            if (super.getMasterBlockPos() != null && world.getBlockEntity(super.getMasterBlockPos()) instanceof BlockEntityMultiblockMaster master) {
 
             }
         }

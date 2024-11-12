@@ -46,8 +46,10 @@ public class RenderLathe implements BlockEntityRenderer<EntityLathe> {
             if (state.getValue(STATE_MULTIBLOCK_FORMED) == false) {
                 return;
             }
+
+            model.renderAll(stack, bufferSource, packedLight, packedOverlay);
+
         }
-        model.renderAll(stack, bufferSource, packedLight, packedOverlay);
     }
 }
 

@@ -43,7 +43,7 @@ public abstract class BlockMultiblockMaster extends Block implements EntityBlock
 
     @Override
     public int getLightBlock(BlockState state, BlockGetter world, BlockPos pos) {
-        return state.getValue(STATE_MULTIBLOCK_FORMED) ? 8 : 15; // Light passes through if multiblock is formed assuming it may not cover the entire block, fully blocks it otherwise
+        return state.getValue(STATE_MULTIBLOCK_FORMED) ? 0 : 15; // Light passes through if multiblock is formed assuming it may not cover the entire block, fully blocks it otherwise
     }
 
 
