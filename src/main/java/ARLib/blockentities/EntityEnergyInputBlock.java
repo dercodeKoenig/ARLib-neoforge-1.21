@@ -10,6 +10,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
@@ -21,7 +22,10 @@ public class EntityEnergyInputBlock extends BlockEntity implements IEnergyStorag
     IGuiHandler guiHandler;
 
     public EntityEnergyInputBlock(BlockPos p_155229_, BlockState p_155230_) {
-        super(ENTITY_ENERGY_INPUT_BLOCK.get(), p_155229_, p_155230_);
+        this(ENTITY_ENERGY_INPUT_BLOCK.get(), p_155229_, p_155230_);
+    }
+    public EntityEnergyInputBlock(BlockEntityType type, BlockPos p_155229_, BlockState p_155230_) {
+        super(type, p_155229_, p_155230_);
         energyStorage = new UniversalBattery(10000);
         this.guiHandler = new GuiHandlerBlockEntity(this);
         this.guiHandler.registerModule(new guiModuleEnergy(0,this,this.guiHandler,10,10));

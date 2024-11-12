@@ -1,11 +1,15 @@
 package ARLib.multiblockCore;
 
 import ARLib.blocks.BlockMultiblockPlaceholder;
+import com.mojang.serialization.DataResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -28,6 +32,8 @@ public class BlockEntityMultiblockMaster extends BlockEntity{
 
     protected static HashMap<Character, List<Block>> charMapping = new HashMap<>();
     private boolean isMultiblockFormed = false;
+    ListTag replacedBlockStates;
+    //HashMap<BlockPos, BlockState> replacedBlockstates = new HashMap<>();
 
 
     public BlockEntityMultiblockMaster(BlockEntityType<?> p_155228_, BlockPos p_155229_, BlockState p_155230_) {
@@ -35,13 +41,17 @@ public class BlockEntityMultiblockMaster extends BlockEntity{
         setupCharmappings();
     }
     public void setupCharmappings(){
-        List<Block> i = new ArrayList<>();
-        i.add(BLOCK_ITEM_INPUT_BLOCK.get());
-        setMapping('i',i);
-
         List<Block> I = new ArrayList<>();
-        I.add(BLOCK_ITEM_OUTPUT_BLOCK.get());
+        I.add(BLOCK_ITEM_INPUT_BLOCK.get());
         setMapping('I',I);
+
+        List<Block> O = new ArrayList<>();
+        O.add(BLOCK_ITEM_OUTPUT_BLOCK.get());
+        setMapping('O',O);
+
+        List<Block> P = new ArrayList<>();
+        P.add(BLOCK_ENERGY_INPUT_BLOCK.get());
+        setMapping('O',P);
     }
     public static void setMapping(char character, List<Block> listToAdd) {
         charMapping.put(character, listToAdd);
@@ -68,6 +78,25 @@ public class BlockEntityMultiblockMaster extends BlockEntity{
     @Override
     public void onLoad(){
         super.onLoad();
+        if(replacedBlockStates!=null){
+            for (int i = 0; i < replacedBlockStates.size(); i++) {
+                CompoundTag info = (CompoundTag) replacedBlockStates.get(i);
+                if (info.contains("BlockState")) {
+                    CompoundTag blockStateNbt = info.getCompound("BlockState");
+                    DataResult<BlockState> decodedBlockState = BlockState.CODEC.parse(NbtOps.INSTANCE, blockStateNbt);
+                    BlockState state = decodedBlockState.getOrThrow();
+                    int x = info.getInt("x");
+                    int y = info.getInt("y");
+                    int z = info.getInt("z");
+
+                    Block b = level.getBlockState(new BlockPos(x,y,z)).getBlock();
+                    if (b instanceof BlockMultiblockPlaceholder){
+                        ((BlockMultiblockPlaceholder) b).setReplacedBlock(state);
+                    }
+
+                }
+            }
+        }
         scanStructure();
     }
 
@@ -110,7 +139,6 @@ public class BlockEntityMultiblockMaster extends BlockEntity{
                     level.getChunk(chunk.getPos().x, chunk.getPos().z, ChunkStatus.FULL, true);
 
                     BlockState blockState = level.getBlockState(globalPos);
-
                     if (blockState.getBlock() instanceof BlockMultiblockPlaceholder p){
                         BlockState replacedBlock =p.getReplacedBlock();
                         if(replacedBlock != null){
@@ -122,7 +150,6 @@ public class BlockEntityMultiblockMaster extends BlockEntity{
 
                     BlockState newBlockState =level.getBlockState(globalPos);
                     Block newBlock = newBlockState.getBlock();
-
                     if (newBlock instanceof BlockMultiblockPart bmp) {
                         bmp.setMasterBlockPos(null);
                         level.setBlock(globalPos,newBlockState.setValue(STATE_MULTIBLOCK_FORMED,false),3);
@@ -157,19 +184,19 @@ public class BlockEntityMultiblockMaster extends BlockEntity{
                     level.getChunk(chunk.getPos().x, chunk.getPos().z, ChunkStatus.FULL, true);
 
                     BlockState blockState = level.getBlockState(globalPos);
-
                     // replace blocks that are not multiblock parts with placeholders to make them not render
                     if (!(blockState.getBlock() instanceof BlockMultiblockPart) &&
                             !(blockState.getBlock() instanceof BlockMultiblockMaster)
                     ) {
-                        BlockState newState = BLOCK_PLACEHOLDER.get().defaultBlockState();
-                        ((BlockMultiblockPlaceholder) newState.getBlock()).setReplacedBlock(blockState);
+                        BlockMultiblockPlaceholder p = (BlockMultiblockPlaceholder) BLOCK_PLACEHOLDER.get();
+                        BlockState newState = p.defaultBlockState();
+                        p.setReplacedBlock(blockState);
                         level.setBlock(globalPos, newState, 3);
                     }
 
+
                     BlockState newBlockState =level.getBlockState(globalPos);
                     Block newBlock = newBlockState.getBlock();
-
                     if (newBlock instanceof BlockMultiblockPart bmp) {
                         bmp.setMasterBlockPos(getBlockPos());
                         level.setBlock(globalPos,newBlockState.setValue(STATE_MULTIBLOCK_FORMED,true),3);
@@ -280,10 +307,67 @@ public boolean scanStructure(){
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
+
+
+        ListTag replacedStateList = new ListTag();
+
+        Object[][][] structure = getStructure();
+
+        Direction front = getFront();
+        if (front != null) {
+            Vec3i offset = getControllerOffset(structure);
+
+            for (int y = 0; y < structure.length; y++) {
+                for (int z = 0; z < structure[0].length; z++) {
+                    for (int x = 0; x < structure[0][0].length; x++) {
+                        System.out.println("check"+x+":"+y+":"+z);
+                        //Ignore nulls
+                        if (structure[y][z][x] == null)
+                            continue;
+
+                        int globalX = getBlockPos().getX() + (x - offset.getX()) * front.getStepZ() - (z - offset.getZ()) * front.getStepX();
+                        int globalY = getBlockPos().getY() - y + offset.getY();
+                        int globalZ = getBlockPos().getZ() - (x - offset.getX()) * front.getStepX() - (z - offset.getZ()) * front.getStepZ();
+                        BlockPos globalPos = new BlockPos(globalX, globalY, globalZ);
+
+                        // this should load the chunk if it is not loaded
+                        ChunkAccess chunk = level.getChunk(globalPos);
+                        level.getChunk(chunk.getPos().x, chunk.getPos().z, ChunkStatus.FULL, true);
+
+
+                        BlockState blockState = level.getBlockState(globalPos);
+                        Block block = blockState.getBlock();
+
+                        if (block instanceof BlockMultiblockPlaceholder p && p.getReplacedBlock() != null) {
+                            BlockState replacedBLock = p.getReplacedBlock();
+                            System.out.println("save"+replacedBLock);
+
+                            CompoundTag info = new CompoundTag();
+                            info.putInt("x",globalX);
+                            info.putInt("y",globalY);
+                            info.putInt("z",globalZ);
+                            DataResult<CompoundTag> encodedBlockState = BlockState.CODEC.encodeStart(NbtOps.INSTANCE,replacedBLock)
+                                    .map(nbtTag -> (CompoundTag) nbtTag);
+                            System.out.println(encodedBlockState);
+                            System.out.println(encodedBlockState.getOrThrow());
+
+                            info.put("BlockState",encodedBlockState.getOrThrow());//.ifPresent(encodedNbt -> info.put("BlockState", encodedNbt));
+
+                            System.out.println("saved!");
+                            replacedStateList.add(info);
+
+
+                        }
+                    }
+                }
+            }
+        }
+        tag.put("replacedBlockList",replacedStateList);
     }
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag,registries);
+        replacedBlockStates = tag.getList("replacedBlockList", Tag.TAG_LIST);
     }
 
 
