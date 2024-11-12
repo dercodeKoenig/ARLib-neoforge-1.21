@@ -7,8 +7,12 @@ import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import static ARLib.multiblockCore.BlockMultiblockMaster.STATE_MULTIBLOCK_FORMED;
 
@@ -46,9 +50,35 @@ public class RenderLathe implements BlockEntityRenderer<EntityLathe> {
             if (state.getValue(STATE_MULTIBLOCK_FORMED) == false) {
                 return;
             }
+            stack.pushPose();
+            // Get the facing direction of the block
+            Direction facing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
+
+            // Apply rotation to the PoseStack based on the facing direction
+            Vector3f axis = new Vector3f(0, 1, 0);
+            float angle = 0;
+
+            switch (facing) {
+                case NORTH:
+                    angle = 90;
+                    break;
+                case EAST:
+                    angle = 0;
+                    break;
+                case SOUTH:
+                    angle = 270;
+                    break;
+                case WEST:
+                    angle = 180;
+                    break;
+            }
+            angle = (float) Math.toRadians(angle);
+            Quaternionf quaternion = new Quaternionf().fromAxisAngleRad(axis, angle);
+            stack.rotateAround(quaternion, 0.5f, 0, 0.5f);
+
 
             model.renderAll(stack, bufferSource, packedLight, packedOverlay);
-
+            stack.popPose();
         }
     }
 }

@@ -11,12 +11,12 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +27,7 @@ public abstract class BlockMultiblockMaster extends Block implements EntityBlock
     public static final BooleanProperty STATE_MULTIBLOCK_FORMED = BooleanProperty.create("state");
 
     public BlockMultiblockMaster(Properties p_49795_) {
-        super(p_49795_.noOcclusion());
+        super(p_49795_.noOcclusion().pushReaction(PushReaction.IGNORE));
         this.registerDefaultState(this.stateDefinition.any().setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH).setValue(STATE_MULTIBLOCK_FORMED, false));
     }
 
@@ -43,7 +43,7 @@ public abstract class BlockMultiblockMaster extends Block implements EntityBlock
 
     @Override
     public int getLightBlock(BlockState state, BlockGetter world, BlockPos pos) {
-        return state.getValue(STATE_MULTIBLOCK_FORMED) ? 0 : 15; // Light passes through if multiblock is formed assuming it may not cover the entire block, fully blocks it otherwise
+        return 0;
     }
 
 
@@ -61,11 +61,13 @@ public abstract class BlockMultiblockMaster extends Block implements EntityBlock
 
     @Override
     public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hitResult) {
-        BlockEntity e = world.getBlockEntity(pos);
-        if (e instanceof BlockEntityMultiblockMaster){
-            boolean res = ((BlockEntityMultiblockMaster) e).completeStructure();
-            System.out.println(res);
-        }
+        //if (!world.isClientSide) {
+            BlockEntity e = world.getBlockEntity(pos);
+            if (e instanceof BlockEntityMultiblockMaster) {
+                boolean res = ((BlockEntityMultiblockMaster) e).scanStructure();
+                System.out.println(res);
+            }
+        //}
         return InteractionResult.SUCCESS;
     }
 }

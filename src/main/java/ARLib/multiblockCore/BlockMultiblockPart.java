@@ -5,10 +5,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.material.PushReaction;
 
 import javax.annotation.Nonnull;
 
@@ -20,7 +22,7 @@ public class BlockMultiblockPart extends Block {
     BlockPos masterBlockPos = null;
 
     public BlockMultiblockPart(Properties properties) {
-        super(properties.noOcclusion());
+        super(properties.noOcclusion().pushReaction(PushReaction.IGNORE));
         this.registerDefaultState(this.stateDefinition.any().setValue(STATE_MULTIBLOCK_FORMED, false));
 
     }
@@ -28,26 +30,13 @@ public class BlockMultiblockPart extends Block {
     public BlockPos getMasterBlockPos() {
         return masterBlockPos;
     }
-    public void setMasterBlockPos(BlockState state, BlockPos pos) {
+    public void setMasterBlockPos(BlockPos pos) {
         this.masterBlockPos = pos;
-        if (pos != null){
-            state.setValue(STATE_MULTIBLOCK_FORMED,true);
-        }
-        else{
-            state.setValue(STATE_MULTIBLOCK_FORMED,false);
-        }
     }
 
     @Override
     public int getLightBlock(BlockState state, BlockGetter world, BlockPos pos) {
-        if (state.getBlock() instanceof BlockMultiblockPart bb){
-            if(bb.masterBlockPos != null){
-                // if a masterblock is assigned it is part of a multiblock structure so no light blocking
-                // light blocking can cause the structure to have wrong light
-                return 0;
-            }
-        }
-        return 15;
+        return 0;
     }
 
     @Override
@@ -59,5 +48,12 @@ public class BlockMultiblockPart extends Block {
     @Nonnull
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState().setValue(STATE_MULTIBLOCK_FORMED, false);
+    }
+
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (getMasterBlockPos() != null && level.getBlockEntity(getMasterBlockPos()) instanceof BlockEntityMultiblockMaster master) {
+            master.scanStructure();
+        }
     }
 }

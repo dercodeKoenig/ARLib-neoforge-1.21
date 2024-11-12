@@ -3,11 +3,13 @@ package ARLib.blocks;
 import ARLib.multiblockCore.BlockEntityMultiblockMaster;
 import ARLib.multiblockCore.BlockMultiblockPart;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 
 public class BlockMultiblockPlaceholder extends BlockMultiblockPart {
 
@@ -20,22 +22,21 @@ public class BlockMultiblockPlaceholder extends BlockMultiblockPart {
     public void setReplacedBlock(BlockState replacedBlock){
         this.replacedBlock = replacedBlock;
     }
+    public BlockState getReplacedBlock(){
+        return replacedBlock;
+    }
 
     // This method will drop the replaced block when the placeholder block is broken
     @Override
-    public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
+    public boolean onDestroyedByPlayer(BlockState state, Level world, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
         if (!world.isClientSide) {
             // Drop the replaced block as an item
-            if (replacedBlock != null) {
+            if (replacedBlock != null && willHarvest) {
                 ItemStack stack = new ItemStack(replacedBlock.getBlock());
                 popResource(world, pos, stack);
             }
-
-            if (super.getMasterBlockPos() != null && world.getBlockEntity(super.getMasterBlockPos()) instanceof BlockEntityMultiblockMaster master) {
-
-            }
         }
-        super.onRemove(state, world, pos, newState, isMoving);
+        return super.onDestroyedByPlayer(state,world,pos,player,willHarvest,fluid);
     }
 
 }

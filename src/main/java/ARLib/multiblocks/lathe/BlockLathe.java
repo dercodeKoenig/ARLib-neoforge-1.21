@@ -16,9 +16,7 @@ import static ARLib.multiblocks.MultiblockRegistry.ENTITY_LATHE;
 
 public class BlockLathe extends BlockMultiblockMaster {
 
-    public BlockLathe(Properties properties) {
-        super(properties);
-    }
+    public BlockLathe(Properties properties) {super(properties);}
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {

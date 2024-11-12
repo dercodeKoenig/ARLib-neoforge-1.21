@@ -37,7 +37,7 @@ public class EntityLathe extends BlockEntityMultiblockMaster implements INetwork
     }
 
     public static final Object[][][] structure = {
-            {{'c', Blocks.DIAMOND_BLOCK}},
+            {{Blocks.DIAMOND_BLOCK, 'c', Blocks.DIAMOND_BLOCK}},
     };
 
     @Override
