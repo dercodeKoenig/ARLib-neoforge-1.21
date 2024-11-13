@@ -72,10 +72,12 @@ public class guiModuleItemHandlerSlot extends guiModuleInventorySlotBase {
 
     @Override
     public ItemStack insertItemIntoSlot(Player player, ItemStack stack, int amount) {
-        ItemStack toInsert = stack.copyWithCount(amount);
-        ItemStack notInserted = itemHandler.insertItem(targetSlot,toInsert,false);
-        int inserted = toInsert.getCount() - notInserted.getCount();
-        return stack.copyWithCount(stack.getCount()-inserted);
+
+            ItemStack toInsert = stack.copyWithCount(amount);
+            ItemStack notInserted = itemHandler.insertItem(targetSlot, toInsert, false);
+            int inserted = toInsert.getCount() - notInserted.getCount();
+            return stack.copyWithCount(stack.getCount() - inserted);
+
     }
 
     @Override

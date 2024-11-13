@@ -64,8 +64,7 @@ public abstract class BlockMultiblockMaster extends Block implements EntityBlock
         if (!world.isClientSide) {
             BlockEntity e = world.getBlockEntity(pos);
             if (e instanceof BlockEntityMultiblockMaster) {
-                boolean res = ((BlockEntityMultiblockMaster) e).scanStructure();
-                System.out.println(res);
+                ((BlockEntityMultiblockMaster) e).scanStructure();
             }
         }
         return InteractionResult.SUCCESS;

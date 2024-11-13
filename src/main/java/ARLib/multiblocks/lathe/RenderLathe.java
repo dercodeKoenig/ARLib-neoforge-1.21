@@ -45,15 +45,12 @@ public class RenderLathe implements BlockEntityRenderer<EntityLathe> {
     // - packedOverlay: The current overlay value of the block entity, usually OverlayTexture.NO_OVERLAY.
     @Override
     public void render(EntityLathe tile, float partialTick, PoseStack stack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-        BlockState state = tile.getLevel().getBlockState(tile.getBlockPos());
-        if (state.getBlock() instanceof BlockMultiblockMaster) {
-            if (state.getValue(STATE_MULTIBLOCK_FORMED) == false) {
-                return;
-            }
-            stack.pushPose();
 
+        if (tile.isMultiblockFormed()) {
+
+            stack.pushPose();
             // Get the facing direction of the block
-            Direction facing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
+            Direction facing = tile.getFacing();
             // Apply rotation to the PoseStack based on the facing direction
             Vector3f axis = new Vector3f(0, 1, 0);
             float angle = 0;
@@ -77,7 +74,7 @@ public class RenderLathe implements BlockEntityRenderer<EntityLathe> {
             stack.rotateAround(quaternion, 0.5f, 0, 0.5f);
 
 // move so that the model aligns with the structure
-            stack.translate(0,-1,-2);
+            stack.translate(0, -1, -2);
 
             model.renderAll(stack, bufferSource, packedLight, packedOverlay);
             stack.popPose();

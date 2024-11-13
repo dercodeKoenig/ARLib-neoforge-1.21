@@ -21,7 +21,7 @@ import static ARLib.multiblocks.MultiblockRegistry.BLOCK_LATHE;
 import static ARLib.multiblocks.MultiblockRegistry.ENTITY_LATHE;
 
 
-public class EntityLathe extends BlockEntityMultiblockMaster implements INetworkTagReceiver {
+public class EntityLathe extends BlockEntityMultiblockMaster {
 
     IGuiHandler guiHandler;
 
@@ -56,11 +56,13 @@ public class EntityLathe extends BlockEntityMultiblockMaster implements INetwork
     @Override
     public void readServer(CompoundTag tag) {
         guiHandler.readServer(tag);
+        super.readServer(tag);
     }
 
     @Override
     public void readClient(CompoundTag tag) {
         guiHandler.readClient(tag);
+        super.readClient(tag);
     }
 
     public static <x extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, x t) {

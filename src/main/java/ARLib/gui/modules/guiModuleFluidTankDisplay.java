@@ -59,7 +59,6 @@ public class guiModuleFluidTankDisplay extends GuiModuleBase {
         FluidStack f = fluidHandler.getFluidInTank(targetSlot);
         if (f.isEmpty()){
             myTag.putBoolean("hasFluid",false);
-            System.out.println("no fluid");
         }else{
             myTag.putBoolean("hasFluid",true);
             Tag fluid = fluidHandler.getFluidInTank(targetSlot).save(registryAccess);
@@ -116,17 +115,20 @@ public class guiModuleFluidTankDisplay extends GuiModuleBase {
             float partialTick
     ) {
 
-        double relative_fluid_level = (double) client_myFluidStack.getAmount() / maxCapacity;
-        int y_offset = (int) ((1 - relative_fluid_level) * bar_size_h);
-
         guiGraphics.blit(fluid_bar_background, onGuiX, onGuiY, 0, 0, w, h, fluid_bar_background_tw, fluid_bar_background_th);
 
-        int color = client_myFluidStack.getFluid().defaultFluidState().createLegacyBlock().getMapColor(null, null).col;
-        color = color | 0xFF000000;
-        guiGraphics.fill(onGuiX + fluid_bar_offset_x, onGuiY + fluid_bar_offset_y + y_offset, onGuiX + bar_size_w, onGuiY + bar_size_h, color);
-
+        if(!client_myFluidStack.isEmpty()) {
+            double relative_fluid_level = (double) client_myFluidStack.getAmount() / maxCapacity;
+            int y_offset = (int) ((1 - relative_fluid_level) * bar_size_h);
+            int color = client_myFluidStack.getFluid().defaultFluidState().createLegacyBlock().getMapColor(null, null).col;
+            color = color | 0xFF000000;
+            guiGraphics.fill(onGuiX + fluid_bar_offset_x, onGuiY + fluid_bar_offset_y + y_offset, onGuiX + bar_size_w, onGuiY + bar_size_h, color);
+        }
         if (client_isMouseOver(mouseX, mouseY, onGuiX, onGuiY, w, h)) {
-            String info = client_myFluidStack.getHoverName().getString()+":"+client_myFluidStack.getAmount()+"/"+maxCapacity+"mb";
+            String info = "0/"+maxCapacity+"mb)";
+            if(!client_myFluidStack.isEmpty()) {
+                info = client_myFluidStack.getHoverName().getString() + ":" + client_myFluidStack.getAmount() + "/" + maxCapacity + "mb";
+            }
             guiGraphics.renderTooltip(Minecraft.getInstance().font, Component.literal(info),mouseX,mouseY);
         }
 

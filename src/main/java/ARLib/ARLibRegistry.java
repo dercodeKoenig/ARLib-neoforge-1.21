@@ -46,6 +46,9 @@ public class ARLibRegistry {
     public static final Supplier<Block> BLOCK_FLUID_INPUT_BLOCK = BLOCKS.register("block_fluid_input_block", () -> new BlockFluidInputBlock(BlockBehaviour.Properties.of().strength(2,2)));
     public static final Supplier<BlockEntityType<?>> ENTITY_FLUID_INPUT_BLOCK = BLOCK_ENTITIES.register("entity_fluid_input_block", () -> BlockEntityType.Builder.of(EntityFluidInputBlock::new, BLOCK_FLUID_INPUT_BLOCK.get()).build(null));
 
+    public static final Supplier<Block> BLOCK_FLUID_OUTPUT_BLOCK = BLOCKS.register("block_fluid_output_block", () -> new BlockFluidOutputBlock(BlockBehaviour.Properties.of().strength(2,2)));
+    public static final Supplier<BlockEntityType<?>> ENTITY_FLUID_OUTPUT_BLOCK = BLOCK_ENTITIES.register("entity_fluid_output_block", () -> BlockEntityType.Builder.of(EntityFluidOutputBlock::new, BLOCK_FLUID_OUTPUT_BLOCK.get()).build(null));
+
     public static final Supplier<Block> BLOCK_PLACEHOLDER = BLOCKS.register("block_placeholder", () -> new BlockMultiblockPlaceholder(BlockBehaviour.Properties.of().strength(2,2)));
     public static final Supplier<BlockEntityType<?>> ENTITY_PLACEHOLDER = BLOCK_ENTITIES.register("entity_placeholder", () -> BlockEntityType.Builder.of(EntityMultiblockPlaceholder::new, BLOCK_PLACEHOLDER.get()).build(null));
 
@@ -60,6 +63,7 @@ public class ARLibRegistry {
         registerBlockItem("block_item_input_block", BLOCK_ITEM_INPUT_BLOCK);
         registerBlockItem("block_item_output_block", BLOCK_ITEM_OUTPUT_BLOCK);
         registerBlockItem("block_fluid_input_block", BLOCK_FLUID_INPUT_BLOCK);
+        registerBlockItem("block_fluid_output_block", BLOCK_FLUID_OUTPUT_BLOCK);
         registerBlockItem("block_motor_block", BLOCK_MOTOR);
         registerBlockItem("block_structure_block", BLOCK_STRUCTURE);
 
@@ -75,6 +79,7 @@ public class ARLibRegistry {
             e.accept(BLOCK_ITEM_INPUT_BLOCK.get());
             e.accept(BLOCK_ITEM_OUTPUT_BLOCK.get());
             e.accept(BLOCK_FLUID_INPUT_BLOCK.get());
+            e.accept(BLOCK_FLUID_OUTPUT_BLOCK.get());
             e.accept(BLOCK_MOTOR.get());
         }
     }
@@ -85,5 +90,6 @@ public class ARLibRegistry {
         e.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ARLibRegistry.ENTITY_ITEM_INPUT_BLOCK.get(), (x, y) -> ((EntityItemInputBlock) x));
         e.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ARLibRegistry.ENTITY_ITEM_OUTPUT_BLOCK.get(), (x, y) -> ((EntityItemOutputBlock) x));
         e.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ARLibRegistry.ENTITY_FLUID_INPUT_BLOCK.get(), (x, y) -> ((EntityFluidInputBlock) x));
+        e.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ARLibRegistry.ENTITY_FLUID_OUTPUT_BLOCK.get(), (x, y) -> ((EntityFluidOutputBlock) x));
     }
 }

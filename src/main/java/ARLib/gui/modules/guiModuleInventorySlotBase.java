@@ -19,6 +19,11 @@ public abstract class guiModuleInventorySlotBase extends GuiModuleBase {
     ResourceLocation slot_background = ResourceLocation.fromNamespaceAndPath("arlib","textures/gui/gui_item_slot_background.png");
     int slot_bg_w = 18;
     int slot_bg_h = 18;
+    public void setSlotBackground(ResourceLocation bg, int textureWidth, int textureHeight){
+        slot_background = bg;
+        slot_bg_h = textureHeight;
+        slot_bg_w = textureWidth;
+    }
 
     int w = 18;
     int h = 18;
@@ -147,7 +152,7 @@ public abstract class guiModuleInventorySlotBase extends GuiModuleBase {
         guiGraphics.blit(slot_background,onGuiX,onGuiY,0f,0f,w,h,slot_bg_w,slot_bg_h);
         ModularScreen.renderItemStack(guiGraphics,onGuiX,onGuiY, client_getItemStackToRender());
 
-        if(client_isMouseOver(mouseX,mouseY,onGuiX,onGuiY,w,h)){
+        if(!client_getItemStackToRender().isEmpty() && client_isMouseOver(mouseX,mouseY,onGuiX,onGuiY,w,h)){
             guiGraphics.fill(onGuiX,onGuiY,w+onGuiX,h+onGuiY, 0x30FFFFFF); // Semi-transparent white
             guiGraphics.renderTooltip(Minecraft.getInstance().font, client_getItemStackToRender(),mouseX,mouseY);
         }

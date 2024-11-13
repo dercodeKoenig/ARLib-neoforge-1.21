@@ -1,5 +1,7 @@
 package ARLib.multiblockCore;
 
+import ARLib.network.INetworkTagReceiver;
+import ARLib.network.PacketBlockEntity;
 import com.mojang.serialization.DataResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -9,6 +11,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -18,6 +22,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,11 +31,12 @@ import java.util.List;
 import static ARLib.ARLibRegistry.*;
 import static ARLib.multiblockCore.BlockMultiblockMaster.STATE_MULTIBLOCK_FORMED;
 
-public class BlockEntityMultiblockMaster extends BlockEntity {
+public class BlockEntityMultiblockMaster extends BlockEntity implements INetworkTagReceiver {
 
 
     protected static HashMap<Character, List<Block>> charMapping = new HashMap<>();
     private boolean isMultiblockFormed = false;
+    private Direction facing = Direction.EAST;
 
 
     public BlockEntityMultiblockMaster(BlockEntityType<?> p_155228_, BlockPos p_155229_, BlockState p_155230_) {
@@ -58,16 +64,24 @@ public class BlockEntityMultiblockMaster extends BlockEntity {
 
 
     public void setMultiblockFormed(boolean formed) {
+        System.out.println("multiblock formed at "+getBlockPos() + " :: "+formed);
         this.isMultiblockFormed = formed;
+        setChanged();
         BlockState masterState = level.getBlockState(getBlockPos());
         if (masterState.hasProperty(STATE_MULTIBLOCK_FORMED)) {
             // if the master was removed, this can not be set so it goes in an if()
             level.setBlock(getBlockPos(), masterState.setValue(STATE_MULTIBLOCK_FORMED, formed), 3);
         }
+        CompoundTag info = new CompoundTag();
+        info.putBoolean("isMultiblockFormed", isMultiblockFormed);
+        PacketDistributor.sendToPlayersTrackingChunk((ServerLevel)level, new ChunkPos(getBlockPos()), PacketBlockEntity.getBlockEntityPacket(this, info));
     }
 
     public boolean isMultiblockFormed() {
         return isMultiblockFormed;
+    }
+    public  Direction getFacing(){
+        return this.facing;
     }
 
     public Object[][][] getStructure() {
@@ -76,10 +90,17 @@ public class BlockEntityMultiblockMaster extends BlockEntity {
 
     @Override
     public void onLoad() {
+        // maybe request additional data from server in here if needed using custom packets
+
         super.onLoad();
-        if(!level.isClientSide) {
+        if (!level.isClientSide) {
             scanStructure();
         }
+        if(level.isClientSide){
+            // set isMultiblockFormed from blockstate - after this it will be updated in network packet when it changes
+            isMultiblockFormed = level.getBlockState(getBlockPos()).getValue(STATE_MULTIBLOCK_FORMED);
+        }
+        this.facing = level.getBlockState(getBlockPos()).getValue(BlockStateProperties.HORIZONTAL_FACING);
     }
 
     protected Vec3i getControllerOffset(Object[][][] structure) {
@@ -132,7 +153,7 @@ public class BlockEntityMultiblockMaster extends BlockEntity {
                     BlockState blockState = level.getBlockState(globalPos);
                     Block newBlock = blockState.getBlock();
                     if (newBlock instanceof BlockMultiblockPart bmp) {
-                        bmp.setMaster(globalPos,null);
+                        bmp.setMaster(globalPos, null);
                         level.setBlock(globalPos, blockState.setValue(STATE_MULTIBLOCK_FORMED, false), 3);
                     }
                 }
@@ -175,8 +196,8 @@ public class BlockEntityMultiblockMaster extends BlockEntity {
                         BlockMultiblockPlaceholder p = (BlockMultiblockPlaceholder) BLOCK_PLACEHOLDER.get();
                         BlockState newState = p.defaultBlockState();
                         level.setBlock(globalPos, newState, 3);
-                        EntityMultiblockPlaceholder tile = (EntityMultiblockPlaceholder)level.getBlockEntity(globalPos);
-                        tile.replacedState =blockState;
+                        EntityMultiblockPlaceholder tile = (EntityMultiblockPlaceholder) level.getBlockEntity(globalPos);
+                        tile.replacedState = blockState;
                         blockState = newState;
                     }
 
@@ -189,15 +210,16 @@ public class BlockEntityMultiblockMaster extends BlockEntity {
         }
     }
 
-    public boolean scanStructure() {
-        boolean canComplete = canCompleteStructure();
+    public void scanStructure() {
+        if(level.isClientSide)return;
 
+        boolean canComplete = canCompleteStructure();
         if (!canComplete) {
             un_replace_blocks();
         } else {
             replace_blocks();
         }
-        return canComplete;
+        return;
     }
 
     Direction directionFallbackWhenAfterDestroy;
@@ -294,8 +316,18 @@ public class BlockEntityMultiblockMaster extends BlockEntity {
         super.loadAdditional(tag, registries);
     }
 
-
     public static <x extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, x t) {
 
+    }
+
+    @Override
+    public void readServer(CompoundTag tag) {
+
+    }
+
+    @Override
+    public void readClient(CompoundTag tag) {
+        if (tag.contains("isMultiblockFormed"))
+            this.isMultiblockFormed = tag.getBoolean("isMultiblockFormed");
     }
 }

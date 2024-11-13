@@ -4,9 +4,12 @@ import ARLib.gui.modules.GuiModuleBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+
+import java.util.UUID;
 
 public class ModularScreen extends Screen {
 
@@ -18,11 +21,12 @@ public class ModularScreen extends Screen {
     int topOffset;
 
     IGuiHandler c;
+
     public ModularScreen(IGuiHandler c, int w, int h) {
         super(Component.literal("Screen"));
         this.c = c;
-this.guiW = w;
-this.guiH=h;
+        this.guiW = w;
+        this.guiH = h;
 
     }
 
@@ -31,35 +35,52 @@ this.guiH=h;
         super.init();
         calculateGuiOffsetAndNotifyModules();
     }
+
     @Override
-    public void tick(){
+    public void tick() {
         c.onGuiClientTick();
     }
+
     @Override
-    public void onClose(){
+    public void onClose() {
         c.onGuiClose();
         super.onClose();
     }
 
-    // In some Screen subclass
     @Override
     public boolean mouseClicked(double x, double y, int button) {
         for (GuiModuleBase m : c.getModules()) {
             m.client_onMouseCLick(x, y, button);
         }
+
+        // send to guihandler to drop item when clicked outside of the gui
+        if (x < leftOffset||x>leftOffset+guiW||y<topOffset||y>topOffset+guiW){
+            CompoundTag tag = new CompoundTag();
+            CompoundTag myTag = new CompoundTag();
+            // add client id to the tag
+            UUID myId = Minecraft.getInstance().player.getUUID();
+            myTag.putUUID("uuid_from",myId);
+            myTag.putBoolean("dropAll",button==0);
+            tag.put("dropItem", myTag);
+            c.sendToServer(tag);
+        }
+
+
+
         return super.mouseClicked(x, y, button);
     }
 
-    void calculateGuiOffsetAndNotifyModules(){
+    void calculateGuiOffsetAndNotifyModules() {
         leftOffset = (this.width - guiW) / 2;
         topOffset = (this.height - guiH) / 2;
-        for (GuiModuleBase m:c.getModules()){
-            m.client_setGuiOffset(leftOffset,topOffset);
+        for (GuiModuleBase m : c.getModules()) {
+            m.client_setGuiOffset(leftOffset, topOffset);
         }
     }
+
     @Override
     public void resize(Minecraft minecraft, int width, int height) {
-        super.resize(minecraft,width,height);
+        super.resize(minecraft, width, height);
         calculateGuiOffsetAndNotifyModules();
     }
 
@@ -71,19 +92,19 @@ this.guiH=h;
         guiGraphics.blit(
                 background,
                 leftOffset, topOffset,
-                guiW,guiH, 0, 0, 176, 171, 176, 171
+                guiW, guiH, 0, 0, 176, 171, 176, 171
         );
         for (GuiModuleBase m : c.getModules()) {
             m.render(guiGraphics, mouseX, mouseY, partialTick);
         }
-guiGraphics.pose().translate(0,0,100);
-       ModularScreen.renderItemStack (guiGraphics,mouseX-9,mouseY-9,Minecraft.getInstance().player.inventoryMenu.getCarried());
+        guiGraphics.pose().translate(0, 0, 100);
+        ModularScreen.renderItemStack(guiGraphics, mouseX - 9, mouseY - 9, Minecraft.getInstance().player.inventoryMenu.getCarried());
     }
 
-    public static void renderItemStack(GuiGraphics g, int x, int y, ItemStack stack){
-        if(stack.isEmpty())return;
-        g.renderItem(stack,x+1,y+1);
-        g.renderItemDecorations(Minecraft.getInstance().font, stack,x+1,y+1);
+    public static void renderItemStack(GuiGraphics g, int x, int y, ItemStack stack) {
+        if (stack.isEmpty()) return;
+        g.renderItem(stack, x + 1, y + 1);
+        g.renderItemDecorations(Minecraft.getInstance().font, stack, x + 1, y + 1);
     }
 
     @Override

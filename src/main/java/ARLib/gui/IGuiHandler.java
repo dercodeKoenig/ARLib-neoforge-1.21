@@ -31,35 +31,38 @@ public interface IGuiHandler {
     Map<UUID, Integer> getPlayersTrackingGui();
 
     @OnlyIn(Dist.CLIENT)
-     default void openGui() {
+    default void openGui() {
         openGui(176, 166);
     }
-        @OnlyIn(Dist.CLIENT)
-     default void openGui(int w, int h) {
+
+    @OnlyIn(Dist.CLIENT)
+    default void openGui(int w, int h) {
         sendPing();
-        Minecraft.getInstance().setScreen(new ModularScreen(this,w,h));
+        Minecraft.getInstance().setScreen(new ModularScreen(this, w, h));
     }
 
     @OnlyIn(Dist.CLIENT)
     default void onGuiClose() {
         CompoundTag tag = new CompoundTag();
-        tag.putUUID("closeGui",Minecraft.getInstance().player.getUUID());
+        tag.putUUID("closeGui", Minecraft.getInstance().player.getUUID());
         sendToServer(tag);
     }
+
     @OnlyIn(Dist.CLIENT)
-    default void sendToServer(CompoundTag tag){
+    default void sendToServer(CompoundTag tag) {
         PacketDistributor.sendToServer(getNetworkPacketForTag(tag));
     }
 
-        default void readClient(CompoundTag tag) {
+    default void readClient(CompoundTag tag) {
         for (GuiModuleBase m : getModules()) {
             m.client_handleDataSyncedToClient(tag);
         }
     }
+
     default void sendToTrackingClients(CompoundTag tag) {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         for (UUID uid : getPlayersTrackingGui().keySet()) {
-            PacketDistributor.sendToPlayer(server.getPlayerList().getPlayer(uid),getNetworkPacketForTag(tag));
+            PacketDistributor.sendToPlayer(server.getPlayerList().getPlayer(uid), getNetworkPacketForTag(tag));
         }
     }
 
@@ -79,16 +82,61 @@ public interface IGuiHandler {
         }
     }
 
-    default void removePlayerFromGui(UUID uid){
+    default void dropPlayersCarriedItem(Player p) {
+        ItemStack carried = p.inventoryMenu.getCarried();
+        if (!carried.isEmpty()) {
+            // Calculate a direction vector based on the player's current facing direction
+            float yaw = p.getYRot();  // Yaw angle (horizontal rotation)
+            double xDir = -Math.sin(Math.toRadians(yaw));
+            double zDir = Math.cos(Math.toRadians(yaw));
+
+            // Adjust the momentum by setting a speed multiplier (e.g., 0.3)
+            double speed = 0.3;
+            double xVelocity = xDir * speed;
+            double yVelocity = 0.1;  // Small upward momentum to make the item "pop" up a bit
+            double zVelocity = zDir * speed;
+
+            ItemEntity itemEntity = new ItemEntity(p.level(), p.position().x, p.position().y, p.position().z, carried.copy());
+            itemEntity.setPickUpDelay(40);
+
+            // Set the velocity of the ItemEntity to give it momentum
+            itemEntity.setDeltaMovement(xVelocity, yVelocity, zVelocity);
+
+            p.inventoryMenu.setCarried(ItemStack.EMPTY);
+            p.level().addFreshEntity(itemEntity);
+        }
+    }
+
+    default void dropSinglePlayersCarriedItem(Player p) {
+        ItemStack carried = p.inventoryMenu.getCarried();
+        if (!carried.isEmpty()) {
+            // Calculate a direction vector based on the player's current facing direction
+            float yaw = p.getYRot();  // Yaw angle (horizontal rotation)
+            double xDir = -Math.sin(Math.toRadians(yaw));
+            double zDir = Math.cos(Math.toRadians(yaw));
+
+            // Adjust the momentum by setting a speed multiplier (e.g., 0.3)
+            double speed = 0.3;
+            double xVelocity = xDir * speed;
+            double yVelocity = 0.1;  // Small upward momentum to make the item "pop" up a bit
+            double zVelocity = zDir * speed;
+            ItemEntity itemEntity = new ItemEntity(p.level(), p.position().x, p.position().y, p.position().z, carried.copyWithCount(1));
+            itemEntity.setPickUpDelay(40);
+
+            // Set the velocity of the ItemEntity to give it momentum
+            itemEntity.setDeltaMovement(xVelocity, yVelocity, zVelocity);
+
+            carried.shrink(1);
+            p.inventoryMenu.setCarried(carried);
+            p.level().addFreshEntity(itemEntity);
+        }
+    }
+
+    default void removePlayerFromGui(UUID uid) {
         getPlayersTrackingGui().remove(uid);
         Player p = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(uid);
-        if (p!=null) {
-            ItemStack carried = p.inventoryMenu.getCarried();
-            if (!carried.isEmpty()) {
-                ItemEntity itemEntity = new ItemEntity(p.level(),p.position().x,p.position().y,p.position().z,carried);
-                p.inventoryMenu.setCarried(ItemStack.EMPTY);
-                p.level().addFreshEntity(itemEntity);
-            }
+        if (p != null) {
+            dropPlayersCarriedItem(p);
         }
     }
 
@@ -97,29 +145,40 @@ public interface IGuiHandler {
         if (tag.contains("guiPing")) {
             UUID uid = tag.getUUID("guiPing");
             // update data asap when a client opens the gui new
-            if (!getPlayersTrackingGui().containsKey(uid)){
+            if (!getPlayersTrackingGui().containsKey(uid)) {
                 CompoundTag guiData = new CompoundTag();
-                for (GuiModuleBase guiModule:getModules()){
+                for (GuiModuleBase guiModule : getModules()) {
                     guiModule.server_writeDataToSyncToClient(guiData);
                 }
                 MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-                PacketDistributor.sendToPlayer(server.getPlayerList().getPlayer(uid),getNetworkPacketForTag(guiData));
+                PacketDistributor.sendToPlayer(server.getPlayerList().getPlayer(uid), getNetworkPacketForTag(guiData));
             }
             getPlayersTrackingGui().put(uid, 0);
         }
         if (tag.contains("closeGui")) {
             UUID uid = tag.getUUID("closeGui");
             // a client said he no longer has the gui open
-            if (getPlayersTrackingGui().containsKey(uid)){
+            if (getPlayersTrackingGui().containsKey(uid)) {
                 removePlayerFromGui(uid);
             }
         }
         for (GuiModuleBase m : getModules()) {
             m.server_readNetworkData(tag);
         }
+        if (tag.contains("dropItem")) {
+            CompoundTag myTag = tag.getCompound("dropItem");
+            boolean dropAll = myTag.getBoolean("dropAll");
+            UUID playerid = myTag.getUUID("uuid_from");
+            Player player = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(playerid);
+            if (dropAll)
+                dropPlayersCarriedItem(player);
+            else
+                dropSinglePlayersCarriedItem(player);
+        }
     }
+
     @OnlyIn(Dist.CLIENT)
-    default void sendPing(){
+    default void sendPing() {
         CompoundTag tag = new CompoundTag();
         tag.putUUID("guiPing", Minecraft.getInstance().player.getUUID());
         sendToServer(tag);
