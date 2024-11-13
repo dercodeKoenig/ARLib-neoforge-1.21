@@ -1,4 +1,4 @@
-package ARLib.multiblockCore;
+package ARLib.utils;
 
 import net.neoforged.neoforge.energy.EnergyStorage;
 

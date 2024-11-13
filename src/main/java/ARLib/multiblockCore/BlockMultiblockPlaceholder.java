@@ -32,7 +32,6 @@ public class BlockMultiblockPlaceholder extends BlockMultiblockPart implements E
     @Override
     public boolean onDestroyedByPlayer(BlockState state, Level world, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
         if (!world.isClientSide) {
-            System.out.println("on destroy: "+state + " - "+ replacedStates.get(pos));
             if (replacedStates.containsKey(pos) && replacedStates.get(pos) != null && willHarvest) {
                 ItemStack stack = new ItemStack(replacedStates.get(pos).getBlock());
                 popResource(world, pos, stack);

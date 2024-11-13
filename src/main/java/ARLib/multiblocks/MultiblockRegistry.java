@@ -30,7 +30,7 @@ public class MultiblockRegistry {
     // lathe
     public static final DeferredHolder<Block, Block> BLOCK_LATHE = BLOCKS.register(
             "block_lathe",
-            () -> new BlockLathe(BlockBehaviour.Properties.of().strength(5.0F))
+            () -> new BlockLathe(BlockBehaviour.Properties.of())
     );
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EntityLathe>> ENTITY_LATHE = BLOCK_ENTITIES.register(
             "entity_lathe",

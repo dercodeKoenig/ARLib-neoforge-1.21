@@ -3,7 +3,7 @@ package ARLib.blockentities;
 import ARLib.gui.IGuiHandler;
 import ARLib.gui.GuiHandlerBlockEntity;
 import ARLib.gui.modules.guiModuleEnergy;
-import ARLib.multiblockCore.UniversalBattery;
+import ARLib.utils.UniversalBattery;
 import ARLib.network.INetworkTagReceiver;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;

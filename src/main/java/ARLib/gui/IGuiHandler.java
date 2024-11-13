@@ -103,7 +103,7 @@ public interface IGuiHandler {
                     guiModule.server_writeDataToSyncToClient(guiData);
                 }
                 MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-                PacketDistributor.sendToPlayer(server.getPlayerList().getPlayer(uid),getNetworkPacketForTag(tag));
+                PacketDistributor.sendToPlayer(server.getPlayerList().getPlayer(uid),getNetworkPacketForTag(guiData));
             }
             getPlayersTrackingGui().put(uid, 0);
         }

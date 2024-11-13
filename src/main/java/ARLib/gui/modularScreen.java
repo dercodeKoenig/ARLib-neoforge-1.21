@@ -12,8 +12,8 @@ public class ModularScreen extends Screen {
 
     ResourceLocation background = ResourceLocation.fromNamespaceAndPath("arlib", "textures/gui/simple_gui_background.png");
 
-    int guiW = 176;
-    int guiH = 166;
+    int guiW;
+    int guiH;
     int leftOffset;
     int topOffset;
 
