@@ -65,33 +65,39 @@ public class guiModuleFluidTankDisplay extends GuiModuleBase {
             Tag fluid = fluidHandler.getFluidInTank(targetSlot).save(registryAccess);
             myTag.put("fluid", fluid);
         }
+        myTag.putLong("time",System.currentTimeMillis());
+
         tag.put(getMyTagKey(), myTag);
     }
 
+    long last_packet_time = 0; // sometimes older packets can come in after newer ones. so this will make sure only the most recent data will be used
     @Override
     public void client_handleDataSyncedToClient(CompoundTag tag) {
         if (tag.contains(getMyTagKey())) {
             CompoundTag myTag = tag.getCompound(getMyTagKey());
-            if(myTag.getBoolean("hasFluid")) {
-                Tag fluid = myTag.get("fluid");
-                RegistryAccess registryAccess = ServerLifecycleHooks.getCurrentServer().registryAccess();
-                client_myFluidStack = FluidStack.parse(registryAccess, fluid).get();
-            }else{
-                client_myFluidStack = FluidStack.EMPTY;
+            long update_time = myTag.getLong("time");
+            if(update_time > last_packet_time) {
+                last_packet_time = update_time;
+                if (myTag.getBoolean("hasFluid")) {
+                    Tag fluid = myTag.get("fluid");
+                    RegistryAccess registryAccess = ServerLifecycleHooks.getCurrentServer().registryAccess();
+                    client_myFluidStack = FluidStack.parse(registryAccess, fluid).get();
+                } else {
+                    client_myFluidStack = FluidStack.EMPTY;
+                }
             }
         }
     }
 
     int last_update = 0;
-
     @Override
     public void serverTick() {
         last_update += 1;
-        // update every 5 ticks
+        // update every x ticks
         if (
                 (!fluidHandler.getFluidInTank(targetSlot).equals(lastFluidStack) ||
                 fluidHandler.getFluidInTank(targetSlot).getAmount() != lastFluidStack.getAmount())
-                        && last_update > 5) {
+                        && last_update > 2) {
 
             last_update = 0;
             lastFluidStack = fluidHandler.getFluidInTank(targetSlot).copy();
@@ -120,7 +126,7 @@ public class guiModuleFluidTankDisplay extends GuiModuleBase {
         guiGraphics.fill(onGuiX + fluid_bar_offset_x, onGuiY + fluid_bar_offset_y + y_offset, onGuiX + bar_size_w, onGuiY + bar_size_h, color);
 
         if (client_isMouseOver(mouseX, mouseY, onGuiX, onGuiY, w, h)) {
-            String info = client_myFluidStack.getFluid().toString()+":"+client_myFluidStack.getAmount()+"/"+maxCapacity+"mb";
+            String info = client_myFluidStack.getHoverName().getString()+":"+client_myFluidStack.getAmount()+"/"+maxCapacity+"mb";
             guiGraphics.renderTooltip(Minecraft.getInstance().font, Component.literal(info),mouseX,mouseY);
         }
 

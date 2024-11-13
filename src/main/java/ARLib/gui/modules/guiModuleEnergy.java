@@ -46,6 +46,8 @@ public class guiModuleEnergy extends GuiModuleBase {
         CompoundTag myTag = new CompoundTag();
         myTag.putInt("moduleId",this.id);
         myTag.putInt("energy",energyStorage.getEnergyStored());
+        myTag.putLong("time",System.currentTimeMillis());
+
         tag.put(getMyTagKey(),myTag);
     }
 
@@ -54,8 +56,8 @@ public class guiModuleEnergy extends GuiModuleBase {
     public void serverTick(){
         last_update+=1;
         energy = energyStorage.getEnergyStored();
-        // update every 5 ticks
-        if (energy != last_energy && last_update > 5){
+        // update every x ticks
+        if (energy != last_energy && last_update > 2){
             last_update = 0;
             last_energy = energy;
             CompoundTag tag = new CompoundTag();
@@ -63,11 +65,17 @@ public class guiModuleEnergy extends GuiModuleBase {
             this.guiHandler. sendToTrackingClients(tag);
         }
     }
+
+    long last_packet_time = 0; // sometimes older packets can come in after newer ones. so this will make sure only the most recent data will be used
     @Override
     public void client_handleDataSyncedToClient(CompoundTag tag){
         if(tag.contains(getMyTagKey())){
             CompoundTag myTag = tag.getCompound(getMyTagKey());
-            this.energy = myTag.getInt("energy");
+            long update_time = myTag.getLong("time");
+            if(update_time > last_packet_time) {
+                last_packet_time = update_time;
+                this.energy = myTag.getInt("energy");
+            }
         }
     }
 
