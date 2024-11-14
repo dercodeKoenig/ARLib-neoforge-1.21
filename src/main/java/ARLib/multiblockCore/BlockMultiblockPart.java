@@ -1,6 +1,5 @@
 package ARLib.multiblockCore;
 
-import ARLib.blocks.BlockEnergyInputBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
@@ -9,11 +8,9 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.PushReaction;
 
 import javax.annotation.Nonnull;
@@ -72,7 +69,7 @@ public class BlockMultiblockPart extends Block {
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (state.getBlock() instanceof BlockMultiblockPart t) {
             BlockPos master = t.getMaster(pos);
-            if (master != null && level.getBlockEntity(master) instanceof BlockEntityMultiblockMaster masterTile) {
+            if (master != null && level.getBlockEntity(master) instanceof EntityMultiblockMaster masterTile) {
                 masterTile.scanStructure();
             }
             multiblockMasterPositions.remove(pos);

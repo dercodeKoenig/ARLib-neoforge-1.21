@@ -2,8 +2,8 @@ package ARLib.multiblocks.lathe;
 
 import ARLib.gui.GuiHandlerBlockEntity;
 import ARLib.gui.IGuiHandler;
-import ARLib.multiblockCore.BlockEntityMultiblockMaster;
-import ARLib.network.INetworkTagReceiver;
+import ARLib.multiblockCore.EntityMultiblockMaster;
+import ARLib.utils.MachineRecipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
@@ -21,13 +21,18 @@ import static ARLib.multiblocks.MultiblockRegistry.BLOCK_LATHE;
 import static ARLib.multiblocks.MultiblockRegistry.ENTITY_LATHE;
 
 
-public class EntityLathe extends BlockEntityMultiblockMaster {
+public class EntityLathe extends EntityMultiblockMaster {
 
     IGuiHandler guiHandler;
+    static List<MachineRecipe> recipes = new ArrayList<>();
+    public static void addRecipe(MachineRecipe recipe){
+        recipes.add(recipe);
+    }
 
     public EntityLathe(BlockPos pos, BlockState state) {
         super(ENTITY_LATHE.get(), pos, state);
         guiHandler = new GuiHandlerBlockEntity(this);
+        this.alwaysOpenMasterGui = true;
     }
 
     @Override
@@ -62,11 +67,17 @@ public class EntityLathe extends BlockEntityMultiblockMaster {
     @Override
     public void readClient(CompoundTag tag) {
         guiHandler.readClient(tag);
+        if(tag.contains("openGui")){
+            openGui();
+        }
         super.readClient(tag);
     }
 
     public static <x extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, x t) {
         if (!level.isClientSide)
             IGuiHandler.serverTick(((EntityLathe) t).guiHandler);
+
+
+
     }
 }

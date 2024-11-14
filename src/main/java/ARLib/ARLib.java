@@ -3,6 +3,7 @@ package ARLib;
 import ARLib.blockentities.EntityEnergyInputBlock;
 import ARLib.blockentities.EntityItemInputBlock;
 import ARLib.multiblocks.MultiblockRegistry;
+import ARLib.multiblocks.lathe.EntityLathe;
 import ARLib.network.PacketBlockEntity;
 import ARLib.utils.MachineRecipe;
 import net.minecraft.client.Minecraft;
@@ -36,12 +37,15 @@ public class ARLib
         modEventBus.addListener(this::addCreative);
         modEventBus.addListener(this::RegisterCapabilities);
         modEventBus.addListener(this::registerNetworkStuff);
-modEventBus.addListener(this::registerEntityRenderers);
+        modEventBus.addListener(this::registerEntityRenderers);
 
         ARLibRegistry.register(modEventBus);
         MultiblockRegistry.register(modEventBus);
 
-
+        MachineRecipe r = new MachineRecipe();
+        r.addInput("c:ingot/iron", 1);
+        r.addOutput("minecraft:stone", 1);
+        EntityLathe.addRecipe(r);
 
 
     }

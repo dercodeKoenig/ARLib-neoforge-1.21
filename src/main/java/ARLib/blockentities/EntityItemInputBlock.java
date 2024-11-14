@@ -80,6 +80,9 @@ public class EntityItemInputBlock extends BlockEntity implements IItemHandler, I
     @Override
     public void readClient(CompoundTag tagIn) {
         this.guiHandler.readClient(tagIn);
+        if(tagIn.contains("openGui")){
+            openGui();
+        }
     }
 
     public void openGui(){

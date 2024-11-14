@@ -1,19 +1,22 @@
 package ARLib.blocks;
 
 import ARLib.blockentities.EntityItemInputBlock;
+import ARLib.multiblockCore.EntityMultiblockMaster;
 import ARLib.multiblockCore.BlockMultiblockPart;
+import ARLib.network.PacketBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import static ARLib.ARLibRegistry.ENTITY_ITEM_INPUT_BLOCK;
@@ -34,13 +37,18 @@ public class BlockItemInputBlock extends BlockMultiblockPart implements EntityBl
 
     @Override
     public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hitResult) {
-        BlockEntity e = world.getBlockEntity(pos);
-        if (e instanceof EntityItemInputBlock ee) {
-            if (world.isClientSide) {
-                ee.openGui();
+        if (!world.isClientSide) {
+            CompoundTag info = new CompoundTag();
+            BlockPos master = getMaster(pos);
+            if (master != null && world.getBlockEntity(master) instanceof EntityMultiblockMaster masterTile && masterTile.alwaysOpenMasterGui) {
+                info.putByte("openGui", (byte) 0);
+                PacketDistributor.sendToPlayer((ServerPlayer) player, PacketBlockEntity.getBlockEntityPacket(world, master, info));
+            } else {
+                info.putByte("openGui", (byte) 0);
+                PacketDistributor.sendToPlayer((ServerPlayer) player, PacketBlockEntity.getBlockEntityPacket(world, pos, info));
+
             }
         }
-
         return InteractionResult.SUCCESS;
     }
 

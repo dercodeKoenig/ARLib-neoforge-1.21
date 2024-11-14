@@ -3,19 +3,13 @@ package ARLib.multiblockCore;
 import ARLib.blockentities.*;
 import ARLib.network.INetworkTagReceiver;
 import ARLib.network.PacketBlockEntity;
-import ARLib.utils.MachineRecipe;
-import com.mojang.serialization.DataResult;
+import ARLib.utils.InventoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -26,7 +20,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
-import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
@@ -37,8 +30,11 @@ import java.util.Map;
 import static ARLib.ARLibRegistry.*;
 import static ARLib.multiblockCore.BlockMultiblockMaster.STATE_MULTIBLOCK_FORMED;
 
-public class BlockEntityMultiblockMaster extends BlockEntity implements INetworkTagReceiver {
+public class EntityMultiblockMaster extends BlockEntity implements INetworkTagReceiver {
 
+    // set this to true to make the master block gui open for a click on any machine part block
+    // must be implemented on the machine part block
+    public boolean alwaysOpenMasterGui = false;
 
     protected static HashMap<Character, List<Block>> charMapping = new HashMap<>();
     private boolean isMultiblockFormed = false;
@@ -52,12 +48,31 @@ public class BlockEntityMultiblockMaster extends BlockEntity implements INetwork
     List<EntityFluidOutputBlock> fluidOutTiles = new ArrayList<>();
 
 
-    public BlockEntityMultiblockMaster(BlockEntityType<?> p_155228_, BlockPos p_155229_, BlockState p_155230_) {
+    public EntityMultiblockMaster(BlockEntityType<?> p_155228_, BlockPos p_155229_, BlockState p_155230_) {
         super(p_155228_, p_155229_, p_155230_);
         setupCharmappings();
     }
 
-
+    public void consumeInput(Map<String, Integer> inputs) {
+        for (Map.Entry<String, Integer> entry : inputs.entrySet()) {
+            String identifier = entry.getKey();
+            int num = entry.getValue();
+            InventoryUtils.consumeElements(this.fluidInTiles, this.itemInTiles, identifier, num);
+        }
+    }
+    public void produceOutput(Map<String, Integer> outputs) {
+        for (Map.Entry<String, Integer> entry : outputs.entrySet()) {
+            String identifier = entry.getKey();
+            int num = entry.getValue();
+            InventoryUtils.createElements(this.fluidOutTiles, this.itemOutTiles, identifier, num);
+        }
+    }
+    public boolean hasinputs(Map<String, Integer> inputs){
+        return InventoryUtils.hasInputs(this.itemInTiles,this.fluidInTiles,inputs);
+    }
+    public boolean canFitOutputs(Map<String, Integer> outputs){
+        return InventoryUtils.canFitElements(this.itemInTiles,this.fluidInTiles,outputs);
+    }
 
     public void setupCharmappings() {
         List<Block> I = new ArrayList<>();
@@ -321,15 +336,9 @@ public class BlockEntityMultiblockMaster extends BlockEntity implements INetwork
         return true;
     }
 
-    public List<Block> getAllowableWildCardBlocks() {
-        List<Block> list = new ArrayList<>();
-        return list;
-    }
 
     public List<Block> getAllowableBlocks(Object input) {
-        if (input instanceof Character && (Character) input == '*') {
-            return getAllowableWildCardBlocks();
-        } else if (input instanceof Character && charMapping.containsKey(input)) {
+        if (input instanceof Character && charMapping.containsKey(input)) {
             return charMapping.get(input);
         } else if (input instanceof String) { //OreDict entry
             // [rage quit #23]
@@ -352,10 +361,6 @@ public class BlockEntityMultiblockMaster extends BlockEntity implements INetwork
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-    }
-
-    public static void tick(Level level, BlockPos blockPos, BlockState blockState,BlockEntityMultiblockMaster t) {
-
     }
 
     @Override

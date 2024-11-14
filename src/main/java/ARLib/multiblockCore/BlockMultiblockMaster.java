@@ -63,8 +63,8 @@ public abstract class BlockMultiblockMaster extends Block implements EntityBlock
     public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!world.isClientSide) {
             BlockEntity e = world.getBlockEntity(pos);
-            if (e instanceof BlockEntityMultiblockMaster) {
-                ((BlockEntityMultiblockMaster) e).scanStructure();
+            if (e instanceof EntityMultiblockMaster) {
+                ((EntityMultiblockMaster) e).scanStructure();
             }
         }
         return InteractionResult.SUCCESS;
@@ -72,7 +72,7 @@ public abstract class BlockMultiblockMaster extends Block implements EntityBlock
 
     @Override
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (level.getBlockEntity(pos) instanceof BlockEntityMultiblockMaster master) {
+        if (level.getBlockEntity(pos) instanceof EntityMultiblockMaster master) {
             master.scanStructure();
         }
         super.onRemove(state,level,pos,newState,movedByPiston);

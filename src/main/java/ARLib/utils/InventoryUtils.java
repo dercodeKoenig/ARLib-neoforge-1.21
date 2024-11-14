@@ -1,5 +1,7 @@
 package ARLib.utils;
 
+import ARLib.blockentities.EntityFluidInputBlock;
+import ARLib.blockentities.EntityItemInputBlock;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -10,8 +12,29 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static ARLib.utils.ItemUtils.*;
+
 public class InventoryUtils {
-    public boolean canInsertAllItems(List<IItemHandler> itemHandlers, List<ItemStack> itemsToInsert) {
+    public static   <I extends IItemHandler, F extends IFluidHandler> boolean canFitElements(List<I> itemInTiles, List<F> fluidInTiles, Map<String, Integer> elements) {
+        List<ItemStack> itemStacks = new ArrayList<>();
+        List<FluidStack> fluidStacks = new ArrayList<>();
+
+        for (String id : elements.keySet()) {
+            int num = elements.get(id);
+            ItemStack istack = getItemStackFromId(id, num);
+            if (istack != null) {
+                itemStacks.add(istack);
+            }
+            FluidStack fstack = getFluidStackFromId(id, num);
+            if (fstack != null) {
+                fluidStacks.add(fstack);
+            }
+        }
+
+        return (canInsertAllItems(itemInTiles, itemStacks) && canInsertAllFluids(fluidInTiles, fluidStacks));
+    }
+
+    public static  <I extends IItemHandler> boolean canInsertAllItems(List<I> itemHandlers, List<ItemStack> itemsToInsert) {
         // Create a list of temporary simulated slots representing all slots in all handlers
         List<ItemStack> simulatedSlots = new ArrayList<>();
 
@@ -64,7 +87,7 @@ public class InventoryUtils {
     }
 
 
-    public boolean canInsertAllFluids(List<IFluidHandler> fluidHandlers, List<FluidStack> fluidsToInsert) {
+    public static <F extends IFluidHandler> boolean canInsertAllFluids(List<F> fluidHandlers, List<FluidStack> fluidsToInsert) {
         // Create a list of simulated tanks representing all tanks in all handlers
         List<FluidStack> simulatedTanks = new ArrayList<>();
         // Create a list of corresponding capacities for each simulated tank
@@ -125,10 +148,59 @@ public class InventoryUtils {
     }
 
 
+    public static <F extends IFluidHandler, I extends IItemHandler> void createElements(List<F> fluidHandlers, List<I> itemHandlers, String id_or_tag_to_consume, int num) {
+        ItemStack istack = getItemStackFromId(id_or_tag_to_consume, num);
+        if(istack != null){
+            for (int i = 0; i < itemHandlers.size(); i++) {
+                for (int o = 0; o < itemHandlers.get(i).getSlots(); o++) {
+                    istack = itemHandlers.get(i).insertItem(o, istack, false);
+                    if(istack.isEmpty())return;
+                }
+            }
+        }
+        FluidStack fstack = getFluidStackFromId(id_or_tag_to_consume, num);
+        if(fstack != null){
+            for (int i = 0; i < fluidHandlers.size(); i++) {
+                int filled = fluidHandlers.get(i).fill(fstack, IFluidHandler.FluidAction.EXECUTE);
+                fstack.shrink(filled);
+                if(fstack.isEmpty())return;
+            }
+        }
+    }
+
+
+public static <F extends IFluidHandler, I extends IItemHandler> void consumeElements(List<F> fluidHandlers, List<I> itemHandlers, String id_or_tag_to_consume, int num) {
+
+    for (int i = 0; i < itemHandlers.size(); i++) {
+        for (int o = 0; o < itemHandlers.get(i).getSlots(); o++) {
+            if (!itemHandlers.get(i).getStackInSlot(o).isEmpty()) {
+                if (matches(id_or_tag_to_consume, itemHandlers.get(i).getStackInSlot(o))) {
+                    ItemStack extracted = itemHandlers.get(i).extractItem(o, num, false);
+                    num -= extracted.getCount();
+                    if (num == 0)
+                        return;
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < fluidHandlers.size(); i++) {
+        for (int o = 0; o < fluidHandlers.get(i).getTanks(); o++) {
+            if (!fluidHandlers.get(i).getFluidInTank(o).isEmpty()) {
+                if (matches(id_or_tag_to_consume, fluidHandlers.get(i).getFluidInTank(o))) {
+                    FluidStack drained = fluidHandlers.get(i).drain(fluidHandlers.get(i).getFluidInTank(o).copyWithAmount(num), IFluidHandler.FluidAction.EXECUTE);
+                    num -= drained.getAmount();
+                    if (num == 0)
+                        return;
+                }
+            }
+        }
+    }
+}
 
 
 
-    public static boolean hasInputs(List<IItemHandler> itemInTiles, List<IFluidHandler> fluidInTiles, Map<String, Integer> inputs) {
+    public static <F extends IFluidHandler, I extends IItemHandler> boolean hasInputs(List<I> itemInTiles, List<F> fluidInTiles, Map<String, Integer> inputs) {
         // Collect all non-empty item stacks from the item handlers
         List<ItemStack> myInputItems = new ArrayList<>();
         for (IItemHandler handler : itemInTiles) {
@@ -158,7 +230,7 @@ public class InventoryUtils {
             // Try to satisfy the fluid requirement first
             for (int i = 0; i < myInputFluids.size(); i++) {
                 FluidStack s = myInputFluids.get(i);
-                if (ItemUtils.matches(input, s)) {
+                if (matches(input, s)) {
                     int count = s.getAmount();
                     int toFill = Math.min(required, count);
                     required -= toFill;
@@ -171,7 +243,7 @@ public class InventoryUtils {
             if (required > 0) {
                 for (int i = 0; i < myInputItems.size(); i++) {
                     ItemStack s = myInputItems.get(i);
-                    if (ItemUtils.matches(input, s)) {
+                    if (matches(input, s)) {
                         int count = s.getCount();
                         int toFill = Math.min(required, count);
                         required -= toFill;
