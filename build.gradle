@@ -171,3 +171,10 @@ idea {
         downloadJavadoc = true
     }
 }
+
+jar {
+    archiveClassifier.set('deobf')
+    from sourceSets.main.output
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
