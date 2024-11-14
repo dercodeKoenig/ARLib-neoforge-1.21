@@ -37,7 +37,7 @@ public class EntityMultiblockMaster extends BlockEntity implements INetworkTagRe
     // must be implemented on the machine part block
     public boolean alwaysOpenMasterGui = false;
 
-    protected static HashMap<Character, List<Block>> charMapping = new HashMap<>();
+    protected HashMap<Character, List<Block>> charMapping = new HashMap<>();
     private boolean isMultiblockFormed = false;
     private Direction facing = Direction.EAST;
 
@@ -53,22 +53,25 @@ public class EntityMultiblockMaster extends BlockEntity implements INetworkTagRe
         super(p_155228_, p_155229_, p_155230_);
         setupCharmappings();
     }
-public int getTotalEnergyStored(){
+
+    public int getTotalEnergyStored() {
         int totalEnergy = 0;
-        for (IEnergyStorage i: energyInTiles){
-            totalEnergy+=i.getEnergyStored();
+        for (IEnergyStorage i : energyInTiles) {
+            totalEnergy += i.getEnergyStored();
         }
         return totalEnergy;
-}
-public void consumeEnergy(int energyToConsume) {
-    int consumed = 0;
-    for (IEnergyStorage i : energyInTiles) {
-        consumed += i.extractEnergy(energyToConsume-consumed, false);
-        if (consumed == energyToConsume){
-            return;
+    }
+
+    public void consumeEnergy(int energyToConsume) {
+        int consumed = 0;
+        for (IEnergyStorage i : energyInTiles) {
+            consumed += i.extractEnergy(energyToConsume - consumed, false);
+            if (consumed == energyToConsume) {
+                return;
+            }
         }
     }
-}
+
     public void consumeInput(Map<String, Integer> inputs) {
         for (Map.Entry<String, Integer> entry : inputs.entrySet()) {
             String identifier = entry.getKey();
@@ -76,6 +79,7 @@ public void consumeEnergy(int energyToConsume) {
             InventoryUtils.consumeElements(this.fluidInTiles, this.itemInTiles, identifier, num);
         }
     }
+
     public void produceOutput(Map<String, Integer> outputs) {
         for (Map.Entry<String, Integer> entry : outputs.entrySet()) {
             String identifier = entry.getKey();
@@ -83,11 +87,13 @@ public void consumeEnergy(int energyToConsume) {
             InventoryUtils.createElements(this.fluidOutTiles, this.itemOutTiles, identifier, num);
         }
     }
-    public boolean hasinputs(Map<String, Integer> inputs){
-        return InventoryUtils.hasInputs(this.itemInTiles,this.fluidInTiles,inputs);
+
+    public boolean hasinputs(Map<String, Integer> inputs) {
+        return InventoryUtils.hasInputs(this.itemInTiles, this.fluidInTiles, inputs);
     }
-    public boolean canFitOutputs(Map<String, Integer> outputs){
-        return InventoryUtils.canFitElements(this.itemOutTiles,this.fluidOutTiles,outputs);
+
+    public boolean canFitOutputs(Map<String, Integer> outputs) {
+        return InventoryUtils.canFitElements(this.itemOutTiles, this.fluidOutTiles, outputs);
     }
 
     public void setupCharmappings() {
@@ -104,13 +110,13 @@ public void consumeEnergy(int energyToConsume) {
         setMapping('P', P);
     }
 
-    public static void setMapping(char character, List<Block> listToAdd) {
+    public void setMapping(char character, List<Block> listToAdd) {
         charMapping.put(character, listToAdd);
     }
 
 
     public void setMultiblockFormed(boolean formed) {
-        System.out.println("multiblock formed at "+getBlockPos() + " :: "+formed);
+        System.out.println("multiblock formed at " + getBlockPos() + " :: " + formed);
         this.isMultiblockFormed = formed;
         setChanged();
         BlockState masterState = level.getBlockState(getBlockPos());
@@ -120,13 +126,14 @@ public void consumeEnergy(int energyToConsume) {
         }
         CompoundTag info = new CompoundTag();
         info.putBoolean("isMultiblockFormed", isMultiblockFormed);
-        PacketDistributor.sendToPlayersTrackingChunk((ServerLevel)level, new ChunkPos(getBlockPos()), PacketBlockEntity.getBlockEntityPacket(this, info));
+        PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(getBlockPos()), PacketBlockEntity.getBlockEntityPacket(this, info));
     }
 
     public boolean isMultiblockFormed() {
         return isMultiblockFormed;
     }
-    public  Direction getFacing(){
+
+    public Direction getFacing() {
         return this.facing;
     }
 
@@ -140,7 +147,7 @@ public void consumeEnergy(int energyToConsume) {
         if (!level.isClientSide) {
             scanStructure();
         }
-        if(level.isClientSide){
+        if (level.isClientSide) {
             // set isMultiblockFormed from blockstate - after this it will be updated in network packet when it changes
             isMultiblockFormed = level.getBlockState(getBlockPos()).getValue(STATE_MULTIBLOCK_FORMED);
         }
@@ -205,19 +212,19 @@ public void consumeEnergy(int energyToConsume) {
         }
     }
 
-    void addStructureTiles(BlockEntity tile){
+    void addStructureTiles(BlockEntity tile) {
         // make sure order is correct, out tiles extend in tiles!
-        if(tile instanceof EntityEnergyOutputBlock t)
+        if (tile instanceof EntityEnergyOutputBlock t)
             energyOutTiles.add(t);
-        else if(tile instanceof EntityEnergyInputBlock t)
+        else if (tile instanceof EntityEnergyInputBlock t)
             energyInTiles.add(t);
-        else if(tile instanceof EntityItemOutputBlock t)
+        else if (tile instanceof EntityItemOutputBlock t)
             itemOutTiles.add(t);
-        else if(tile instanceof EntityItemInputBlock t)
+        else if (tile instanceof EntityItemInputBlock t)
             itemInTiles.add(t);
-        else if(tile instanceof EntityFluidOutputBlock t)
+        else if (tile instanceof EntityFluidOutputBlock t)
             fluidOutTiles.add(t);
-        else if(tile instanceof EntityFluidInputBlock t)
+        else if (tile instanceof EntityFluidInputBlock t)
             fluidInTiles.add(t);
     }
 
@@ -274,7 +281,7 @@ public void consumeEnergy(int energyToConsume) {
     }
 
     public void scanStructure() {
-        if(level.isClientSide)return;
+        if (level.isClientSide) return;
         energyInTiles.clear();
         energyOutTiles.clear();
         itemInTiles.clear();
