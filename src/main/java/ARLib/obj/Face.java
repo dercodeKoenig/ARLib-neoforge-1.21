@@ -51,12 +51,6 @@ public class Face
             }
             else
             {
-                v.addVertex(stack.last(),vertices[i].x, vertices[i].y, vertices[i].z)
-                        .setNormal(faceNormal.x, faceNormal.y, faceNormal.z)
-                        .setColor(0xFFFFFFFF)
-                        .setLight(packedLight)
-                        .setOverlay(packedOverlay)
-                        .setUv(0,0);
             }
         }
     }

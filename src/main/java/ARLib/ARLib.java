@@ -69,6 +69,8 @@ MultiblockRegistry.registerRenderers(event);
         MachineRecipe r = new MachineRecipe();
         r.addInput("c:ingots/iron", 1);
         r.addOutput("immersiveengineering:stick_iron", 1);
+        r.energyPerTick = 50;
+        r.ticksRequired = 100;
         EntityLathe.addRecipe(r);
     }
     }

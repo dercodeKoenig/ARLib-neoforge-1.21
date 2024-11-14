@@ -35,22 +35,21 @@ public class MultiblockRecipeManager<T extends EntityMultiblockMaster> {
     public boolean  update() {
         if (currentRecipe == null) {
             scanFornewRecipe();
+            return false;
         }
-        if (currentRecipe != null) {
-            if (master.hasinputs(currentRecipe.inputs) && master.canFitOutputs(currentRecipe.outputs)) {
-                if (master.getTotalEnergyStored() >= currentRecipe.energyPerTick) {
-                    progress += 1;
-                    master.consumeEnergy(currentRecipe.energyPerTick);
-                    if (progress == currentRecipe.ticksRequired) {
-                        master.consumeInput(currentRecipe.inputs);
-                        master.produceOutput(currentRecipe.outputs);
-                        reset();
-                    }
-                    return true;
+        if (master.hasinputs(currentRecipe.inputs) && master.canFitOutputs(currentRecipe.outputs)) {
+            if (master.getTotalEnergyStored() >= currentRecipe.energyPerTick) {
+                progress += 1;
+                master.consumeEnergy(currentRecipe.energyPerTick);
+                if (progress == currentRecipe.ticksRequired) {
+                    master.consumeInput(currentRecipe.inputs);
+                    master.produceOutput(currentRecipe.outputs);
+                    reset();
                 }
-            } else {
-                reset();
+                return true;
             }
+        } else {
+            reset();
         }
         return false;
     }

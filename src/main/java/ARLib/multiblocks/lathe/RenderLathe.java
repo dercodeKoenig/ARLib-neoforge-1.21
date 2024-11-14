@@ -101,7 +101,47 @@ public class RenderLathe implements BlockEntityRenderer<EntityLathe> {
                     .setTextureState(new TextureStateShard(tex, false, false))
                     .createCompositeState(false);
 
-            model.renderAll(stack, bufferSource, vertexFormat, compositeState, packedLight, packedOverlay);
+            model.renderPart("Hull", stack, bufferSource, vertexFormat, compositeState, packedLight, packedOverlay);
+
+            stack.pushPose();
+            if(tile.isRunning) {
+                int progress = tile.client_recipeProgress;
+                int maxTime = tile.client_recipeMaxTime;
+                double maxTime_I = (double) 1 / maxTime;
+                double partial_add = 0;
+                    partial_add = partialTick * maxTime_I;
+                double relativeProgress = progress * maxTime_I + partial_add;
+                double maxTranslate = 1.1*2;
+                if(relativeProgress > 0.5)relativeProgress = 1-relativeProgress;
+                stack.translate(0,0,-relativeProgress*maxTranslate);
+
+            }
+            model.renderPart("Tool", stack, bufferSource, vertexFormat, compositeState, packedLight, packedOverlay);
+            stack.popPose();
+
+
+
+            if(tile.isRunning){
+                stack.pushPose();
+
+                RenderType.CompositeState compositeState2 = RenderType.CompositeState.builder()
+                        .setShaderState(RENDERTYPE_GLINT_SHADER)
+                        .setOverlayState(OVERLAY)
+                        .setLightmapState(LIGHTMAP)
+                        .setTransparencyState(NO_TRANSPARENCY)
+                        .setTextureState(new TextureStateShard(tex, false, false))
+                        .createCompositeState(false);
+
+                stack.translate(0.38,1.19,0);
+                Vector3f a = new Vector3f(0, 0, 1);
+                angle = (float) Math.toRadians((System.currentTimeMillis()/10) % 360);
+                Quaternionf q = new Quaternionf().fromAxisAngleRad(a, angle);
+                stack.rotateAround(q, 0f, 0, 0f);
+
+                model.renderPart("Shaft", stack, bufferSource, vertexFormat, compositeState2, packedLight, packedOverlay);
+stack.popPose();
+            }
+
             stack.popPose();
         }
     }
