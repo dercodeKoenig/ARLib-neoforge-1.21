@@ -52,7 +52,6 @@ public class ARLibRegistry {
     public static final Supplier<Block> BLOCK_PLACEHOLDER = BLOCKS.register("block_placeholder", () -> new BlockMultiblockPlaceholder(BlockBehaviour.Properties.of().strength(2,2)));
     public static final Supplier<BlockEntityType<?>> ENTITY_PLACEHOLDER = BLOCK_ENTITIES.register("entity_placeholder", () -> BlockEntityType.Builder.of(EntityMultiblockPlaceholder::new, BLOCK_PLACEHOLDER.get()).build(null));
 
-
     public static final Supplier<Block> BLOCK_MOTOR = BLOCKS.register("block_motor_block", () -> new BlockMotor(BlockBehaviour.Properties.of().strength(2,2).noOcclusion()));
 
     public static final Supplier<Block> BLOCK_STRUCTURE = BLOCKS.register("block_structure_block", () -> new BlockStructureBlock(BlockBehaviour.Properties.of().strength(2,2)));

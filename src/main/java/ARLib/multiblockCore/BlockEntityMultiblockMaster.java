@@ -1,7 +1,9 @@
 package ARLib.multiblockCore;
 
+import ARLib.blockentities.*;
 import ARLib.network.INetworkTagReceiver;
 import ARLib.network.PacketBlockEntity;
+import ARLib.utils.MachineRecipe;
 import com.mojang.serialization.DataResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -12,6 +14,8 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -22,11 +26,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static ARLib.ARLibRegistry.*;
 import static ARLib.multiblockCore.BlockMultiblockMaster.STATE_MULTIBLOCK_FORMED;
@@ -38,11 +44,20 @@ public class BlockEntityMultiblockMaster extends BlockEntity implements INetwork
     private boolean isMultiblockFormed = false;
     private Direction facing = Direction.EAST;
 
+    List<EntityEnergyOutputBlock> energyOutTiles = new ArrayList<>();
+    List<EntityEnergyInputBlock> energyInTiles = new ArrayList<>();
+    List<EntityItemInputBlock> itemInTiles = new ArrayList<>();
+    List<EntityItemOutputBlock> itemOutTiles = new ArrayList<>();
+    List<EntityFluidInputBlock> fluidInTiles = new ArrayList<>();
+    List<EntityFluidOutputBlock> fluidOutTiles = new ArrayList<>();
+
 
     public BlockEntityMultiblockMaster(BlockEntityType<?> p_155228_, BlockPos p_155229_, BlockState p_155230_) {
         super(p_155228_, p_155229_, p_155230_);
         setupCharmappings();
     }
+
+
 
     public void setupCharmappings() {
         List<Block> I = new ArrayList<>();
@@ -90,8 +105,6 @@ public class BlockEntityMultiblockMaster extends BlockEntity implements INetwork
 
     @Override
     public void onLoad() {
-        // maybe request additional data from server in here if needed using custom packets
-
         super.onLoad();
         if (!level.isClientSide) {
             scanStructure();
@@ -161,6 +174,22 @@ public class BlockEntityMultiblockMaster extends BlockEntity implements INetwork
         }
     }
 
+    void addStructureTiles(BlockEntity tile){
+        // make sure order is correct, out tiles extend in tiles!
+        if(tile instanceof EntityEnergyOutputBlock t)
+            energyOutTiles.add(t);
+        else if(tile instanceof EntityEnergyInputBlock t)
+            energyInTiles.add(t);
+        else if(tile instanceof EntityItemOutputBlock t)
+            itemOutTiles.add(t);
+        else if(tile instanceof EntityItemInputBlock t)
+            itemInTiles.add(t);
+        else if(tile instanceof EntityFluidOutputBlock t)
+            fluidOutTiles.add(t);
+        else if(tile instanceof EntityFluidInputBlock t)
+            fluidInTiles.add(t);
+    }
+
     void replace_blocks() {
         Object[][][] structure = getStructure();
 
@@ -205,6 +234,9 @@ public class BlockEntityMultiblockMaster extends BlockEntity implements INetwork
                         t.setMaster(globalPos, getBlockPos());
                     }
                     level.setBlock(globalPos, blockState.setValue(STATE_MULTIBLOCK_FORMED, true), 3);
+
+                    BlockEntity tile = level.getBlockEntity(globalPos);
+                    addStructureTiles(tile);
                 }
             }
         }
@@ -212,6 +244,12 @@ public class BlockEntityMultiblockMaster extends BlockEntity implements INetwork
 
     public void scanStructure() {
         if(level.isClientSide)return;
+        energyInTiles.clear();
+        energyOutTiles.clear();
+        itemInTiles.clear();
+        itemOutTiles.clear();
+        fluidInTiles.clear();
+        fluidOutTiles.clear();
 
         boolean canComplete = canCompleteStructure();
         if (!canComplete) {
