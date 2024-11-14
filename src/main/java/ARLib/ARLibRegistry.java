@@ -54,7 +54,7 @@ public class ARLibRegistry {
 
     public static final Supplier<Block> BLOCK_MOTOR = BLOCKS.register("block_motor_block", () -> new BlockMotor(BlockBehaviour.Properties.of().strength(2,2).noOcclusion()));
 
-    public static final Supplier<Block> BLOCK_STRUCTURE = BLOCKS.register("block_structure_block", () -> new BlockStructureBlock(BlockBehaviour.Properties.of().strength(2,2).noOcclusion()));
+    public static final Supplier<Block> BLOCK_STRUCTURE = BLOCKS.register("block_structure_block", () -> new BlockStructureBlock(BlockBehaviour.Properties.of().strength(2,2)));
 
     public static void register(IEventBus modBus) {
         registerBlockItem("block_energy_input_block", BLOCK_ENERGY_INPUT_BLOCK);
@@ -74,12 +74,13 @@ public class ARLibRegistry {
     public static void addCreative(BuildCreativeModeTabContentsEvent e) {
         if (e.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
             e.accept(BLOCK_ENERGY_INPUT_BLOCK.get());
-            e.accept(BLOCK_ENERGY_OUTPUT_BLOCK.get());
+            //e.accept(BLOCK_ENERGY_OUTPUT_BLOCK.get());
             e.accept(BLOCK_ITEM_INPUT_BLOCK.get());
             e.accept(BLOCK_ITEM_OUTPUT_BLOCK.get());
             e.accept(BLOCK_FLUID_INPUT_BLOCK.get());
             e.accept(BLOCK_FLUID_OUTPUT_BLOCK.get());
             e.accept(BLOCK_MOTOR.get());
+            e.accept(BLOCK_STRUCTURE.get());
         }
     }
 

@@ -12,9 +12,15 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.storage.loot.LootParams;
 
 import javax.annotation.Nonnull;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static ARLib.ARLibRegistry.BLOCK_ITEM_INPUT_BLOCK;
+import static ARLib.ARLibRegistry.BLOCK_MOTOR;
 import static ARLib.multiblockCore.BlockMultiblockMaster.STATE_MULTIBLOCK_FORMED;
 
 public class BlockMotor extends Block {
@@ -43,6 +49,14 @@ public class BlockMotor extends Block {
 
     @Override
     public int getLightBlock(BlockState state, BlockGetter world, BlockPos pos) {
-        return 0;
+        return 8;
+    }
+
+
+    @Override
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        List<ItemStack> drops = new ArrayList<>();
+        drops.add(new ItemStack(BLOCK_MOTOR.get(),1));
+        return drops;
     }
 }

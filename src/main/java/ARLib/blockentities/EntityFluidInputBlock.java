@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static ARLib.ARLibRegistry.ENTITY_FLUID_INPUT_BLOCK;
+import static net.minecraft.world.level.block.Block.popResource;
 
 public class EntityFluidInputBlock extends BlockEntity implements IItemHandler,IFluidHandler, INetworkTagReceiver {
 
@@ -62,6 +63,21 @@ public class EntityFluidInputBlock extends BlockEntity implements IItemHandler,I
         inventory = new ArrayList<>();
         inventory.add(ItemStack.EMPTY);
         inventory.add(ItemStack.EMPTY);
+    }
+
+    @Override
+    public void setRemoved(){
+        if(!level.isClientSide) {
+            ItemStack stack1 = inventory.get(0).copy();
+            popResource(level, getBlockPos(), stack1);
+
+            ItemStack stack2 = inventory.get(1).copy();
+            popResource(level, getBlockPos(), stack2);
+
+            inventory.set(0, ItemStack.EMPTY);
+            inventory.set(1, ItemStack.EMPTY);
+        }
+        super.setRemoved();
     }
 
     @Override
@@ -251,7 +267,7 @@ public class EntityFluidInputBlock extends BlockEntity implements IItemHandler,I
                         ItemStack resultItem = fluidHandler.getContainer();
 
                         // Try inserting result item into slot 1
-                        if (tile.insertItem(1, resultItem, true, true).isEmpty()) {
+                        if (!drained.isEmpty()&&tile.insertItem(1, resultItem, true, true).isEmpty()) {
                             // Commit the drain, fluid transfer, and item movement
                             ((IFluidHandler) tile).fill(drained, FluidAction.EXECUTE);
                             tile.extractItem(0, 1, false);
