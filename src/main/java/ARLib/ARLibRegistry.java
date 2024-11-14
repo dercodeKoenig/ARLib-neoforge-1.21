@@ -31,25 +31,25 @@ public class ARLibRegistry {
     }
 
 
-    public static final Supplier<Block> BLOCK_ENERGY_INPUT_BLOCK = BLOCKS.register("block_energy_input_block", () -> new BlockEnergyInputBlock(BlockBehaviour.Properties.of().strength(2,2)));
+    public static final Supplier<Block> BLOCK_ENERGY_INPUT_BLOCK = BLOCKS.register("block_energy_input_block", () -> new BlockEnergyInputBlock(BlockBehaviour.Properties.of().strength(0.5f,2)));
     public static final Supplier<BlockEntityType<?>> ENTITY_ENERGY_INPUT_BLOCK = BLOCK_ENTITIES.register("entity_energy_input_block", () -> BlockEntityType.Builder.of(EntityEnergyInputBlock::new, BLOCK_ENERGY_INPUT_BLOCK.get()).build(null));
 
-    public static final Supplier<Block> BLOCK_ENERGY_OUTPUT_BLOCK = BLOCKS.register("block_energy_output_block", () -> new BlockEnergyOutputBlock(BlockBehaviour.Properties.of().strength(2,2)));
+    public static final Supplier<Block> BLOCK_ENERGY_OUTPUT_BLOCK = BLOCKS.register("block_energy_output_block", () -> new BlockEnergyOutputBlock(BlockBehaviour.Properties.of().strength(0.5f,2)));
     public static final Supplier<BlockEntityType<?>> ENTITY_ENERGY_OUTPUT_BLOCK = BLOCK_ENTITIES.register("entity_energy_output_block", () -> BlockEntityType.Builder.of(EntityEnergyOutputBlock::new, BLOCK_ENERGY_OUTPUT_BLOCK.get()).build(null));
 
-    public static final Supplier<Block> BLOCK_ITEM_INPUT_BLOCK = BLOCKS.register("block_item_input_block", () -> new BlockItemInputBlock(BlockBehaviour.Properties.of().strength(2,2)));
+    public static final Supplier<Block> BLOCK_ITEM_INPUT_BLOCK = BLOCKS.register("block_item_input_block", () -> new BlockItemInputBlock(BlockBehaviour.Properties.of().strength(0.5f,2)));
     public static final Supplier<BlockEntityType<?>> ENTITY_ITEM_INPUT_BLOCK = BLOCK_ENTITIES.register("entity_item_input_block", () -> BlockEntityType.Builder.of(EntityItemInputBlock::new, BLOCK_ITEM_INPUT_BLOCK.get()).build(null));
 
-    public static final Supplier<Block> BLOCK_ITEM_OUTPUT_BLOCK = BLOCKS.register("block_item_output_block", () -> new BlockItemOutputBlock(BlockBehaviour.Properties.of().strength(2,2)));
+    public static final Supplier<Block> BLOCK_ITEM_OUTPUT_BLOCK = BLOCKS.register("block_item_output_block", () -> new BlockItemOutputBlock(BlockBehaviour.Properties.of().strength(0.5f,2)));
     public static final Supplier<BlockEntityType<?>> ENTITY_ITEM_OUTPUT_BLOCK = BLOCK_ENTITIES.register("entity_item_output_block", () -> BlockEntityType.Builder.of(EntityItemOutputBlock::new, BLOCK_ITEM_OUTPUT_BLOCK.get()).build(null));
 
-    public static final Supplier<Block> BLOCK_FLUID_INPUT_BLOCK = BLOCKS.register("block_fluid_input_block", () -> new BlockFluidInputBlock(BlockBehaviour.Properties.of().strength(2,2)));
+    public static final Supplier<Block> BLOCK_FLUID_INPUT_BLOCK = BLOCKS.register("block_fluid_input_block", () -> new BlockFluidInputBlock(BlockBehaviour.Properties.of().strength(0.5f,2)));
     public static final Supplier<BlockEntityType<?>> ENTITY_FLUID_INPUT_BLOCK = BLOCK_ENTITIES.register("entity_fluid_input_block", () -> BlockEntityType.Builder.of(EntityFluidInputBlock::new, BLOCK_FLUID_INPUT_BLOCK.get()).build(null));
 
-    public static final Supplier<Block> BLOCK_FLUID_OUTPUT_BLOCK = BLOCKS.register("block_fluid_output_block", () -> new BlockFluidOutputBlock(BlockBehaviour.Properties.of().strength(2,2)));
+    public static final Supplier<Block> BLOCK_FLUID_OUTPUT_BLOCK = BLOCKS.register("block_fluid_output_block", () -> new BlockFluidOutputBlock(BlockBehaviour.Properties.of().strength(0.5f,2)));
     public static final Supplier<BlockEntityType<?>> ENTITY_FLUID_OUTPUT_BLOCK = BLOCK_ENTITIES.register("entity_fluid_output_block", () -> BlockEntityType.Builder.of(EntityFluidOutputBlock::new, BLOCK_FLUID_OUTPUT_BLOCK.get()).build(null));
 
-    public static final Supplier<Block> BLOCK_PLACEHOLDER = BLOCKS.register("block_placeholder", () -> new BlockMultiblockPlaceholder(BlockBehaviour.Properties.of().strength(2,2)));
+    public static final Supplier<Block> BLOCK_PLACEHOLDER = BLOCKS.register("block_placeholder", () -> new BlockMultiblockPlaceholder(BlockBehaviour.Properties.of().strength(0.5f,2)));
     public static final Supplier<BlockEntityType<?>> ENTITY_PLACEHOLDER = BLOCK_ENTITIES.register("entity_placeholder", () -> BlockEntityType.Builder.of(EntityMultiblockPlaceholder::new, BLOCK_PLACEHOLDER.get()).build(null));
 
     public static final Supplier<Block> BLOCK_MOTOR = BLOCKS.register("block_motor_block", () -> new BlockMotor(BlockBehaviour.Properties.of().strength(2,2).noOcclusion()));
