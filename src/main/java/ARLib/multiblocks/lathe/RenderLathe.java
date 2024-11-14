@@ -14,7 +14,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -24,21 +26,23 @@ import static net.minecraft.client.renderer.RenderStateShard.*;
 import static net.minecraft.client.renderer.RenderStateShard.TRANSLUCENT_TRANSPARENCY;
 
 public class RenderLathe implements BlockEntityRenderer<EntityLathe> {
-    // Add the constructor parameter for the lambda below. You may also use it to get some context
-    // to be stored in local fields, such as the entity renderer dispatcher, if needed.
 
     ResourceLocation modelsrc = ResourceLocation.fromNamespaceAndPath("arlib", "multiblock/lathe.obj");
     ResourceLocation tex = ResourceLocation.fromNamespaceAndPath("arlib", "multiblock/lathe.png");
 
-    //ResourceLocation modelsrc = ResourceLocation.fromNamespaceAndPath("arlib","multiblock/crystalliser.obj");
-    //ResourceLocation tex = ResourceLocation.fromNamespaceAndPath("arlib","multiblock/crystalliser.png");
-
     WavefrontObject model;
 
-    @Override
-    public boolean shouldRender(EntityLathe blockEntity, Vec3 cameraPos) {
-        return true;
+    public int getViewDistance() {
+        return 256;
     }
+
+    @NotNull
+    @Override
+    public AABB getRenderBoundingBox(EntityLathe blockEntity) {
+        return new AABB(blockEntity.getBlockPos()).inflate(100);
+    }
+
+
 
     public RenderLathe(BlockEntityRendererProvider.Context context) {
         try {

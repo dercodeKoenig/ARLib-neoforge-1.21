@@ -95,8 +95,6 @@ public class EntityEnergyInputBlock extends BlockEntity implements IEnergyStorag
     public static <x extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, x t) {
         if(!level.isClientSide)
             IGuiHandler.serverTick(((EntityEnergyInputBlock)t).guiHandler);
-
-        ((EntityEnergyInputBlock)t).extractEnergy(100,false);
     }
 
 }

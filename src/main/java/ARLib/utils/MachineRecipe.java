@@ -20,7 +20,7 @@ public class MachineRecipe {
     public Map<String, Integer> inputs = new HashMap<>();
     public int energyPerTick = 0;
     public Map<String, Integer> outputs = new HashMap<>();
-    int ticks = 1;
+    public int ticksRequired = 1;
 
     public void addInput(String input_id_or_tag, int num) {
         inputs.put(input_id_or_tag, num);

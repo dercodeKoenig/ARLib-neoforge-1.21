@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
@@ -52,7 +53,22 @@ public class EntityMultiblockMaster extends BlockEntity implements INetworkTagRe
         super(p_155228_, p_155229_, p_155230_);
         setupCharmappings();
     }
-
+public int getTotalEnergyStored(){
+        int totalEnergy = 0;
+        for (IEnergyStorage i: energyInTiles){
+            totalEnergy+=i.getEnergyStored();
+        }
+        return totalEnergy;
+}
+public void consumeEnergy(int energyToConsume) {
+    int consumed = 0;
+    for (IEnergyStorage i : energyInTiles) {
+        consumed += i.extractEnergy(energyToConsume-consumed, false);
+        if (consumed == energyToConsume){
+            return;
+        }
+    }
+}
     public void consumeInput(Map<String, Integer> inputs) {
         for (Map.Entry<String, Integer> entry : inputs.entrySet()) {
             String identifier = entry.getKey();
@@ -71,7 +87,7 @@ public class EntityMultiblockMaster extends BlockEntity implements INetworkTagRe
         return InventoryUtils.hasInputs(this.itemInTiles,this.fluidInTiles,inputs);
     }
     public boolean canFitOutputs(Map<String, Integer> outputs){
-        return InventoryUtils.canFitElements(this.itemInTiles,this.fluidInTiles,outputs);
+        return InventoryUtils.canFitElements(this.itemOutTiles,this.fluidOutTiles,outputs);
     }
 
     public void setupCharmappings() {
