@@ -6,6 +6,7 @@ import ARLib.multiblocks.MultiblockRegistry;
 import ARLib.multiblocks.lathe.EntityLathe;
 import ARLib.network.PacketBlockEntity;
 import ARLib.utils.MachineRecipe;
+import ARLib.utils.RecipeLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.model.BakedModel;
@@ -26,6 +27,10 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 @Mod(ARLib.MODID)
 public class ARLib
@@ -66,11 +71,23 @@ MultiblockRegistry.registerRenderers(event);
     }
     private void loadComplete(FMLLoadCompleteEvent e){
 
+        List<MachineRecipe> latheDefaultRecipes = new ArrayList<>();
         MachineRecipe r = new MachineRecipe();
         r.addInput("c:ingots/iron", 1);
         r.addOutput("immersiveengineering:stick_iron", 1);
         r.energyPerTick = 50;
         r.ticksRequired = 100;
-        EntityLathe.addRecipe(r);
+        latheDefaultRecipes.add(r);
+
+        Path configDir = Paths.get(Minecraft.getInstance().gameDirectory.toString(), "config", "arlib");
+        String filename = "lathe.xml";
+        List<MachineRecipe> recipesLathe =  RecipeLoader.loadRecipes(configDir,filename);
+        if (recipesLathe.isEmpty()){
+            RecipeLoader.createRecipeFile(configDir,filename,latheDefaultRecipes);
+            recipesLathe = latheDefaultRecipes;
+        }
+        for (MachineRecipe i : recipesLathe) {
+            EntityLathe.addRecipe(i);
+        }
     }
     }

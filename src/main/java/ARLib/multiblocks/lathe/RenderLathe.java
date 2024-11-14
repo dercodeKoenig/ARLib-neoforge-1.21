@@ -43,7 +43,6 @@ public class RenderLathe implements BlockEntityRenderer<EntityLathe> {
     }
 
 
-
     public RenderLathe(BlockEntityRendererProvider.Context context) {
         try {
             model = new WavefrontObject(modelsrc);
@@ -70,7 +69,6 @@ public class RenderLathe implements BlockEntityRenderer<EntityLathe> {
             // Apply rotation to the PoseStack based on the facing direction
             Vector3f axis = new Vector3f(0, 1, 0);
             float angle = 0;
-
             switch (facing) {
                 case NORTH:
                     angle = 90;
@@ -88,7 +86,6 @@ public class RenderLathe implements BlockEntityRenderer<EntityLathe> {
             angle = (float) Math.toRadians(angle);
             Quaternionf quaternion = new Quaternionf().fromAxisAngleRad(axis, angle);
             stack.rotateAround(quaternion, 0.5f, 0, 0.5f);
-
             // move so that the model aligns with the structure
             stack.translate(0, -1, -2);
 
@@ -104,24 +101,23 @@ public class RenderLathe implements BlockEntityRenderer<EntityLathe> {
             model.renderPart("Hull", stack, bufferSource, vertexFormat, compositeState, packedLight, packedOverlay);
 
             stack.pushPose();
-            if(tile.isRunning) {
+            if (tile.isRunning) {
                 int progress = tile.client_recipeProgress;
                 int maxTime = tile.client_recipeMaxTime;
                 double maxTime_I = (double) 1 / maxTime;
                 double partial_add = 0;
-                    partial_add = partialTick * maxTime_I;
+                partial_add = partialTick * maxTime_I;
                 double relativeProgress = progress * maxTime_I + partial_add;
-                double maxTranslate = 1.1*2;
-                if(relativeProgress > 0.5)relativeProgress = 1-relativeProgress;
-                stack.translate(0,0,-relativeProgress*maxTranslate);
+                double maxTranslate = 1.1 * 2;
+                if (relativeProgress > 0.5) relativeProgress = 1 - relativeProgress;
+                stack.translate(0, 0, -relativeProgress * maxTranslate);
 
             }
             model.renderPart("Tool", stack, bufferSource, vertexFormat, compositeState, packedLight, packedOverlay);
             stack.popPose();
 
 
-
-            if(tile.isRunning){
+            if (tile.isRunning) {
                 stack.pushPose();
 
                 RenderType.CompositeState compositeState2 = RenderType.CompositeState.builder()
@@ -132,14 +128,14 @@ public class RenderLathe implements BlockEntityRenderer<EntityLathe> {
                         .setTextureState(new TextureStateShard(tex, false, false))
                         .createCompositeState(false);
 
-                stack.translate(0.38,1.19,0);
+                stack.translate(0.38, 1.19, 0);
                 Vector3f a = new Vector3f(0, 0, 1);
-                angle = (float) Math.toRadians((System.currentTimeMillis()/10) % 360);
+                angle = (float) Math.toRadians((System.currentTimeMillis() / 10) % 360);
                 Quaternionf q = new Quaternionf().fromAxisAngleRad(a, angle);
                 stack.rotateAround(q, 0f, 0, 0f);
 
                 model.renderPart("Shaft", stack, bufferSource, vertexFormat, compositeState2, packedLight, packedOverlay);
-stack.popPose();
+                stack.popPose();
             }
 
             stack.popPose();

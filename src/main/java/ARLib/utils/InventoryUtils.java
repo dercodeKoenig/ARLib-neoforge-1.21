@@ -34,57 +34,68 @@ public class InventoryUtils {
         return (canInsertAllItems(itemInTiles, itemStacks) && canInsertAllFluids(fluidInTiles, fluidStacks));
     }
 
-    public static  <I extends IItemHandler> boolean canInsertAllItems(List<I> itemHandlers, List<ItemStack> itemsToInsert) {
-        // Create a list of temporary simulated slots representing all slots in all handlers
+    public static <I extends IItemHandler> boolean canInsertAllItems(List<I> itemHandlers, List<ItemStack> itemsToInsert) {
+        // List to simulate all slots across handlers with item stacks
         List<ItemStack> simulatedSlots = new ArrayList<>();
+        // List to track the maximum slot size for each slot in simulatedSlots
+        List<Integer> maxSlotSizes = new ArrayList<>();
 
-        // Initialize the simulated slots with copies of each slot in all handlers
+        // Initialize the simulated slots and max slot sizes from the actual handlers
         for (IItemHandler handler : itemHandlers) {
             for (int slot = 0; slot < handler.getSlots(); slot++) {
-                ItemStack slotCopy = handler.getStackInSlot(slot).copy();  // Copy to prevent modification of real slots
+                ItemStack slotCopy = handler.getStackInSlot(slot).copy();  // Copy to avoid modifying real slots
                 simulatedSlots.add(slotCopy);
+                maxSlotSizes.add(handler.getSlotLimit(slot));  // Track the max stack size of this slot
             }
         }
 
-        // For each item that we want to insert
+        // Try to insert each item into the simulated slots
         for (ItemStack stackToInsert : itemsToInsert) {
             if (stackToInsert.isEmpty()) continue;  // Skip empty items
 
-            // Track the remaining count of the stack that still needs to be inserted
-            int remainingCount = stackToInsert.getCount();
+            int remainingCount = stackToInsert.getCount();  // Track remaining count to insert
 
-            // Try to insert into the simulated slots
+            // Attempt to insert into each simulated slot
             for (int i = 0; i < simulatedSlots.size(); i++) {
-                if (remainingCount <= 0) break;  // If the item is fully inserted, move to the next item
+                if (remainingCount <= 0) break;  // Move to the next item if insertion is complete
 
-                // Check if the current simulated slot can accept this item
-                if (simulatedSlots.get(i).isEmpty() || (ItemStack.isSameItemSameComponents(simulatedSlots.get(i), stackToInsert))) {
-                    int spaceAvailable = simulatedSlots.get(i).getMaxStackSize() - simulatedSlots.get(i).getCount();
+                ItemStack simulatedSlot = simulatedSlots.get(i);
+                int maxSlotSize = maxSlotSizes.get(i);
+
+                // Check if the current slot can accept this item
+                if (simulatedSlot.isEmpty() || ItemStack.isSameItemSameComponents(simulatedSlot, stackToInsert)) {
+
+                    int spaceAvailable =maxSlotSize - simulatedSlot.getCount();
+                    if(!simulatedSlot.isEmpty())
+                        spaceAvailable = Math.min(spaceAvailable, stackToInsert.getMaxStackSize() - simulatedSlot.getCount());
+
                     int toInsert = Math.min(spaceAvailable, remainingCount);
 
-                    // Simulate insertion by "adding" items to the simulated slot
-                    if (simulatedSlots.get(i).isEmpty()) {
-                        // If the slot is empty, simulate creating a new stack in this slot
-                        simulatedSlots.set(i, stackToInsert.copy());
+                    // Insert items into the simulated slot
+                    if (simulatedSlot.isEmpty()) {
+                        // If slot is empty, create a new stack with the insert amount
+                        ItemStack newStack = stackToInsert.copyWithCount(toInsert);
+                        simulatedSlots.set(i, newStack);
                     } else {
-                        // If the slot already contains compatible items, add to the existing count
-                        simulatedSlots.get(i).grow(toInsert);
+                        // Add to the existing stack count in the slot
+                        simulatedSlot.grow(toInsert);
                     }
 
-                    // Reduce the remaining count by the amount that was able to be inserted
+                    // Update remaining count after insertion
                     remainingCount -= toInsert;
                 }
             }
 
-            // If there's remaining count after attempting to insert into all slots, return false
+            // If we couldn't fully insert the item stack, return false
             if (remainingCount > 0) {
                 return false;
             }
         }
 
-        // If all items were fully inserted in the simulation, return true
+        // All items were fully inserted in simulation, return true
         return true;
     }
+
 
 
     public static <F extends IFluidHandler> boolean canInsertAllFluids(List<F> fluidHandlers, List<FluidStack> fluidsToInsert) {
