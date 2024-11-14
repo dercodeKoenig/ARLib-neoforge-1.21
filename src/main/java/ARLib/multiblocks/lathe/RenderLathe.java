@@ -5,6 +5,8 @@ import ARLib.obj.ModelFormatException;
 import ARLib.obj.WavefrontObject;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderStateShard;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
@@ -15,6 +17,9 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import static ARLib.multiblockCore.BlockMultiblockMaster.STATE_MULTIBLOCK_FORMED;
+import static ARLib.obj.GroupObject.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL;
+import static net.minecraft.client.renderer.RenderStateShard.*;
+import static net.minecraft.client.renderer.RenderStateShard.TRANSLUCENT_TRANSPARENCY;
 
 public class RenderLathe implements BlockEntityRenderer<EntityLathe> {
     // Add the constructor parameter for the lambda below. You may also use it to get some context
@@ -30,7 +35,7 @@ public class RenderLathe implements BlockEntityRenderer<EntityLathe> {
 
     public RenderLathe(BlockEntityRendererProvider.Context context) {
         try {
-            model = new WavefrontObject(modelsrc, tex);
+            model = new WavefrontObject(modelsrc);
         } catch (ModelFormatException e) {
             throw new RuntimeException(e);
         }
@@ -73,10 +78,19 @@ public class RenderLathe implements BlockEntityRenderer<EntityLathe> {
             Quaternionf quaternion = new Quaternionf().fromAxisAngleRad(axis, angle);
             stack.rotateAround(quaternion, 0.5f, 0, 0.5f);
 
-// move so that the model aligns with the structure
+            // move so that the model aligns with the structure
             stack.translate(0, -1, -2);
 
-            model.renderAll(stack, bufferSource, packedLight, packedOverlay);
+            VertexFormat vertexFormat = POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL;
+            RenderType.CompositeState compositeState = RenderType.CompositeState.builder()
+                    .setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_SHADER)
+                    .setOverlayState(OVERLAY)
+                    .setLightmapState(LIGHTMAP)
+                    .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                    .setTextureState(new TextureStateShard(tex, false, false))
+                    .createCompositeState(false);
+
+            model.renderAll(stack, bufferSource, vertexFormat, compositeState, packedLight, packedOverlay);
             stack.popPose();
         }
     }

@@ -354,7 +354,7 @@ public class BlockEntityMultiblockMaster extends BlockEntity implements INetwork
         super.loadAdditional(tag, registries);
     }
 
-    public static <x extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, x t) {
+    public static void tick(Level level, BlockPos blockPos, BlockState blockState,BlockEntityMultiblockMaster t) {
 
     }
 
