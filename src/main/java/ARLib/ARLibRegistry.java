@@ -54,7 +54,7 @@ public class ARLibRegistry {
 
     public static final Supplier<Block> BLOCK_MOTOR = BLOCKS.register("block_motor_block", () -> new BlockMotor(BlockBehaviour.Properties.of().strength(2,2).noOcclusion()));
 
-    public static final Supplier<Block> BLOCK_STRUCTURE = BLOCKS.register("block_structure_block", () -> new BlockStructureBlock(BlockBehaviour.Properties.of().strength(2,2)));
+    public static final Supplier<Block> BLOCK_STRUCTURE = BLOCKS.register("block_structure_block", () -> new BlockStructureBlock(BlockBehaviour.Properties.of().strength(2,2).noOcclusion()));
 
     public static void register(IEventBus modBus) {
         registerBlockItem("block_energy_input_block", BLOCK_ENERGY_INPUT_BLOCK);

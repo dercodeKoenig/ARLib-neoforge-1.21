@@ -3,6 +3,7 @@ package ARLib.multiblocks.lathe;
 import ARLib.gui.GuiHandlerBlockEntity;
 import ARLib.gui.IGuiHandler;
 import ARLib.multiblockCore.EntityMultiblockMaster;
+import ARLib.multiblockCore.MultiblockRecipeManager;
 import ARLib.utils.MachineRecipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -23,16 +24,20 @@ import static ARLib.multiblocks.MultiblockRegistry.ENTITY_LATHE;
 
 public class EntityLathe extends EntityMultiblockMaster {
 
-    IGuiHandler guiHandler;
+
     static List<MachineRecipe> recipes = new ArrayList<>();
     public static void addRecipe(MachineRecipe recipe){
         recipes.add(recipe);
     }
 
+    IGuiHandler guiHandler;
+    MultiblockRecipeManager<EntityLathe> recipeManager = new MultiblockRecipeManager<>(this);
+
     public EntityLathe(BlockPos pos, BlockState state) {
         super(ENTITY_LATHE.get(), pos, state);
         guiHandler = new GuiHandlerBlockEntity(this);
-        this.alwaysOpenMasterGui = true;
+        //this.alwaysOpenMasterGui = true;
+        recipeManager.recipes = EntityLathe.recipes;
     }
 
     @Override
@@ -74,10 +79,13 @@ public class EntityLathe extends EntityMultiblockMaster {
     }
 
     public static <x extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, x t) {
-        if (!level.isClientSide)
+        if (!level.isClientSide) {
             IGuiHandler.serverTick(((EntityLathe) t).guiHandler);
 
+            if (((EntityLathe) t).isMultiblockFormed()) {
+                ((EntityLathe) t).recipeManager.update();
 
-
+            }
+        }
     }
 }

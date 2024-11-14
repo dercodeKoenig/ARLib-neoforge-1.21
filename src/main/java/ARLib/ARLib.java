@@ -18,6 +18,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
@@ -37,15 +38,12 @@ public class ARLib
         modEventBus.addListener(this::addCreative);
         modEventBus.addListener(this::RegisterCapabilities);
         modEventBus.addListener(this::registerNetworkStuff);
+        modEventBus.addListener(this::loadComplete);
         modEventBus.addListener(this::registerEntityRenderers);
 
         ARLibRegistry.register(modEventBus);
         MultiblockRegistry.register(modEventBus);
 
-        MachineRecipe r = new MachineRecipe();
-        r.addInput("c:ingot/iron", 1);
-        r.addOutput("minecraft:stone", 1);
-        EntityLathe.addRecipe(r);
 
 
     }
@@ -65,5 +63,12 @@ MultiblockRegistry.registerRenderers(event);
     private void addCreative(BuildCreativeModeTabContentsEvent e){
         ARLibRegistry.addCreative(e);
         MultiblockRegistry.addCreative(e);
+    }
+    private void loadComplete(FMLLoadCompleteEvent e){
+
+        MachineRecipe r = new MachineRecipe();
+        r.addInput("c:ingots/iron", 1);
+        r.addOutput("immersiveengineering:stick_iron", 1);
+        EntityLathe.addRecipe(r);
     }
     }
