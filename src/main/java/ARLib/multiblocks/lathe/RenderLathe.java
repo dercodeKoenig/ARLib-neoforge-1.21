@@ -11,8 +11,10 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -32,6 +34,11 @@ public class RenderLathe implements BlockEntityRenderer<EntityLathe> {
     //ResourceLocation tex = ResourceLocation.fromNamespaceAndPath("arlib","multiblock/crystalliser.png");
 
     WavefrontObject model;
+
+    @Override
+    public boolean shouldRender(EntityLathe blockEntity, Vec3 cameraPos) {
+        return true;
+    }
 
     public RenderLathe(BlockEntityRendererProvider.Context context) {
         try {

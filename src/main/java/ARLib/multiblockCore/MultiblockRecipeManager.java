@@ -20,7 +20,6 @@ public class MultiblockRecipeManager<T extends EntityMultiblockMaster> {
         for (MachineRecipe r : recipes){
 
             if(master.hasinputs(r.inputs) && master.canFitOutputs(r.outputs)){
-                System.out.println("process recipe now!");
                 master.consumeInput(r.inputs);
                 master.produceOutput(r.outputs);
             }

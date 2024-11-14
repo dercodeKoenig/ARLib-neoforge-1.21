@@ -170,7 +170,6 @@ public class InventoryUtils {
 
 
 public static <F extends IFluidHandler, I extends IItemHandler> void consumeElements(List<F> fluidHandlers, List<I> itemHandlers, String id_or_tag_to_consume, int num) {
-System.out.println("try consume element:" + id_or_tag_to_consume+":"+num);
     for (int i = 0; i < itemHandlers.size(); i++) {
         for (int o = 0; o < itemHandlers.get(i).getSlots(); o++) {
             if (!itemHandlers.get(i).getStackInSlot(o).isEmpty()) {
