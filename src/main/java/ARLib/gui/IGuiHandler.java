@@ -28,6 +28,8 @@ public interface IGuiHandler {
 
     List<GuiModuleBase> getModules();
 
+    void clearModules();
+
     Map<UUID, Integer> getPlayersTrackingGui();
 
     @OnlyIn(Dist.CLIENT)

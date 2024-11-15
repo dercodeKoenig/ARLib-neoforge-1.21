@@ -21,7 +21,7 @@ public class guiModuleFluidTankDisplay extends GuiModuleBase {
     FluidStack client_myFluidStack;
     FluidStack lastFluidStack;
     int maxCapacity;
-
+int last_maxCapacity;
 
     // textures width and height
     int fluid_bar_background_tw = 14;
@@ -48,7 +48,6 @@ public class guiModuleFluidTankDisplay extends GuiModuleBase {
         this.targetSlot = targetSlot;
         this.client_myFluidStack = FluidStack.EMPTY;
         this.lastFluidStack = FluidStack.EMPTY;
-        this.maxCapacity = fluidHandler.getTankCapacity(targetSlot);
     }
 
 
@@ -64,6 +63,7 @@ public class guiModuleFluidTankDisplay extends GuiModuleBase {
             Tag fluid = fluidHandler.getFluidInTank(targetSlot).save(registryAccess);
             myTag.put("fluid", fluid);
         }
+        myTag.putInt("maxCapacity", fluidHandler.getTankCapacity(targetSlot));
         myTag.putLong("time",System.currentTimeMillis());
 
         tag.put(getMyTagKey(), myTag);
@@ -74,6 +74,7 @@ public class guiModuleFluidTankDisplay extends GuiModuleBase {
     public void client_handleDataSyncedToClient(CompoundTag tag) {
         if (tag.contains(getMyTagKey())) {
             CompoundTag myTag = tag.getCompound(getMyTagKey());
+            this.maxCapacity = myTag.getInt("maxCapacity");
             long update_time = myTag.getLong("time");
             if(update_time > last_packet_time) {
                 last_packet_time = update_time;
@@ -95,9 +96,10 @@ public class guiModuleFluidTankDisplay extends GuiModuleBase {
         // update every x ticks
         if (
                 (!fluidHandler.getFluidInTank(targetSlot).equals(lastFluidStack) ||
-                fluidHandler.getFluidInTank(targetSlot).getAmount() != lastFluidStack.getAmount())
+                        fluidHandler.getFluidInTank(targetSlot).getAmount() != lastFluidStack.getAmount() ||
+                        fluidHandler.getTankCapacity(targetSlot) != last_maxCapacity)
                         && last_update > 2) {
-
+            last_maxCapacity = fluidHandler.getTankCapacity(targetSlot);
             last_update = 0;
             lastFluidStack = fluidHandler.getFluidInTank(targetSlot).copy();
             CompoundTag tag = new CompoundTag();

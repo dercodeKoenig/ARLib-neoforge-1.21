@@ -10,36 +10,37 @@ import net.neoforged.neoforge.energy.IEnergyStorage;
 
 public class guiModuleEnergy extends GuiModuleBase {
 
-    ResourceLocation energy_bar_background = ResourceLocation.fromNamespaceAndPath("arlib","textures/gui/gui_vertical_progress_bar_background.png");
-    ResourceLocation energy_bar = ResourceLocation.fromNamespaceAndPath("arlib","textures/gui/gui_vertical_progress_bar.png");
+    final ResourceLocation energy_bar_background = ResourceLocation.fromNamespaceAndPath("arlib","textures/gui/gui_vertical_progress_bar_background.png");
+    final ResourceLocation energy_bar = ResourceLocation.fromNamespaceAndPath("arlib","textures/gui/gui_vertical_progress_bar.png");
 
 
-    IEnergyStorage energyStorage;
+    final IEnergyStorage energyStorage;
 
     // textures width and height
-    int energy_bar_background_tw = 14;
-    int energy_bar_background_th = 54;
-    int borderpx = 1;
-    int energy_bar_tw = 6;
-    int energy_bar_th = 44;
+    final int energy_bar_background_tw = 14;
+    final int energy_bar_background_th = 54;
+    final int borderpx = 1;
+    final int energy_bar_tw = 6;
+    final int energy_bar_th = 44;
 
     // full size of the bar when rendering (background)
-    int w = 14;
-    int h = 54;
+    final int w = 14;
+    final int h = 54;
 
     // size of the bar
     // the background image is 14px * 54px with 1 py border
     // to get the size of the bar we need to scale the size
-    int bar_size_w = (int) (w * (((double)energy_bar_background_tw-borderpx*2) / energy_bar_background_tw));
-    int bar_size_h = (int) (h * (((double)energy_bar_background_th-borderpx*2) / energy_bar_background_th));
+    final int bar_size_w = (int) (w * (((double)energy_bar_background_tw-borderpx*2) / energy_bar_background_tw));
+    final int bar_size_h = (int) (h * (((double)energy_bar_background_th-borderpx*2) / energy_bar_background_th));
 
-    int energy_bar_offset_x = (int) ((double)borderpx / energy_bar_background_tw * w);
-    int energy_bar_offset_y = (int) ((double)borderpx / energy_bar_background_th * h);
+    final int energy_bar_offset_x = (int) ((double)borderpx / energy_bar_background_tw * w);
+    final int energy_bar_offset_y = (int) ((double)borderpx / energy_bar_background_th * h);
 
 
     int maxEnergy;
     int energy;
     int last_energy;
+    int last_maxEnergy;
 
     @Override
     public void server_writeDataToSyncToClient(CompoundTag tag){
@@ -47,6 +48,7 @@ public class guiModuleEnergy extends GuiModuleBase {
         myTag.putInt("moduleId",this.id);
         myTag.putInt("energy",energyStorage.getEnergyStored());
         myTag.putLong("time",System.currentTimeMillis());
+        myTag.putInt("maxEnergy", energyStorage.getMaxEnergyStored());
 
         tag.put(getMyTagKey(),myTag);
     }
@@ -57,9 +59,10 @@ public class guiModuleEnergy extends GuiModuleBase {
         last_update+=1;
         energy = energyStorage.getEnergyStored();
         // update every x ticks
-        if (energy != last_energy && last_update > 2){
+        if ((energy != last_energy || last_maxEnergy != energyStorage.getMaxEnergyStored())&& last_update > 2){
             last_update = 0;
             last_energy = energy;
+            last_maxEnergy = energyStorage.getMaxEnergyStored();
             CompoundTag tag = new CompoundTag();
             server_writeDataToSyncToClient(tag);
             this.guiHandler. sendToTrackingClients(tag);
@@ -75,6 +78,7 @@ public class guiModuleEnergy extends GuiModuleBase {
             if(update_time > last_packet_time) {
                 last_packet_time = update_time;
                 this.energy = myTag.getInt("energy");
+                this.maxEnergy = myTag.getInt("maxEnergy");
             }
         }
     }
@@ -82,8 +86,6 @@ public class guiModuleEnergy extends GuiModuleBase {
     public guiModuleEnergy(int id, IEnergyStorage energyStorage, IGuiHandler guiHandler, int x, int y){
         super(id,guiHandler,x,y);
         this.energyStorage = energyStorage;
-        serverTick();
-        maxEnergy = energyStorage.getMaxEnergyStored();
     }
 
     @Override

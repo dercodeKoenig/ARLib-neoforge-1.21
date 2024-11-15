@@ -63,8 +63,9 @@ public abstract class BlockMultiblockMaster extends Block implements EntityBlock
     public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!world.isClientSide) {
             BlockEntity e = world.getBlockEntity(pos);
-            if (e instanceof EntityMultiblockMaster) {
-                ((EntityMultiblockMaster) e).scanStructure();
+            if (e instanceof EntityMultiblockMaster ee) {
+                if(!ee.isMultiblockFormed())
+                    ee.scanStructure();
             }
         }
         return InteractionResult.SUCCESS;

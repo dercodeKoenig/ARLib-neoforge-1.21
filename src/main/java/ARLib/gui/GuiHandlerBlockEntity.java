@@ -80,6 +80,12 @@ public class GuiHandlerBlockEntity implements IGuiHandler {
     public List<GuiModuleBase> getModules() {
         return modules;
     }
+
+    @Override
+    public void clearModules() {
+        modules.clear();
+    }
+
     @Override
     public Map<UUID, Integer> getPlayersTrackingGui(){
         return playersTrackingGui;

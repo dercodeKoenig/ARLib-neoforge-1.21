@@ -143,7 +143,7 @@ public class RecipeLoader {
             StreamResult result = new StreamResult(new FileOutputStream(filePath.toFile()));
             transformer.transform(source, result);
 
-            System.out.println("Recipe XML file created at: " + filePath.toString());
+            System.out.println("Recipe XML file created at: " + filePath);
         } catch (Exception e) {
             e.printStackTrace();
         }

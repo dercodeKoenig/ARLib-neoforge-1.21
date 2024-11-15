@@ -35,13 +35,12 @@ public class guiModuleItemHandlerSlot extends guiModuleInventorySlotBase {
     }
     @Override
     public void serverTick(){
-        stack = itemHandler.getStackInSlot(targetSlot);
-        if (!ItemStack.isSameItemSameComponents(stack,lastStack) || stack.getCount() != lastStack.getCount()){
+        if (!ItemStack.isSameItemSameComponents(itemHandler.getStackInSlot(targetSlot),lastStack) || itemHandler.getStackInSlot(targetSlot).getCount() != lastStack.getCount()){
             CompoundTag tag = new CompoundTag();
             server_writeDataToSyncToClient(tag);
             this.guiHandler. sendToTrackingClients(tag);
+            lastStack = itemHandler.getStackInSlot(targetSlot).copy();
         }
-        lastStack = stack.copy();
     }
     @Override
     public void client_handleDataSyncedToClient(CompoundTag tag) {

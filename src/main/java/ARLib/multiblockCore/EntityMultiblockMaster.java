@@ -41,12 +41,12 @@ public class EntityMultiblockMaster extends BlockEntity implements INetworkTagRe
     private boolean isMultiblockFormed = false;
     private Direction facing = Direction.EAST;
 
-    List<EntityEnergyOutputBlock> energyOutTiles = new ArrayList<>();
-    List<EntityEnergyInputBlock> energyInTiles = new ArrayList<>();
-    List<EntityItemInputBlock> itemInTiles = new ArrayList<>();
-    List<EntityItemOutputBlock> itemOutTiles = new ArrayList<>();
-    List<EntityFluidInputBlock> fluidInTiles = new ArrayList<>();
-    List<EntityFluidOutputBlock> fluidOutTiles = new ArrayList<>();
+    protected List<EntityEnergyOutputBlock> energyOutTiles = new ArrayList<>();
+    protected List<EntityEnergyInputBlock> energyInTiles = new ArrayList<>();
+    protected List<EntityItemInputBlock> itemInTiles = new ArrayList<>();
+    protected List<EntityItemOutputBlock> itemOutTiles = new ArrayList<>();
+    protected List<EntityFluidInputBlock> fluidInTiles = new ArrayList<>();
+    protected List<EntityFluidOutputBlock> fluidOutTiles = new ArrayList<>();
 
 
     public EntityMultiblockMaster(BlockEntityType<?> p_155228_, BlockPos p_155229_, BlockState p_155230_) {
@@ -116,7 +116,6 @@ public class EntityMultiblockMaster extends BlockEntity implements INetworkTagRe
 
 
     public void setMultiblockFormed(boolean formed) {
-        System.out.println("multiblock formed at " + getBlockPos() + " :: " + formed);
         this.isMultiblockFormed = formed;
         setChanged();
         BlockState masterState = level.getBlockState(getBlockPos());
@@ -150,6 +149,8 @@ public class EntityMultiblockMaster extends BlockEntity implements INetworkTagRe
         if (level.isClientSide) {
             // set isMultiblockFormed from blockstate - after this it will be updated in network packet when it changes
             isMultiblockFormed = level.getBlockState(getBlockPos()).getValue(STATE_MULTIBLOCK_FORMED);
+            if(isMultiblockFormed)
+                onStructureComplete();
         }
         this.facing = level.getBlockState(getBlockPos()).getValue(BlockStateProperties.HORIZONTAL_FACING);
     }
@@ -280,8 +281,14 @@ public class EntityMultiblockMaster extends BlockEntity implements INetworkTagRe
         }
     }
 
+    public void onStructureComplete(){
+
+    }
+
+
     public void scanStructure() {
         if (level.isClientSide) return;
+
         energyInTiles.clear();
         energyOutTiles.clear();
         itemInTiles.clear();
@@ -290,12 +297,13 @@ public class EntityMultiblockMaster extends BlockEntity implements INetworkTagRe
         fluidOutTiles.clear();
 
         boolean canComplete = canCompleteStructure();
+
         if (!canComplete) {
             un_replace_blocks();
         } else {
             replace_blocks();
-        }
-        return;
+            onStructureComplete();
+        };
     }
 
     Direction directionFallbackWhenAfterDestroy;
@@ -393,7 +401,10 @@ public class EntityMultiblockMaster extends BlockEntity implements INetworkTagRe
 
     @Override
     public void readClient(CompoundTag tag) {
-        if (tag.contains("isMultiblockFormed"))
+        if (tag.contains("isMultiblockFormed")) {
             this.isMultiblockFormed = tag.getBoolean("isMultiblockFormed");
+            if(this.isMultiblockFormed)
+                onStructureComplete();
+        }
     }
 }

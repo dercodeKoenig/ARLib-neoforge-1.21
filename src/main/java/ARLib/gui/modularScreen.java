@@ -70,7 +70,7 @@ public class ModularScreen extends Screen {
         return super.mouseClicked(x, y, button);
     }
 
-    void calculateGuiOffsetAndNotifyModules() {
+    public void calculateGuiOffsetAndNotifyModules() {
         leftOffset = (this.width - guiW) / 2;
         topOffset = (this.height - guiH) / 2;
         for (GuiModuleBase m : c.getModules()) {

@@ -66,7 +66,7 @@ public class guiModulePlayerInventorySlot extends guiModuleInventorySlotBase{
         List<guiModulePlayerInventorySlot> modules = new ArrayList<>();
 
         for (int i = 0; i < 9; i++) {
-            guiModulePlayerInventorySlot s = new guiModulePlayerInventorySlot(startingId+i,0+i,inventoryGroup,instantTransferTargetGroup,guiHandler,x+i*18,y);
+            guiModulePlayerInventorySlot s = new guiModulePlayerInventorySlot(startingId+i, i,inventoryGroup,instantTransferTargetGroup,guiHandler,x+i*18,y);
             modules.add(s);
         }
 
