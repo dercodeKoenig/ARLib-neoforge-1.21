@@ -172,9 +172,26 @@ idea {
     }
 }
 
-jar {
+
+
+tasks.register('deobfJar', Jar) {
+    group = 'build'
+    description = 'Builds a deobfuscated jar of the mod.'
+
+    // Set the archive base name and classifier
+    archiveBaseName.set(mod_id)
     archiveClassifier.set('deobf')
+
+    // Use the main classes output
     from sourceSets.main.output
+
+    // Ensure the same metadata and files are included as the normal jar task
+    with(tasks.named('jar').get())
+
+    // Ignore duplicate entries
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
+tasks.build {
+    dependsOn(tasks.deobfJar)
+}
