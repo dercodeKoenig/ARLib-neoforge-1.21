@@ -46,6 +46,13 @@ public class ModularScreen extends Screen {
         c.onGuiClose();
         super.onClose();
     }
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        for (GuiModuleBase m : c.getModules()) {
+            m.client_onMouseScrolled(mouseX, mouseY, scrollX,scrollY);
+        }
+        return false;
+    }
 
     @Override
     public boolean mouseClicked(double x, double y, int button) {

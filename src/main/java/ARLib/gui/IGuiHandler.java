@@ -20,7 +20,9 @@ import java.util.UUID;
 
 public interface IGuiHandler {
 
-    CustomPacketPayload getNetworkPacketForTag(CompoundTag tag);
+
+    CustomPacketPayload getNetworkPacketForTag_client(CompoundTag tag);
+    CustomPacketPayload getNetworkPacketForTag_server(CompoundTag tag);
 
     void onGuiClientTick();
 
@@ -34,7 +36,6 @@ public interface IGuiHandler {
     default void openGui() {
         openGui(176, 166);
     }
-
     @OnlyIn(Dist.CLIENT)
     default void openGui(int w, int h) {
         sendPing();
@@ -50,7 +51,7 @@ public interface IGuiHandler {
 
     @OnlyIn(Dist.CLIENT)
     default void sendToServer(CompoundTag tag) {
-        PacketDistributor.sendToServer(getNetworkPacketForTag(tag));
+        PacketDistributor.sendToServer(getNetworkPacketForTag_client(tag));
     }
 
     default void readClient(CompoundTag tag) {
@@ -62,7 +63,7 @@ public interface IGuiHandler {
     default void sendToTrackingClients(CompoundTag tag) {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         for (UUID uid : getPlayersTrackingGui().keySet()) {
-            PacketDistributor.sendToPlayer(server.getPlayerList().getPlayer(uid), getNetworkPacketForTag(tag));
+            PacketDistributor.sendToPlayer(server.getPlayerList().getPlayer(uid), getNetworkPacketForTag_server(tag));
         }
     }
 
@@ -151,7 +152,7 @@ public interface IGuiHandler {
                     guiModule.server_writeDataToSyncToClient(guiData);
                 }
                 MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-                PacketDistributor.sendToPlayer(server.getPlayerList().getPlayer(uid), getNetworkPacketForTag(guiData));
+                PacketDistributor.sendToPlayer(server.getPlayerList().getPlayer(uid), getNetworkPacketForTag_server(guiData));
             }
             getPlayersTrackingGui().put(uid, 0);
         }

@@ -31,13 +31,15 @@ import java.util.Map;
 import static ARLib.ARLibRegistry.*;
 import static ARLib.multiblockCore.BlockMultiblockMaster.STATE_MULTIBLOCK_FORMED;
 
-public class EntityMultiblockMaster extends BlockEntity implements INetworkTagReceiver {
+public abstract class EntityMultiblockMaster extends BlockEntity implements INetworkTagReceiver {
+
+    abstract public  Object[][][] getStructure();
+    abstract public HashMap<Character, List<Block>> getCharMapping();
 
     // set this to true to make the master block gui open for a click on any machine part block
     // must be implemented on the machine part block
     public boolean alwaysOpenMasterGui = false;
 
-    protected HashMap<Character, List<Block>> charMapping = new HashMap<>();
     private boolean isMultiblockFormed = false;
     private Direction facing = Direction.EAST;
 
@@ -51,7 +53,6 @@ public class EntityMultiblockMaster extends BlockEntity implements INetworkTagRe
 
     public EntityMultiblockMaster(BlockEntityType<?> p_155228_, BlockPos p_155229_, BlockState p_155230_) {
         super(p_155228_, p_155229_, p_155230_);
-        setupCharmappings();
     }
 
     public int getTotalEnergyStored() {
@@ -96,24 +97,6 @@ public class EntityMultiblockMaster extends BlockEntity implements INetworkTagRe
         return InventoryUtils.canFitElements(this.itemOutTiles, this.fluidOutTiles, outputs);
     }
 
-    public void setupCharmappings() {
-        List<Block> I = new ArrayList<>();
-        I.add(BLOCK_ITEM_INPUT_BLOCK.get());
-        setMapping('I', I);
-
-        List<Block> O = new ArrayList<>();
-        O.add(BLOCK_ITEM_OUTPUT_BLOCK.get());
-        setMapping('O', O);
-
-        List<Block> P = new ArrayList<>();
-        P.add(BLOCK_ENERGY_INPUT_BLOCK.get());
-        setMapping('P', P);
-    }
-
-    public void setMapping(char character, List<Block> listToAdd) {
-        charMapping.put(character, listToAdd);
-    }
-
 
     public void setMultiblockFormed(boolean formed) {
         this.isMultiblockFormed = formed;
@@ -136,10 +119,6 @@ public class EntityMultiblockMaster extends BlockEntity implements INetworkTagRe
         return this.facing;
     }
 
-    public Object[][][] getStructure() {
-        return null;
-    }
-
     @Override
     public void onLoad() {
         super.onLoad();
@@ -149,7 +128,7 @@ public class EntityMultiblockMaster extends BlockEntity implements INetworkTagRe
         if (level.isClientSide) {
             // set isMultiblockFormed from blockstate - after this it will be updated in network packet when it changes
             isMultiblockFormed = level.getBlockState(getBlockPos()).getValue(STATE_MULTIBLOCK_FORMED);
-            if(isMultiblockFormed)
+            if (isMultiblockFormed)
                 onStructureComplete();
         }
         this.facing = level.getBlockState(getBlockPos()).getValue(BlockStateProperties.HORIZONTAL_FACING);
@@ -281,7 +260,7 @@ public class EntityMultiblockMaster extends BlockEntity implements INetworkTagRe
         }
     }
 
-    public void onStructureComplete(){
+    public void onStructureComplete() {
 
     }
 
@@ -303,7 +282,8 @@ public class EntityMultiblockMaster extends BlockEntity implements INetworkTagRe
         } else {
             replace_blocks();
             onStructureComplete();
-        };
+        }
+        ;
     }
 
     Direction directionFallbackWhenAfterDestroy;
@@ -369,8 +349,8 @@ public class EntityMultiblockMaster extends BlockEntity implements INetworkTagRe
 
 
     public List<Block> getAllowableBlocks(Object input) {
-        if (input instanceof Character && charMapping.containsKey(input)) {
-            return charMapping.get(input);
+        if (input instanceof Character && getCharMapping().containsKey(input)) {
+            return getCharMapping().get(input);
         } else if (input instanceof String) { //OreDict entry
             // [rage quit #23]
         } else if (input instanceof Block) {
@@ -403,7 +383,7 @@ public class EntityMultiblockMaster extends BlockEntity implements INetworkTagRe
     public void readClient(CompoundTag tag) {
         if (tag.contains("isMultiblockFormed")) {
             this.isMultiblockFormed = tag.getBoolean("isMultiblockFormed");
-            if(this.isMultiblockFormed)
+            if (this.isMultiblockFormed)
                 onStructureComplete();
         }
     }

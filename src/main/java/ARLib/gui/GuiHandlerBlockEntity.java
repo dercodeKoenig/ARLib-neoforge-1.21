@@ -87,7 +87,11 @@ public class GuiHandlerBlockEntity implements IGuiHandler {
     }
 
     @Override
-    public CustomPacketPayload getNetworkPacketForTag(CompoundTag tag) {
+    public CustomPacketPayload getNetworkPacketForTag_client(CompoundTag tag) {
+        return PacketBlockEntity.getBlockEntityPacket(parentBE,tag);
+    }
+    @Override
+    public CustomPacketPayload getNetworkPacketForTag_server(CompoundTag tag) {
         return PacketBlockEntity.getBlockEntityPacket(parentBE,tag);
     }
 

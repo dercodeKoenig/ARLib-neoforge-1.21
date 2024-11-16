@@ -37,8 +37,8 @@ public class guiModuleEnergy extends GuiModuleBase {
     final int energy_bar_offset_y = (int) ((double)borderpx / energy_bar_background_th * h);
 
 
-    int maxEnergy;
-    int energy;
+    public int maxEnergy;
+    public int energy;
     int last_energy;
     int last_maxEnergy;
 

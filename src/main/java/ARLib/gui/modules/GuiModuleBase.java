@@ -35,6 +35,10 @@ public class GuiModuleBase {
                 mouseY <= y + h;
     }
 
+    public void client_onMouseScrolled(double mouseX,double  mouseY, double scrollX,double scrollY){
+
+    }
+
     public void client_onMouseCLick(double x, double y, int button) {
 
     }

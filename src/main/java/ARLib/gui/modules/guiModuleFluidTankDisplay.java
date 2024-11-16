@@ -18,10 +18,10 @@ public class guiModuleFluidTankDisplay extends GuiModuleBase {
 
     IFluidHandler fluidHandler;
     int targetSlot;
-    FluidStack client_myFluidStack;
+    public FluidStack client_myFluidStack;
     FluidStack lastFluidStack;
-    int maxCapacity;
-int last_maxCapacity;
+    public int maxCapacity;
+    int last_maxCapacity;
 
     // textures width and height
     int fluid_bar_background_tw = 14;

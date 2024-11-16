@@ -9,7 +9,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 
 public class guiModuleProgressBarHorizontal6px extends GuiModuleBase {
     int color;
-    double progress;
+    public double progress;
 
     public guiModuleProgressBarHorizontal6px(int id, int barColor, IGuiHandler guiHandler, int x, int y) {
         super(id, guiHandler, x, y);

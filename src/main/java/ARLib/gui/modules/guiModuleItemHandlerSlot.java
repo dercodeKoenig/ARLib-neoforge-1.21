@@ -14,7 +14,7 @@ public class guiModuleItemHandlerSlot extends guiModuleInventorySlotBase {
     IItemHandler itemHandler;
     int targetSlot;
 
-    ItemStack stack;
+    public ItemStack stack;
     ItemStack lastStack;
 
     @Override
