@@ -24,7 +24,7 @@ int backgroundColor;
     }
 @Override
     public void client_onMouseScrolled(double mouseX,double  mouseY, double scrollX,double scrollY) {
-    this.top_extra_offset += scrollY;
+    this.top_extra_offset += scrollY*10;
     client_setGuiOffset(left, top);
 }
 
