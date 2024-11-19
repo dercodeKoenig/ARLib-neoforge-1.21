@@ -60,7 +60,7 @@ public class PacketPlayerMainHand implements CustomPacketPayload {
     @OnlyIn(Dist.CLIENT)     // <- this is bc the server shits itself on this: Minecraft.getInstance().level;
     public static void readClient_onlyonclient(final PacketPlayerMainHand data, final IPayloadContext context) {
         ItemStack selectedStack =        Minecraft.getInstance().player.getInventory().getSelected();
-        if(selectedStack.getItem() instanceof INetworkTagReceiver r)
+        if(selectedStack.getItem() instanceof INetworkItemStackTagReceiver r)
             r.readClient(data.getTag());
     }
     //  this can not be dist.client because it is used in register method
@@ -71,8 +71,8 @@ public class PacketPlayerMainHand implements CustomPacketPayload {
         UUID id = data.getId().getUUID("uuid");
         Player p = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(id);
         ItemStack selectedStack = p.getInventory().getSelected();
-        if(selectedStack.getItem() instanceof INetworkTagReceiver r)
-            r.readServer(data.getTag());
+        if(selectedStack.getItem() instanceof INetworkItemStackTagReceiver r)
+            r.readServer(data.getTag(), selectedStack);
     }
 
     @Override

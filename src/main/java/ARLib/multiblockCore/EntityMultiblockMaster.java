@@ -352,7 +352,7 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
         if (input instanceof Character && getCharMapping().containsKey(input)) {
             return getCharMapping().get(input);
         } else if (input instanceof String) { //OreDict entry
-            // [rage quit #23]
+
         } else if (input instanceof Block) {
             List<Block> list = new ArrayList<>();
             list.add((Block) input);

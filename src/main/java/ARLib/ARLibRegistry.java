@@ -3,6 +3,10 @@ package ARLib;
 
 import ARLib.blockentities.*;
 import ARLib.blocks.*;
+import ARLib.holoProjector.BlockStructurePreviewBlock;
+import ARLib.holoProjector.EntityStructurePreviewBlock;
+import ARLib.holoProjector.RenderPreviewBlock;
+import ARLib.holoProjector.itemHoloProjector;
 import ARLib.multiblockCore.BlockMultiblockPlaceholder;
 import ARLib.multiblockCore.EntityMultiblockPlaceholder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -15,7 +19,9 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Supplier;
@@ -56,6 +62,19 @@ public class ARLibRegistry {
 
     public static final Supplier<Block> BLOCK_STRUCTURE = BLOCKS.register("block_structure_block", () -> new BlockStructureBlock(BlockBehaviour.Properties.of().strength(2,2)));
 
+
+    public static final DeferredHolder<Item, Item> ITEM_HOLOPROJECTOR = ITEMS.register("item_holo_projector",
+            () -> new itemHoloProjector(new Item.Properties()));
+
+    public static final DeferredHolder<Block, Block> BLOCK_STRUCTURE_PREVIEW = BLOCKS.register(
+            "block_preview",
+            () -> new BlockStructurePreviewBlock(BlockBehaviour.Properties.of().replaceable().instabreak().noOcclusion().noCollission())
+    );
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EntityStructurePreviewBlock>> ENTITY_STRUCTURE_PREVIEW = BLOCK_ENTITIES.register(
+            "entity_preview",
+            () -> BlockEntityType.Builder.of(EntityStructurePreviewBlock::new, BLOCK_STRUCTURE_PREVIEW.get()).build(null)
+    );
+
     public static void register(IEventBus modBus) {
         registerBlockItem("block_energy_input_block", BLOCK_ENERGY_INPUT_BLOCK);
         registerBlockItem("block_energy_output_block", BLOCK_ENERGY_OUTPUT_BLOCK);
@@ -71,6 +90,9 @@ public class ARLibRegistry {
         BLOCK_ENTITIES.register(modBus);
     }
 
+    public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer(ENTITY_STRUCTURE_PREVIEW.get(), RenderPreviewBlock::new);
+    }
     public static void addCreative(BuildCreativeModeTabContentsEvent e) {
         if (e.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
             e.accept(BLOCK_ENERGY_INPUT_BLOCK.get());
@@ -81,6 +103,7 @@ public class ARLibRegistry {
             e.accept(BLOCK_FLUID_OUTPUT_BLOCK.get());
             e.accept(BLOCK_MOTOR.get());
             e.accept(BLOCK_STRUCTURE.get());
+            e.accept((ITEM_HOLOPROJECTOR.get()));
         }
     }
 

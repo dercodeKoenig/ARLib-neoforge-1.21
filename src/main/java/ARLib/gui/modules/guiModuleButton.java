@@ -37,6 +37,6 @@ public void client_onMouseCLick(double x, double y, int button) {
             float partialTick
     ) {
         guiGraphics.blit(image, onGuiX, onGuiY, 0, 0, w, h, textureW, textureH);
-        guiGraphics.drawCenteredString(Minecraft.getInstance().font, text,onGuiX+w/2,onGuiY+h/2,0xFFFFFFFF);
+        guiGraphics.drawCenteredString(Minecraft.getInstance().font, text,onGuiX+w/2,onGuiY+h/2-Minecraft.getInstance().font.lineHeight/2,0xFFFFFFFF);
     }
 }

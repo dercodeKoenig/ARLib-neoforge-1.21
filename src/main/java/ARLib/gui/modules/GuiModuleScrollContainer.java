@@ -6,7 +6,7 @@ import net.minecraft.nbt.CompoundTag;
 
 import java.util.List;
 
-public class GuiModuleScrollContainer extends GuiModuleBase {
+public class guiModuleScrollContainer extends GuiModuleBase {
 
     protected int w;
     protected int h;
@@ -15,7 +15,7 @@ public class GuiModuleScrollContainer extends GuiModuleBase {
 int backgroundColor;
     List<GuiModuleBase> modules;
 
-    public GuiModuleScrollContainer(List<GuiModuleBase>modules,int backgroundColor, IGuiHandler guiHandler, int x, int y, int w, int h) {
+    public guiModuleScrollContainer(List<GuiModuleBase>modules, int backgroundColor, IGuiHandler guiHandler, int x, int y, int w, int h) {
         super(-1,guiHandler,x,y);
         this.w = w;
         this.h=h;

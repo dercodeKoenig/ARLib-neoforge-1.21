@@ -29,6 +29,7 @@ public class ARLib {
     }
 
     public void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        ARLibRegistry.registerRenderers(event);
     }
 
     public void registerNetworkStuff(RegisterPayloadHandlersEvent event) {
