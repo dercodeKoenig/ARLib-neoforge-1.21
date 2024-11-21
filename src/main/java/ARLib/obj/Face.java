@@ -4,13 +4,16 @@ package ARLib.obj;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
 import org.joml.Vector3d;
+import org.joml.Vector3f;
 
 public class Face
 {
     public Vertex[] vertices;
-    public Vertex[] vertexNormals;
     public Vertex faceNormal;
+    public Vertex[] original_vertices;
+    public Vertex original_faceNormal;
     public TextureCoordinate[] textureCoordinates;
 
     public void addFaceForRender(PoseStack stack, VertexConsumer v, int packedLight, int packedOverlay)
@@ -54,6 +57,37 @@ public class Face
             }
         }
     }
+
+    public void rotateAroundPoint(Vector3f point, Vector3f axis, float angleDegrees) {
+        Quaternionf rotation = new Quaternionf().fromAxisAngleDeg(axis.normalize(), angleDegrees);
+
+        if (original_vertices == null) {
+            original_vertices = new Vertex[vertices.length];
+            for (int i = 0; i < vertices.length; i++) {
+                original_vertices[i] = new Vertex(vertices[i].x, vertices[i].y, vertices[i].z);
+            }
+        }
+
+        if (original_faceNormal == null) {
+            original_faceNormal = new Vertex(faceNormal.x, faceNormal.y, faceNormal.z);
+        }
+
+
+        // Rotate vertices
+        for (int i = 0; i < original_vertices.length; i++) {
+            Vector3f vertexPos = new Vector3f(original_vertices[i].x, original_vertices[i].y, original_vertices[i].z);
+            vertexPos.sub(point).rotate(rotation).add(point);
+            vertices[i].x = vertexPos.x;
+            vertices[i].y = vertexPos.y;
+            vertices[i].z = vertexPos.z;
+        }
+
+        Vector3f normalVec = new Vector3f(original_faceNormal.x, original_faceNormal.y, original_faceNormal.z);
+        normalVec.rotate(rotation);
+        faceNormal = new Vertex(normalVec.x, normalVec.y, normalVec.z);
+
+    }
+
 
     public Vertex calculateFaceNormal() {
         // Create two vectors from the triangle's vertices

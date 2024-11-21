@@ -62,6 +62,8 @@ public class ARLibRegistry {
 
     public static final Supplier<Block> BLOCK_STRUCTURE = BLOCKS.register("block_structure_block", () -> new BlockStructureBlock(BlockBehaviour.Properties.of().strength(2,2)));
 
+    public static final Supplier<Block> BLOCK_COIL_COPPER = BLOCKS.register("block_coilcopper", () -> new BlockCoilCopperBlock(BlockBehaviour.Properties.of().strength(2,2)));
+
 
     public static final DeferredHolder<Item, Item> ITEM_HOLOPROJECTOR = ITEMS.register("item_holo_projector",
             () -> new itemHoloProjector(new Item.Properties()));
@@ -84,6 +86,7 @@ public class ARLibRegistry {
         registerBlockItem("block_fluid_output_block", BLOCK_FLUID_OUTPUT_BLOCK);
         registerBlockItem("block_motor_block", BLOCK_MOTOR);
         registerBlockItem("block_structure_block", BLOCK_STRUCTURE);
+        registerBlockItem("block_coilcopper", BLOCK_COIL_COPPER);
 
         BLOCKS.register(modBus);
         ITEMS.register(modBus);
@@ -103,6 +106,7 @@ public class ARLibRegistry {
             e.accept(BLOCK_FLUID_OUTPUT_BLOCK.get());
             e.accept(BLOCK_MOTOR.get());
             e.accept(BLOCK_STRUCTURE.get());
+            e.accept(BLOCK_COIL_COPPER.get());
             e.accept((ITEM_HOLOPROJECTOR.get()));
         }
     }

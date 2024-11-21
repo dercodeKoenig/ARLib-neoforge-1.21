@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 
 import java.io.BufferedReader;
@@ -143,6 +144,15 @@ public class WavefrontObject {
         }
     }
 
+    public void setRotationForPart(String partName, Vector3f point, Vector3f axis, float angleDegrees) {
+        for (GroupObject groupObject : groupObjects) {
+            if (partName.equalsIgnoreCase(groupObject.name)) {
+                groupObject.rotateAroundPoint(point,axis,angleDegrees);
+            }
+        }
+    }
+
+
     private Vertex parseVertex(String line, int lineCount) throws ModelFormatException {
         if (isValidVertexLine(line)) {
             line = line.substring(line.indexOf(" ") + 1);
@@ -230,14 +240,12 @@ public class WavefrontObject {
             if (isValidFace_V_VT_VN_Line(line)) {
                 face.vertices = new Vertex[tokens.length];
                 face.textureCoordinates = new TextureCoordinate[tokens.length];
-                face.vertexNormals = new Vertex[tokens.length];
 
                 for (int i = 0; i < tokens.length; ++i) {
                     subTokens = tokens[i].split("/");
 
                     face.vertices[i] = vertices.get(Integer.parseInt(subTokens[0]) - 1);
                     face.textureCoordinates[i] = textureCoordinates.get(Integer.parseInt(subTokens[1]) - 1);
-                    face.vertexNormals[i] = vertexNormals.get(Integer.parseInt(subTokens[2]) - 1);
                 }
 
                 face.faceNormal = face.calculateFaceNormal();
@@ -259,13 +267,11 @@ public class WavefrontObject {
             // f v1//vn1 v2//vn2 v3//vn3 ...
             else if (isValidFace_V_VN_Line(line)) {
                 face.vertices = new Vertex[tokens.length];
-                face.vertexNormals = new Vertex[tokens.length];
 
                 for (int i = 0; i < tokens.length; ++i) {
                     subTokens = tokens[i].split("//");
 
                     face.vertices[i] = vertices.get(Integer.parseInt(subTokens[0]) - 1);
-                    face.vertexNormals[i] = vertexNormals.get(Integer.parseInt(subTokens[1]) - 1);
                 }
 
                 face.faceNormal = face.calculateFaceNormal();

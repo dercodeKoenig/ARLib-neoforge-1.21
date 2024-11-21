@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 
 import java.util.ArrayList;
@@ -66,5 +67,10 @@ public class GroupObject {
                 face.addFaceForRender(stack, v, packedLight, packedOverlay);
             }
         }
+    }
+
+    public void rotateAroundPoint(Vector3f point, Vector3f axis, float angleDegrees) {
+        for (Face i : faces)
+            i.rotateAroundPoint(point,axis,angleDegrees);
     }
 }

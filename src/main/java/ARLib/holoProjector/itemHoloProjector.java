@@ -56,11 +56,13 @@ public class itemHoloProjector extends Item implements INetworkItemStackTagRecei
         for (int y = 0; y < structure.length; y++) {
             for (int z = 0; z < structure[y].length; z++) {
                 for (int x = 0; x < structure[y][z].length; x++) {
-                    List<Block> allowed_blocks = itemHoloProjector.getAllowableBlocks(structure[y][z][x], charMapping);
-                    BlockInfo info = new BlockInfo();
-                    info.pos = new BlockPos(x, y, z);
-                    info.allowedBlocks = allowed_blocks;
-                    blockInfoList.add(info);
+                    if(structure[y][z][x] != null) {
+                        List<Block> allowed_blocks = itemHoloProjector.getAllowableBlocks(structure[y][z][x], charMapping);
+                        BlockInfo info = new BlockInfo();
+                        info.pos = new BlockPos(x, y, z);
+                        info.allowedBlocks = allowed_blocks;
+                        blockInfoList.add(info);
+                    }
                 }
             }
         }

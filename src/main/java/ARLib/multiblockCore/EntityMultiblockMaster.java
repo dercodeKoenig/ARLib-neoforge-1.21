@@ -134,7 +134,7 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
         this.facing = level.getBlockState(getBlockPos()).getValue(BlockStateProperties.HORIZONTAL_FACING);
     }
 
-    protected Vec3i getControllerOffset(Object[][][] structure) {
+    public Vec3i getControllerOffset(Object[][][] structure) {
         for (int y = 0; y < structure.length; y++) {
             for (int z = 0; z < structure[0].length; z++) {
                 for (int x = 0; x < structure[0][0].length; x++) {
@@ -288,7 +288,7 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
 
     Direction directionFallbackWhenAfterDestroy;
 
-    Direction getFront() {
+    public Direction getFront() {
         BlockState state = level.getBlockState(getBlockPos());
         Direction front;
         if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
