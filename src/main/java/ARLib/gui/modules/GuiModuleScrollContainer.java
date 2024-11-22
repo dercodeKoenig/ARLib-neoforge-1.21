@@ -76,9 +76,11 @@ int backgroundColor;
             float partialTick
     ) {
         guiGraphics.fill(onGuiX,onGuiY,onGuiX+w,onGuiY+h,backgroundColor);
+        guiGraphics.enableScissor(onGuiX,onGuiY,onGuiX+w,onGuiY+h);
         for (GuiModuleBase i: modules){
             i.render(guiGraphics,mouseX,mouseY,partialTick);
         }
+        guiGraphics.disableScissor();
     }
 
     protected String getMyTagKey(){

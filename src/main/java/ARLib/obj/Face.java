@@ -61,16 +61,6 @@ public class Face
     public void rotateAroundPoint(Vector3f point, Vector3f axis, float angleDegrees) {
         Quaternionf rotation = new Quaternionf().fromAxisAngleDeg(axis.normalize(), angleDegrees);
 
-        if (original_vertices == null) {
-            original_vertices = new Vertex[vertices.length];
-            for (int i = 0; i < vertices.length; i++) {
-                original_vertices[i] = new Vertex(vertices[i].x, vertices[i].y, vertices[i].z);
-            }
-        }
-
-        if (original_faceNormal == null) {
-            original_faceNormal = new Vertex(faceNormal.x, faceNormal.y, faceNormal.z);
-        }
 
 
         // Rotate vertices

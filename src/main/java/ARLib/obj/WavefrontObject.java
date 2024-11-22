@@ -292,6 +292,14 @@ public class WavefrontObject {
             throw new ModelFormatException("Error parsing entry ('" + line + "'" + ", line " + lineCount + ") in file '" + fileName + "' - Incorrect format");
         }
 
+
+        face.original_vertices = new Vertex[face.vertices.length];
+        for (int i = 0; i < face.vertices.length; i++) {
+            face.original_vertices[i] = new Vertex(face.vertices[i].x, face.vertices[i].y, face.vertices[i].z);
+        }
+
+        face.original_faceNormal = new Vertex(face.faceNormal.x, face.faceNormal.y, face.faceNormal.z);
+
         return face;
     }
 

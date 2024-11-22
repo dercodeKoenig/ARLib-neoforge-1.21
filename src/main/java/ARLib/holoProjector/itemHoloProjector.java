@@ -123,10 +123,10 @@ public class itemHoloProjector extends Item implements INetworkItemStackTagRecei
 
         for (int id : buttonIdToMachineName.keySet()) {
             String name = buttonIdToMachineName.get(id);
-            guiModuleButton button = new guiModuleButton(id, name, guiHandler, 25, 20 * id + 20, 50, 20, ResourceLocation.fromNamespaceAndPath("arlib", "textures/gui/gui_button_red.png"), 64, 20);
+            guiModuleButton button = new guiModuleButton(id, name, guiHandler, 10, 25 * id + 20, 80, 20, ResourceLocation.fromNamespaceAndPath("arlib", "textures/gui/gui_button_red.png"), 64, 20);
             containerModules.add(button);
         }
-        guiModuleScrollContainer container = new guiModuleScrollContainer(containerModules, 0xFFA0A0A0, guiHandler, 10, 10, 80, 80);
+        guiModuleScrollContainer container = new guiModuleScrollContainer(containerModules, 0xFFA0A0A0, guiHandler, 5, 5, 90, 90);
         guiHandler.registerModule(container);
     }
 
