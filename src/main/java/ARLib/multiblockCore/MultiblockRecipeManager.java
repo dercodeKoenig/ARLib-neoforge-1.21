@@ -42,7 +42,7 @@ public class MultiblockRecipeManager<T extends EntityMultiblockMaster> {
                 progress += 1;
                 master.consumeEnergy(currentRecipe.energyPerTick);
                 if (progress == currentRecipe.ticksRequired) {
-                    master.consumeInput(currentRecipe.inputs);
+                    master.consumeInput(currentRecipe.inputs, false);
                     master.produceOutput(currentRecipe.outputs);
                     reset();
                 }

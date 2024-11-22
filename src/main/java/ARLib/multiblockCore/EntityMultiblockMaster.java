@@ -4,6 +4,7 @@ import ARLib.blockentities.*;
 import ARLib.network.INetworkTagReceiver;
 import ARLib.network.PacketBlockEntity;
 import ARLib.utils.InventoryUtils;
+import ARLib.utils.ItemFluidStacks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -73,12 +74,16 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
         }
     }
 
-    public void consumeInput(Map<String, Integer> inputs) {
+    public ItemFluidStacks consumeInput(Map<String, Integer> inputs, boolean simulate) {
+        ItemFluidStacks consumedElements = new ItemFluidStacks();
         for (Map.Entry<String, Integer> entry : inputs.entrySet()) {
             String identifier = entry.getKey();
             int num = entry.getValue();
-            InventoryUtils.consumeElements(this.fluidInTiles, this.itemInTiles, identifier, num);
+            ItemFluidStacks ret = InventoryUtils.consumeElements(this.fluidInTiles, this.itemInTiles, identifier, num, simulate);
+            consumedElements.fluidStacks.addAll(ret.fluidStacks);
+            consumedElements.itemStacks.addAll(ret.itemStacks);
         }
+        return consumedElements;
     }
 
     public void produceOutput(Map<String, Integer> outputs) {

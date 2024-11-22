@@ -180,15 +180,18 @@ public class InventoryUtils {
     }
 
 
-public static <F extends IFluidHandler, I extends IItemHandler> void consumeElements(List<F> fluidHandlers, List<I> itemHandlers, String id_or_tag_to_consume, int num) {
+
+public static <F extends IFluidHandler, I extends IItemHandler> ItemFluidStacks consumeElements(List<F> fluidHandlers, List<I> itemHandlers, String id_or_tag_to_consume, int num, boolean simulate) {
+        ItemFluidStacks consumedStacks = new ItemFluidStacks();
     for (int i = 0; i < itemHandlers.size(); i++) {
         for (int o = 0; o < itemHandlers.get(i).getSlots(); o++) {
             if (!itemHandlers.get(i).getStackInSlot(o).isEmpty()) {
                 if (matches(id_or_tag_to_consume, itemHandlers.get(i).getStackInSlot(o))) {
-                    ItemStack extracted = itemHandlers.get(i).extractItem(o, num, false);
+                    ItemStack extracted = itemHandlers.get(i).extractItem(o, num, simulate);
+                    consumedStacks.itemStacks.add(extracted);
                     num -= extracted.getCount();
                     if (num == 0)
-                        return;
+                        return consumedStacks;
                 }
             }
         }
@@ -198,14 +201,16 @@ public static <F extends IFluidHandler, I extends IItemHandler> void consumeElem
         for (int o = 0; o < fluidHandlers.get(i).getTanks(); o++) {
             if (!fluidHandlers.get(i).getFluidInTank(o).isEmpty()) {
                 if (matches(id_or_tag_to_consume, fluidHandlers.get(i).getFluidInTank(o))) {
-                    FluidStack drained = fluidHandlers.get(i).drain(fluidHandlers.get(i).getFluidInTank(o).copyWithAmount(num), IFluidHandler.FluidAction.EXECUTE);
+                    FluidStack drained = fluidHandlers.get(i).drain(fluidHandlers.get(i).getFluidInTank(o).copyWithAmount(num), simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE);
+                    consumedStacks.fluidStacks.add(drained);
                     num -= drained.getAmount();
                     if (num == 0)
-                        return;
+                        return consumedStacks;
                 }
             }
         }
     }
+    return consumedStacks;
 }
 
 
