@@ -6,6 +6,7 @@ import ARLib.network.PacketPlayerMainHand;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -54,6 +55,8 @@ public class GuiHandlerMainHandItem implements IGuiHandler {
     @Override
     @OnlyIn(Dist.CLIENT)
     public void openGui(int w, int h) {
+        // fix for not syncing in creative mode
+        Minecraft.getInstance().player.inventoryMenu.setCarried(ItemStack.EMPTY);
         Minecraft.getInstance().setScreen(new ModularScreen(this, w, h));
     }
     @Override

@@ -39,6 +39,8 @@ public interface IGuiHandler {
     @OnlyIn(Dist.CLIENT)
     default void openGui(int w, int h) {
         sendPing();
+        // fix for not syncing in creative mode
+        Minecraft.getInstance().player.inventoryMenu.setCarried(ItemStack.EMPTY);
         Minecraft.getInstance().setScreen(new ModularScreen(this, w, h));
     }
 
@@ -103,10 +105,10 @@ public interface IGuiHandler {
             // Set the velocity of the ItemEntity to give it momentum
             itemEntity.setDeltaMovement(xVelocity, yVelocity, zVelocity);
 
-            p.inventoryMenu.setCarried(ItemStack.EMPTY);
             p.level().addFreshEntity(itemEntity);
-            p.inventoryMenu.broadcastChanges();
         }
+        p.inventoryMenu.setCarried(ItemStack.EMPTY);
+        p.inventoryMenu.broadcastChanges();
     }
 
     default void dropSinglePlayersCarriedItem(Player p) {
@@ -131,6 +133,7 @@ public interface IGuiHandler {
             carried.shrink(1);
             p.inventoryMenu.setCarried(carried);
             p.level().addFreshEntity(itemEntity);
+            p.inventoryMenu.broadcastChanges();
         }
     }
 
@@ -154,15 +157,6 @@ public interface IGuiHandler {
                 }
                 MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
                 PacketDistributor.sendToPlayer(server.getPlayerList().getPlayer(uid), getNetworkPacketForTag_server(guiData));
-            }
-            if(!getPlayersTrackingGui().containsKey(uid)){
-                // player just opened the gui, drop its carried item into inventory
-                // this fixes the bug in creative where the carried item can not be placed
-                // in the inventory for whatever reason....
-                Player p = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(uid);
-                if (p != null) {
-                    dropPlayersCarriedItem(p);
-                }
             }
             getPlayersTrackingGui().put(uid, 0);
         }
