@@ -9,10 +9,14 @@ import net.minecraft.resources.ResourceLocation;
 public class guiModuleText extends GuiModuleBase {
 
     String text;
+    int color;
+    boolean makeShadow;
 
-    public guiModuleText(String text, IGuiHandler guiHandler, int x, int y) {
+    public guiModuleText(String text, IGuiHandler guiHandler, int x, int y, int color, boolean makeShadow) {
         super(-1, guiHandler, x, y);
         this.text = text;
+        this.color = color;
+        this.makeShadow = makeShadow;
     }
 
     @Override
@@ -22,6 +26,6 @@ public class guiModuleText extends GuiModuleBase {
             int mouseY,
             float partialTick
     ) {
-        guiGraphics.drawString(Minecraft.getInstance().font, text, onGuiX, onGuiY, 0xFFFFFFFF,true);
+        guiGraphics.drawString(Minecraft.getInstance().font, text, onGuiX, onGuiY, color, makeShadow);
     }
 }
