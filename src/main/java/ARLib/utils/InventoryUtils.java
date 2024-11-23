@@ -15,12 +15,13 @@ import java.util.Map;
 import static ARLib.utils.ItemUtils.*;
 
 public class InventoryUtils {
-    public static   <I extends IItemHandler, F extends IFluidHandler> boolean canFitElements(List<I> itemInTiles, List<F> fluidInTiles, Map<String, Integer> elements) {
+    public static   <I extends IItemHandler, F extends IFluidHandler> boolean canFitElements(List<I> itemInTiles, List<F> fluidInTiles, List<MachineRecipe.recipePart> elements) {
         List<ItemStack> itemStacks = new ArrayList<>();
         List<FluidStack> fluidStacks = new ArrayList<>();
 
-        for (String id : elements.keySet()) {
-            int num = elements.get(id);
+        for (MachineRecipe.recipePart part : elements) {
+            int num = part.num;
+            String id = part.id;
             ItemStack istack = getItemStackFromId(id, num);
             if (istack != null) {
                 itemStacks.add(istack);
@@ -215,7 +216,7 @@ public static <F extends IFluidHandler, I extends IItemHandler> ItemFluidStacks 
 
 
 
-    public static <F extends IFluidHandler, I extends IItemHandler> boolean hasInputs(List<I> itemInTiles, List<F> fluidInTiles, Map<String, Integer> inputs) {
+    public static <F extends IFluidHandler, I extends IItemHandler> boolean hasInputs(List<I> itemInTiles, List<F> fluidInTiles, List<MachineRecipe.recipePart> inputs) {
         // Collect all non-empty item stacks from the item handlers
         List<ItemStack> myInputItems = new ArrayList<>();
         for (IItemHandler handler : itemInTiles) {
@@ -239,13 +240,14 @@ public static <F extends IFluidHandler, I extends IItemHandler> ItemFluidStacks 
         }
 
         // Iterate over each required input
-        for (String input : inputs.keySet()) {
-            int required = inputs.get(input);
+        for (MachineRecipe.recipePart part : inputs) {
+            int required = part.num;
+            String id = part.id;
 
             // Try to satisfy the fluid requirement first
             for (int i = 0; i < myInputFluids.size(); i++) {
                 FluidStack s = myInputFluids.get(i);
-                if (matches(input, s)) {
+                if (matches(id, s)) {
                     int count = s.getAmount();
                     int toFill = Math.min(required, count);
                     required -= toFill;
@@ -258,7 +260,7 @@ public static <F extends IFluidHandler, I extends IItemHandler> ItemFluidStacks 
             if (required > 0) {
                 for (int i = 0; i < myInputItems.size(); i++) {
                     ItemStack s = myInputItems.get(i);
-                    if (matches(input, s)) {
+                    if (matches(id, s)) {
                         int count = s.getCount();
                         int toFill = Math.min(required, count);
                         required -= toFill;

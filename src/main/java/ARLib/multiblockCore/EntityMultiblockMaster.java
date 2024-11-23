@@ -5,6 +5,7 @@ import ARLib.network.INetworkTagReceiver;
 import ARLib.network.PacketBlockEntity;
 import ARLib.utils.InventoryUtils;
 import ARLib.utils.ItemFluidStacks;
+import ARLib.utils.MachineRecipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -74,31 +75,37 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
         }
     }
 
-    public ItemFluidStacks consumeInput(Map<String, Integer> inputs, boolean simulate) {
+    public ItemFluidStacks consumeInput(List<MachineRecipe.recipePart> inputs, boolean simulate) {
         ItemFluidStacks consumedElements = new ItemFluidStacks();
-        for (Map.Entry<String, Integer> entry : inputs.entrySet()) {
-            String identifier = entry.getKey();
-            int num = entry.getValue();
-            ItemFluidStacks ret = InventoryUtils.consumeElements(this.fluidInTiles, this.itemInTiles, identifier, num, simulate);
-            consumedElements.fluidStacks.addAll(ret.fluidStacks);
-            consumedElements.itemStacks.addAll(ret.itemStacks);
+        for (MachineRecipe.recipePart input : inputs) {
+            String identifier = input.id;
+            int totalToConsume = input.actual_num;
+            if (totalToConsume > 0) {
+                ItemFluidStacks ret = InventoryUtils.consumeElements(this.fluidInTiles, this.itemInTiles, identifier, totalToConsume, simulate);
+                consumedElements.fluidStacks.addAll(ret.fluidStacks);
+                consumedElements.itemStacks.addAll(ret.itemStacks);
+            }
         }
         return consumedElements;
     }
 
-    public void produceOutput(Map<String, Integer> outputs) {
-        for (Map.Entry<String, Integer> entry : outputs.entrySet()) {
-            String identifier = entry.getKey();
-            int num = entry.getValue();
-            InventoryUtils.createElements(this.fluidOutTiles, this.itemOutTiles, identifier, num);
+
+    public void produceOutput(List<MachineRecipe.recipePart> outputs) {
+        for (MachineRecipe.recipePart output : outputs) {
+            String identifier = output.id;
+            int totalToProduce = output.actual_num;
+            if (totalToProduce > 0) {
+                InventoryUtils.createElements(this.fluidOutTiles, this.itemOutTiles, identifier, totalToProduce);
+            }
         }
     }
 
-    public boolean hasinputs(Map<String, Integer> inputs) {
+
+    // both using the max possible inputs/outputs for p >= 1
+    public boolean hasinputs(List<MachineRecipe.recipePart> inputs) {
         return InventoryUtils.hasInputs(this.itemInTiles, this.fluidInTiles, inputs);
     }
-
-    public boolean canFitOutputs(Map<String, Integer> outputs) {
+    public boolean canFitOutputs(List<MachineRecipe.recipePart> outputs) {
         return InventoryUtils.canFitElements(this.itemOutTiles, this.fluidOutTiles, outputs);
     }
 

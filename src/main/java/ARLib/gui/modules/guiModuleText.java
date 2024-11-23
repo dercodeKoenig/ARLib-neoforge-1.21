@@ -22,6 +22,6 @@ public class guiModuleText extends GuiModuleBase {
             int mouseY,
             float partialTick
     ) {
-        guiGraphics.drawCenteredString(Minecraft.getInstance().font, text, onGuiX, onGuiY, 0xFFFFFFFF);
+        guiGraphics.drawString(Minecraft.getInstance().font, text, onGuiX, onGuiY, 0xFFFFFFFF,true);
     }
 }

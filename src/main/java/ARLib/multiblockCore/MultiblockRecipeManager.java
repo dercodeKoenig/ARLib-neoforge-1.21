@@ -25,7 +25,8 @@ public class MultiblockRecipeManager<T extends EntityMultiblockMaster> {
     void scanFornewRecipe() {
         for (MachineRecipe r : recipes) {
             if (master.hasinputs(r.inputs) && master.canFitOutputs(r.outputs)) {
-                currentRecipe = r;
+                currentRecipe = r.copy(); // make a copy because they can have different actual_num values for every new recipe
+                currentRecipe.compute_actual_output_nums(); // roll the dice to compute input / output to consume for given probability
                 break;
             }
         }

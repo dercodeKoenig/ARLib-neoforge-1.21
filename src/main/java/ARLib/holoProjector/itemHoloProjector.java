@@ -4,9 +4,7 @@ import ARLib.gui.GuiHandlerMainHandItem;
 import ARLib.gui.IguiOnClientTick;
 import ARLib.gui.modules.GuiModuleBase;import ARLib.gui.modules.guiModuleButton;
 import ARLib.gui.modules.guiModuleScrollContainer;
-import ARLib.multiblockCore.EntityMultiblockMaster;
 import ARLib.network.INetworkItemStackTagReceiver;
-import ARLib.network.INetworkTagReceiver;
 import ARLib.network.PacketPlayerMainHand;
 import ARLib.utils.DimensionUtils;
 import net.minecraft.client.Minecraft;
@@ -14,8 +12,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.TagParser;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -28,7 +24,6 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -37,12 +32,6 @@ import java.util.*;
 
 import static ARLib.ARLibRegistry.BLOCK_STRUCTURE_PREVIEW;
 
-
-class BlockInfo{
-    BlockInfo(){}
-    List<Block> allowedBlocks;
-    BlockPos pos;
-}
 
 public class itemHoloProjector extends Item implements INetworkItemStackTagReceiver, IguiOnClientTick {
     static GuiHandlerMainHandItem guiHandler;
@@ -292,5 +281,11 @@ public class itemHoloProjector extends Item implements INetworkItemStackTagRecei
     @Override
     public void onGuiClientTick() {
 
+    }
+
+    static class BlockInfo{
+        BlockInfo(){}
+        List<Block> allowedBlocks;
+        BlockPos pos;
     }
 }

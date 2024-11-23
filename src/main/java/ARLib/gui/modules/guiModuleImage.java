@@ -30,6 +30,6 @@ public class guiModuleImage extends GuiModuleBase {
             int mouseY,
             float partialTick
     ) {
-        guiGraphics.blit(image, onGuiX, onGuiY, 0, 0, w, h, textureW, textureH);
+        guiGraphics.blit(image, onGuiX, onGuiY, w, h, 0f, 0f, textureW, textureH, textureW, textureH);
     }
 }

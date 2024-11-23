@@ -19,7 +19,7 @@ import java.util.Map;
 
 public class RecipeLoader {
 
-    public static List<MachineRecipe> loadRecipes( Path configDir, String filename) {
+    public static List<MachineRecipe> loadRecipes(Path configDir, String filename) {
         List<MachineRecipe> recipes = new ArrayList<>();
 
         try {
@@ -56,7 +56,11 @@ public class RecipeLoader {
                             Element itemElement = (Element) itemNode;
                             String id = itemElement.getAttribute("id");
                             int amount = Integer.parseInt(itemElement.getAttribute("amount"));
-                            recipe.addInput(id, amount);
+                            float p = 2f; // Default value if "p" is missing
+                            String pAttr = itemElement.getAttribute("p");
+                            if (!pAttr.isEmpty())
+                                p = Float.parseFloat(pAttr);
+                            recipe.addInput(id, amount, p);
                         }
                     }
 
@@ -68,7 +72,11 @@ public class RecipeLoader {
                             Element itemElement = (Element) itemNode;
                             String id = itemElement.getAttribute("id");
                             int amount = Integer.parseInt(itemElement.getAttribute("amount"));
-                            recipe.addOutput(id, amount);
+                            float p = 2f; // Default value if "p" is missing
+                            String pAttr = itemElement.getAttribute("p");
+                            if (!pAttr.isEmpty())
+                                p = Float.parseFloat(pAttr);
+                            recipe.addOutput(id, amount, p);
                         }
                     }
 
@@ -87,7 +95,6 @@ public class RecipeLoader {
     }
 
 
-
     public static void createRecipeFile(Path configDir, String filename, List<MachineRecipe> recipes) {
         Path filePath = configDir.resolve(filename);
         try {
@@ -104,23 +111,27 @@ public class RecipeLoader {
                 Element recipeElement = doc.createElement("recipe");
                 rootElement.appendChild(recipeElement);
 
-                // <inputItems> - Loop over the inputs map
+                // <inputItems> - Loop over the inputs list
                 Element inputItems = doc.createElement("inputItems");
                 recipeElement.appendChild(inputItems);
-                for (Map.Entry<String, Integer> entry : recipe.inputs.entrySet()) {
-                    Element inputItem = doc.createElement("item");
-                    inputItem.setAttribute("id", entry.getKey());
-                    inputItem.setAttribute("amount", String.valueOf(entry.getValue()));
+                for (MachineRecipe.recipePart input : recipe.inputs) {
+                    Element inputItem = doc.createElement("entry");
+                    inputItem.setAttribute("id", input.id);
+                    inputItem.setAttribute("amount", String.valueOf(input.num));
+                    if (input.p < 1)
+                        inputItem.setAttribute("p", String.valueOf(input.p)); // Include the "p" attribute
                     inputItems.appendChild(inputItem);
                 }
 
-                // <outputItems> - Loop over the outputs map
+                // <outputItems> - Loop over the outputs list
                 Element outputItems = doc.createElement("outputItems");
                 recipeElement.appendChild(outputItems);
-                for (Map.Entry<String, Integer> entry : recipe.outputs.entrySet()) {
-                    Element outputItem = doc.createElement("item");
-                    outputItem.setAttribute("id", entry.getKey());
-                    outputItem.setAttribute("amount", String.valueOf(entry.getValue()));
+                for (MachineRecipe.recipePart output : recipe.outputs) {
+                    Element outputItem = doc.createElement("entry");
+                    outputItem.setAttribute("id", output.id);
+                    outputItem.setAttribute("amount", String.valueOf(output.num));
+                    if (output.p < 1)
+                        outputItem.setAttribute("p", String.valueOf(output.p)); // Include the "p" attribute
                     outputItems.appendChild(outputItem);
                 }
 

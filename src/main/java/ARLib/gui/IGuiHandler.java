@@ -105,6 +105,7 @@ public interface IGuiHandler {
 
             p.inventoryMenu.setCarried(ItemStack.EMPTY);
             p.level().addFreshEntity(itemEntity);
+            p.inventoryMenu.broadcastChanges();
         }
     }
 
@@ -153,6 +154,15 @@ public interface IGuiHandler {
                 }
                 MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
                 PacketDistributor.sendToPlayer(server.getPlayerList().getPlayer(uid), getNetworkPacketForTag_server(guiData));
+            }
+            if(!getPlayersTrackingGui().containsKey(uid)){
+                // player just opened the gui, drop its carried item into inventory
+                // this fixes the bug in creative where the carried item can not be placed
+                // in the inventory for whatever reason....
+                Player p = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(uid);
+                if (p != null) {
+                    dropPlayersCarriedItem(p);
+                }
             }
             getPlayersTrackingGui().put(uid, 0);
         }
