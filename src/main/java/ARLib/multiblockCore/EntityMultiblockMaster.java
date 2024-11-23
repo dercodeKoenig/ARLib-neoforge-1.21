@@ -276,9 +276,13 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
 
     }
 
-
+    // when structure is assembled it sets all blockstates new because it changes the STATE_MULTIBLOCK_FORMED
+    // this triggers re-scan and messes up tiles so block scanning while scanning
+boolean isScanning = false;
     public void scanStructure() {
         if (level.isClientSide) return;
+        if(isScanning)return;
+        isScanning = true;
 
         energyInTiles.clear();
         energyOutTiles.clear();
@@ -295,7 +299,7 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
             replace_blocks();
             onStructureComplete();
         }
-        ;
+        isScanning = false;
     }
 
     Direction directionFallbackWhenAfterDestroy;
