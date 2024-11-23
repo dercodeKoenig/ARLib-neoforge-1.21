@@ -7,6 +7,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 
@@ -18,6 +20,7 @@ public class GroupObject {
     public String name;
     public ArrayList<Face> faces = new ArrayList<>();
     public VertexFormat.Mode drawMode;
+    private Matrix4f transformationMatrix=new Matrix4f().identity(); // Start with identity; // Stores the current transformation
 
 
     public static VertexFormat POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL = VertexFormat.builder()
@@ -69,8 +72,38 @@ public class GroupObject {
         }
     }
 
-    public void rotateAroundPoint(Vector3f point, Vector3f axis, float angleDegrees) {
+    public void applyTransformations() {
         for (Face i : faces)
-            i.rotateAroundPoint(point,axis,angleDegrees);
+            i.applyTransformations(transformationMatrix);
     }
+
+    // Reset transformations
+    public void resetTransformations() {
+        transformationMatrix.identity();
+    }
+
+    // Translate in world space
+    public void translateWorldSpace(Vector3f translation) {
+        transformationMatrix.translate(translation);
+    }
+
+    // Translate in model space
+    public void translateModelSpace(Vector3f translation) {
+        transformationMatrix.translateLocal(translation);
+    }
+
+    // Rotate around an axis in world space
+    public void rotateWorldSpace(Vector3f axis, float angleDegrees) {
+        transformationMatrix.rotate((float) Math.toRadians(angleDegrees), axis.normalize());
+    }
+
+    // Rotate around an axis in model space
+    public void rotateModelSpace(Vector3f axis, float angleDegrees) {
+        // Create a quaternion from the axis-angle pair
+        Quaternionf quaternion = new Quaternionf().fromAxisAngleDeg(axis.normalize(), angleDegrees);
+
+        // Apply the local rotation directly to the transformation matrix
+        transformationMatrix.rotateLocal(quaternion, transformationMatrix);
+    }
+
 }

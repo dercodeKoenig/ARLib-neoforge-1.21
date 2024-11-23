@@ -80,7 +80,7 @@ public class guiModuleFluidTankDisplay extends GuiModuleBase {
                 last_packet_time = update_time;
                 if (myTag.getBoolean("hasFluid")) {
                     Tag fluid = myTag.get("fluid");
-                    RegistryAccess registryAccess = ServerLifecycleHooks.getCurrentServer().registryAccess();
+                    RegistryAccess registryAccess = Minecraft.getInstance().level.registryAccess();
                     client_myFluidStack = FluidStack.parse(registryAccess, fluid).get();
                 } else {
                     client_myFluidStack = FluidStack.EMPTY;

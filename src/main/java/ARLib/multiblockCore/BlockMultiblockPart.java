@@ -67,13 +67,14 @@ public class BlockMultiblockPart extends Block {
 
     @Override
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        super.onRemove(state, level, pos, newState, movedByPiston);
+        System.out.println(level.getBlockState(pos));
         if (state.getBlock() instanceof BlockMultiblockPart t) {
             BlockPos master = t.getMaster(pos);
             if (master != null && level.getBlockEntity(master) instanceof EntityMultiblockMaster masterTile) {
                 masterTile.scanStructure();
             }
             multiblockMasterPositions.remove(pos);
-            super.onRemove(state, level, pos, newState, movedByPiston);
         }
     }
 }

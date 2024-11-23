@@ -24,6 +24,9 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -45,7 +48,7 @@ public class itemHoloProjector extends Item implements INetworkItemStackTagRecei
         for (int y = 0; y < structure.length; y++) {
             for (int z = 0; z < structure[y].length; z++) {
                 for (int x = 0; x < structure[y][z].length; x++) {
-                    if(structure[y][z][x] != null) {
+                    if (structure[y][z][x] != null) {
                         List<Block> allowed_blocks = itemHoloProjector.getAllowableBlocks(structure[y][z][x], charMapping);
                         BlockInfo info = new BlockInfo();
                         info.pos = new BlockPos(x, y, z);
@@ -78,9 +81,14 @@ public class itemHoloProjector extends Item implements INetworkItemStackTagRecei
 
     public itemHoloProjector(Properties properties) {
         super(properties);
-        NeoForge.EVENT_BUS.addListener(this::handleScroll);
+
+        // Ensure the event listener is registered only on the client
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            NeoForge.EVENT_BUS.addListener(this::handleScroll);
+        }
     }
 
+    @OnlyIn(Dist.CLIENT)
     private void handleScroll(InputEvent.MouseScrollingEvent event) {
         Minecraft mc = Minecraft.getInstance();
         Player player = mc.player;
@@ -139,13 +147,13 @@ public class itemHoloProjector extends Item implements INetworkItemStackTagRecei
                 int x = i.pos.getX();
                 int y = i.pos.getY();
                 int z = i.pos.getZ();
-                if(y == itemTag.getInt("y")) {
+                if (y == itemTag.getInt("y")) {
                     int globalX = clickedPos.getX() + (x - offset.getX()) * stepZ - (z - offset.getZ()) * stepX;
                     int globalY = clickedPos.getY() - y + offset.getY();
                     int globalZ = clickedPos.getZ() - (x - offset.getX()) * stepX - (z - offset.getZ()) * stepZ;
                     BlockPos globalPos = new BlockPos(globalX, globalY, globalZ);
-                    if(world.getBlockState(globalPos).canBeReplaced()) {
-                        if(!i.allowedBlocks.contains(Blocks.AIR)) {
+                    if (world.getBlockState(globalPos).canBeReplaced()) {
+                        if (!i.allowedBlocks.contains(Blocks.AIR)) {
                             world.setBlock(globalPos, BLOCK_STRUCTURE_PREVIEW.get().defaultBlockState(), 3);
                             EntityStructurePreviewBlock structureEntity = (EntityStructurePreviewBlock) (world.getBlockEntity(globalPos));
                             structureEntity.setValidBlocks(i.allowedBlocks);
@@ -203,8 +211,8 @@ public class itemHoloProjector extends Item implements INetworkItemStackTagRecei
             setTag(stack, tag);
             placeLayer(tag);
         }
-        if(!!context.getLevel().isClientSide && context.getPlayer().isShiftKeyDown()){
-            use(context.getLevel(),context.getPlayer(),context.getHand());
+        if (!!context.getLevel().isClientSide && context.getPlayer().isShiftKeyDown()) {
+            use(context.getLevel(), context.getPlayer(), context.getHand());
         }
         return InteractionResult.SUCCESS;
     }
@@ -260,7 +268,7 @@ public class itemHoloProjector extends Item implements INetworkItemStackTagRecei
             if (itemTag.contains("y")) {
                 y = itemTag.getInt("y");
             }
-            if (was_upScroll && y > 0 ) {
+            if (was_upScroll && y > 0) {
                 y -= 1;
             }
             if (!was_upScroll && y < machineHeight(itemTag.getString("selectedMachine"))) {
@@ -283,8 +291,10 @@ public class itemHoloProjector extends Item implements INetworkItemStackTagRecei
 
     }
 
-    static class BlockInfo{
-        BlockInfo(){}
+    static class BlockInfo {
+        BlockInfo() {
+        }
+
         List<Block> allowedBlocks;
         BlockPos pos;
     }

@@ -257,14 +257,18 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
                         level.setBlock(globalPos, newState, 3);
                         EntityMultiblockPlaceholder tile = (EntityMultiblockPlaceholder) level.getBlockEntity(globalPos);
                         tile.replacedState = blockState;
-                        blockState = newState;
+                        blockState = level.getBlockState(globalPos);
                     }
 
+                    // at this point the block is a multiBlockPart or multiBlockMaster
+                    level.setBlock(globalPos, blockState.setValue(STATE_MULTIBLOCK_FORMED, true), 3);
+
+                    blockState = level.getBlockState(globalPos);
                     if (blockState.getBlock() instanceof BlockMultiblockPart t) {
                         t.setMaster(globalPos, getBlockPos());
                     }
-                    level.setBlock(globalPos, blockState.setValue(STATE_MULTIBLOCK_FORMED, true), 3);
 
+                    // scan blockentity if any to add to in/out tiles
                     BlockEntity tile = level.getBlockEntity(globalPos);
                     addStructureTiles(tile);
                 }
@@ -280,6 +284,7 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
     // this triggers re-scan and messes up tiles so block scanning while scanning
 boolean isScanning = false;
     public void scanStructure() {
+        System.out.println("try scan");
         if (level.isClientSide) return;
         if(isScanning)return;
         isScanning = true;
@@ -292,7 +297,7 @@ boolean isScanning = false;
         fluidOutTiles.clear();
 
         boolean canComplete = canCompleteStructure();
-
+        System.out.println(canComplete);
         if (!canComplete) {
             un_replace_blocks();
         } else {

@@ -144,14 +144,46 @@ public class WavefrontObject {
         }
     }
 
-    public void setRotationForPart(String partName, Vector3f point, Vector3f axis, float angleDegrees) {
+    public void rotateWorldSpace(String partName, Vector3f axis, float angleDegrees) {
         for (GroupObject groupObject : groupObjects) {
             if (partName.equalsIgnoreCase(groupObject.name)) {
-                groupObject.rotateAroundPoint(point,axis,angleDegrees);
+                groupObject.rotateWorldSpace(axis,angleDegrees);
             }
         }
     }
-
+    public void rotateModelSpace( String partName, Vector3f axis, float angleDegrees) {
+        for (GroupObject groupObject : groupObjects) {
+            if (partName.equalsIgnoreCase(groupObject.name)) {
+                groupObject.rotateModelSpace(axis,angleDegrees);
+            }
+        }
+    }
+    public void translateWorldSpace(String partName, Vector3f translation) {
+        for (GroupObject groupObject : groupObjects) {
+            if (partName.equalsIgnoreCase(groupObject.name)) {
+                groupObject.translateWorldSpace(translation);
+            }
+        }
+    }
+    public void translateModelSpace(String partName, Vector3f translation) {
+        for (GroupObject groupObject : groupObjects) {
+            if (partName.equalsIgnoreCase(groupObject.name)) {
+                groupObject.translateModelSpace(translation);
+            }
+        }
+    }
+    public void applyTransformations(String partName) {
+        for (GroupObject groupObject : groupObjects) {
+            if (partName.equalsIgnoreCase(groupObject.name)) {
+                groupObject.applyTransformations();
+            }}
+    }
+    public void resetTransformations(String partName) {
+        for (GroupObject groupObject : groupObjects) {
+            if (partName.equalsIgnoreCase(groupObject.name)) {
+                groupObject.resetTransformations();
+            }}
+    }
 
     private Vertex parseVertex(String line, int lineCount) throws ModelFormatException {
         if (isValidVertexLine(line)) {
