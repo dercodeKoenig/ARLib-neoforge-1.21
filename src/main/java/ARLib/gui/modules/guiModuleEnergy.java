@@ -10,8 +10,8 @@ import net.neoforged.neoforge.energy.IEnergyStorage;
 
 public class guiModuleEnergy extends GuiModuleBase {
 
-    final ResourceLocation energy_bar_background = ResourceLocation.fromNamespaceAndPath("arlib","textures/gui/gui_vertical_progress_bar_background.png");
-    final ResourceLocation energy_bar = ResourceLocation.fromNamespaceAndPath("arlib","textures/gui/gui_vertical_progress_bar.png");
+    public ResourceLocation energy_bar_background = ResourceLocation.fromNamespaceAndPath("arlib","textures/gui/gui_vertical_progress_bar_background.png");
+    public ResourceLocation energy_bar = ResourceLocation.fromNamespaceAndPath("arlib","textures/gui/gui_vertical_progress_bar.png");
 
 
     final IEnergyStorage energyStorage;
@@ -28,13 +28,11 @@ public class guiModuleEnergy extends GuiModuleBase {
     final int h = 54;
 
     // size of the bar
-    // the background image is 14px * 54px with 1 py border
-    // to get the size of the bar we need to scale the size
-    final int bar_size_w = (int) (w * (((double)energy_bar_background_tw-borderpx*2) / energy_bar_background_tw));
-    final int bar_size_h = (int) (h * (((double)energy_bar_background_th-borderpx*2) / energy_bar_background_th));
+    final int bar_size_w = w - borderpx * 2;
+    final int bar_size_h = h - borderpx * 2;
 
-    final int energy_bar_offset_x = (int) ((double)borderpx / energy_bar_background_tw * w);
-    final int energy_bar_offset_y = (int) ((double)borderpx / energy_bar_background_th * h);
+    final int energy_bar_offset_x = borderpx;
+    final int energy_bar_offset_y = borderpx;
 
 
     public int maxEnergy;

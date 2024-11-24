@@ -9,7 +9,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 
 public class guiModuleProgressBarHorizontal6px extends GuiModuleBase {
     int color;
-    public double progress;
+    double progress;
 
     public guiModuleProgressBarHorizontal6px(int id, int barColor, IGuiHandler guiHandler, int x, int y) {
         super(id, guiHandler, x, y);
@@ -32,7 +32,7 @@ public class guiModuleProgressBarHorizontal6px extends GuiModuleBase {
             float partialTick
     ) {
         guiGraphics.blit(background, onGuiX, onGuiY, 0, 0, 54, 6, 54, 6);
-        guiGraphics.fill(onGuiX + 1, onGuiY + 1, onGuiX+(int) (52 * progress), onGuiY+4, color);
+        guiGraphics.fill(onGuiX + 1, onGuiY + 1, onGuiX+(int) (52 * progress)+1, onGuiY+4+1, color);
 
     }
 }

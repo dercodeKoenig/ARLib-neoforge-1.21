@@ -15,7 +15,8 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 public class guiModuleFluidTankDisplay extends GuiModuleBase {
 
-    ResourceLocation fluid_bar_background = ResourceLocation.fromNamespaceAndPath("arlib", "textures/gui/gui_vertical_progress_bar_background.png");
+    public ResourceLocation fluid_bar_background = ResourceLocation.fromNamespaceAndPath("arlib", "textures/gui/gui_vertical_progress_bar_background.png");
+    public ResourceLocation fluid_bar_grading = ResourceLocation.fromNamespaceAndPath("arlib", "textures/gui/gui_vertical_progress_bar_4p.png");
 
     IFluidHandler fluidHandler;
     int targetSlot;
@@ -34,13 +35,11 @@ public class guiModuleFluidTankDisplay extends GuiModuleBase {
     int h = 54;
 
     // size of the bar
-    // the background image is 14px * 54px with 1 py border
-    // to get the size of the bar we need to scale the size
-    int bar_size_w = (int) (w * (((double) fluid_bar_background_tw - borderpx * 2) / fluid_bar_background_tw));
-    int bar_size_h = (int) (h * (((double) fluid_bar_background_th - borderpx * 2) / fluid_bar_background_th));
+    int bar_size_w = w - borderpx * 2;
+    int bar_size_h = h - borderpx * 2;
 
-    int fluid_bar_offset_x = (int) ((double) borderpx / fluid_bar_background_tw * w);
-    int fluid_bar_offset_y = (int) ((double) borderpx / fluid_bar_background_th * h);
+    int fluid_bar_offset_x = borderpx;
+    int fluid_bar_offset_y = borderpx;
 
 
     public guiModuleFluidTankDisplay(int id, IFluidHandler fluidHandler, int targetSlot, IGuiHandler guiHandler, int x, int y) {
@@ -124,8 +123,11 @@ public class guiModuleFluidTankDisplay extends GuiModuleBase {
             double relative_fluid_level = (double) client_myFluidStack.getAmount() / maxCapacity;
             int y_offset = (int) ((1 - relative_fluid_level) * bar_size_h);
             int color = IClientFluidTypeExtensions.of(client_myFluidStack.getFluid()).getTintColor();
-            guiGraphics.fill(onGuiX + fluid_bar_offset_x, onGuiY + fluid_bar_offset_y + y_offset, onGuiX + bar_size_w, onGuiY + bar_size_h, color);
+            guiGraphics.fill(onGuiX + fluid_bar_offset_x, onGuiY + fluid_bar_offset_y + y_offset, onGuiX + bar_size_w+1, onGuiY + bar_size_h+1, color);
         }
+
+        guiGraphics.blit(fluid_bar_grading, onGuiX, onGuiY, 0, 0, w, h, fluid_bar_background_tw, fluid_bar_background_th);
+
         if (client_isMouseOver(mouseX, mouseY, onGuiX, onGuiY, w, h)) {
             String info = "0/"+maxCapacity+"mb)";
             if(!client_myFluidStack.isEmpty()) {

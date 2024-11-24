@@ -364,9 +364,9 @@ boolean isScanning = false;
                         block = t.replacedState.getBlock();
                     }
                     if (!getAllowableBlocks(structure[y][z][x]).contains(block)) {
-                        for (ServerPlayer player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers()) {
-                            player.sendSystemMessage(Component.literal("Invalid Block at "+globalPos+" ( "+block + " ) "));
-                        }
+                        //for (ServerPlayer player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers()) {
+                        //    player.sendSystemMessage(Component.literal("Invalid Block at "+globalPos+" ( "+block + " ) "));
+                        //}
                         return false;
                     }
                 }

@@ -48,7 +48,9 @@ public class EntityFluidInputBlock extends BlockEntity implements IItemHandler,I
 
         guiHandler = new GuiHandlerBlockEntity(this);
         guiHandler.registerModule(new guiModuleFluidTankDisplay(0, this, 0, guiHandler, 10, 10));
-        guiHandler.registerModule(new guiModuleItemHandlerSlot(1, this, 0, 1, 0, guiHandler, 30, 10));
+        guiModuleItemHandlerSlot s1 = new guiModuleItemHandlerSlot(1, this, 0, 1, 0, guiHandler, 30, 10);
+        s1.setSlotBackground(ResourceLocation.fromNamespaceAndPath("arlib", "textures/gui/gui_item_slot_background_bucket.png"), 18,18);
+        guiHandler.registerModule(s1);
         guiHandler.registerModule(new guiModuleItemHandlerSlot(2, this, 1, 1, 0, guiHandler, 30, 45));
 
         for (guiModulePlayerInventorySlot i : guiModulePlayerInventorySlot.makePlayerHotbarModules(7, 140, 10, 0, 1, guiHandler)) {
