@@ -128,18 +128,21 @@ public class WavefrontObject {
         }
     }
 
-    public void renderAll(PoseStack stack, MultiBufferSource bufferSource, VertexFormat vertexFormat, RenderType.CompositeState compositeState, int packedLight, int packedOverlay) {
+    public void renderAll(PoseStack stack, MultiBufferSource bufferSource, VertexFormat vertexFormat, RenderType.CompositeState compositeState, int packedLight, int packedOverlay, int color) {
 
         for (GroupObject groupObject : groupObjects) {
-            groupObject.render(stack, bufferSource, vertexFormat, compositeState, packedLight, packedOverlay);
+            groupObject.render(stack, bufferSource, vertexFormat, compositeState, packedLight, packedOverlay, color);
         }
     }
 
 
     public void renderPart(String partName, PoseStack stack, MultiBufferSource bufferSource, VertexFormat vertexFormat, RenderType.CompositeState compositeState, int packedLight, int packedOverlay) {
+        renderPart(partName,stack,bufferSource,vertexFormat,compositeState,packedLight,packedOverlay,0xFFFFFFFF);
+    }
+    public void renderPart(String partName, PoseStack stack, MultiBufferSource bufferSource, VertexFormat vertexFormat, RenderType.CompositeState compositeState, int packedLight, int packedOverlay, int color) {
         for (GroupObject groupObject : groupObjects) {
             if (partName.equalsIgnoreCase(groupObject.name)) {
-                groupObject.render(stack, bufferSource, vertexFormat, compositeState, packedLight, packedOverlay);
+                groupObject.render(stack, bufferSource, vertexFormat, compositeState, packedLight, packedOverlay, color);
             }
         }
     }

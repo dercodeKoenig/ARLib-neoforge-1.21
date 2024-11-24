@@ -114,7 +114,7 @@ public class RecipeLoader {
                 // <inputItems> - Loop over the inputs list
                 Element inputItems = doc.createElement("inputItems");
                 recipeElement.appendChild(inputItems);
-                for (MachineRecipe.recipePart input : recipe.inputs) {
+                for (recipePart input : recipe.inputs) {
                     Element inputItem = doc.createElement("entry");
                     inputItem.setAttribute("id", input.id);
                     inputItem.setAttribute("amount", String.valueOf(input.num));
@@ -126,7 +126,7 @@ public class RecipeLoader {
                 // <outputItems> - Loop over the outputs list
                 Element outputItems = doc.createElement("outputItems");
                 recipeElement.appendChild(outputItems);
-                for (MachineRecipe.recipePart output : recipe.outputs) {
+                for (recipePart output : recipe.outputs) {
                     Element outputItem = doc.createElement("entry");
                     outputItem.setAttribute("id", output.id);
                     outputItem.setAttribute("amount", String.valueOf(output.num));

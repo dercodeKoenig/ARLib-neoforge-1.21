@@ -45,7 +45,7 @@ public class Face {
     }
 
     // Render logic (unchanged but uses transformed vertices)
-    public void addFaceForRender(PoseStack stack, VertexConsumer v, int packedLight, int packedOverlay) {
+    public void addFaceForRender(PoseStack stack, VertexConsumer v, int packedLight, int packedOverlay, int color) {
         if (faceNormal == null) {
             faceNormal = this.calculateFaceNormal();
         }
@@ -66,10 +66,16 @@ public class Face {
             if (textureCoordinates != null && textureCoordinates.length > 0) {
                 v.addVertex(stack.last(), vertices[i].x, vertices[i].y, vertices[i].z)
                         .setNormal(faceNormal.x, faceNormal.y, faceNormal.z)
-                        .setColor(0xFFFFFFFF)
+                        .setColor(color)
                         .setLight(packedLight)
                         .setOverlay(packedOverlay)
                         .setUv(textureCoordinates[i].u, textureCoordinates[i].v);
+            }else{
+                v.addVertex(stack.last(), vertices[i].x, vertices[i].y, vertices[i].z)
+                        .setNormal(faceNormal.x, faceNormal.y, faceNormal.z)
+                        .setColor(color)
+                        .setLight(packedLight)
+                        .setOverlay(packedOverlay);
             }
         }
     }

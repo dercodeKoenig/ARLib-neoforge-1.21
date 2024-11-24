@@ -6,12 +6,15 @@ import ARLib.network.PacketBlockEntity;
 import ARLib.utils.InventoryUtils;
 import ARLib.utils.ItemFluidStacks;
 import ARLib.utils.MachineRecipe;
+import ARLib.utils.recipePart;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -24,6 +27,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,9 +79,9 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
         }
     }
 
-    public ItemFluidStacks consumeInput(List<MachineRecipe.recipePart> inputs, boolean simulate) {
+    public ItemFluidStacks consumeInput(List<recipePart> inputs, boolean simulate) {
         ItemFluidStacks consumedElements = new ItemFluidStacks();
-        for (MachineRecipe.recipePart input : inputs) {
+        for (recipePart input : inputs) {
             String identifier = input.id;
             int totalToConsume = input.actual_num;
             if (totalToConsume > 0) {
@@ -90,8 +94,8 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
     }
 
 
-    public void produceOutput(List<MachineRecipe.recipePart> outputs) {
-        for (MachineRecipe.recipePart output : outputs) {
+    public void produceOutput(List<recipePart> outputs) {
+        for (recipePart output : outputs) {
             String identifier = output.id;
             int totalToProduce = output.actual_num;
             if (totalToProduce > 0) {
@@ -102,10 +106,10 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
 
 
     // both using the max possible inputs/outputs for p >= 1
-    public boolean hasinputs(List<MachineRecipe.recipePart> inputs) {
+    public boolean hasinputs(List<recipePart> inputs) {
         return InventoryUtils.hasInputs(this.itemInTiles, this.fluidInTiles, inputs);
     }
-    public boolean canFitOutputs(List<MachineRecipe.recipePart> outputs) {
+    public boolean canFitOutputs(List<recipePart> outputs) {
         return InventoryUtils.canFitElements(this.itemOutTiles, this.fluidOutTiles, outputs);
     }
 
@@ -360,6 +364,9 @@ boolean isScanning = false;
                         block = t.replacedState.getBlock();
                     }
                     if (!getAllowableBlocks(structure[y][z][x]).contains(block)) {
+                        for (ServerPlayer player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers()) {
+                            player.sendSystemMessage(Component.literal("Invalid Block at "+globalPos+" ( "+block + " ) "));
+                        }
                         return false;
                     }
                 }

@@ -19,16 +19,20 @@ public class ItemFluidStacks{
         // Serialize ItemStacks
         ListTag itemList = new ListTag();
         for (ItemStack stack : itemStacks) {
-            Tag itemTag = stack.save(registries); // Serialize the ItemStack to a CompoundTag
-            itemList.add(itemTag);
+            if(!stack.isEmpty()) {
+                Tag itemTag = stack.save(registries); // Serialize the ItemStack to a CompoundTag
+                itemList.add(itemTag);
+            }
         }
         tag.put("ItemStacks", itemList);
 
         // Serialize FluidStacks
         ListTag fluidList = new ListTag();
         for (FluidStack fluid : fluidStacks) {
-            Tag fluidTag = fluid.save(registries); // Serialize the FluidStack to a CompoundTag
-            fluidList.add(fluidTag);
+            if(!fluid.isEmpty()) {
+                Tag fluidTag = fluid.save(registries); // Serialize the FluidStack to a CompoundTag
+                fluidList.add(fluidTag);
+            }
         }
         tag.put("FluidStacks", fluidList);
     }

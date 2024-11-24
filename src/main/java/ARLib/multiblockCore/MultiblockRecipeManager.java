@@ -1,9 +1,16 @@
 package ARLib.multiblockCore;
 
+import ARLib.utils.ItemFluidStacks;
 import ARLib.utils.MachineRecipe;
+import ARLib.utils.recipePart;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static ARLib.utils.ItemUtils.getFluidStackFromId;
+import static ARLib.utils.ItemUtils.getItemStackFromId;
 
 public class MultiblockRecipeManager<T extends EntityMultiblockMaster> {
 
@@ -11,18 +18,33 @@ public class MultiblockRecipeManager<T extends EntityMultiblockMaster> {
     public int progress;
     public MachineRecipe currentRecipe;
     public List<MachineRecipe> recipes = new ArrayList<>();
-    T master;
+    public T master;
 
     public MultiblockRecipeManager(T masterTile) {
         this.master = masterTile;
     }
 
-    void reset() {
+    public void reset() {
         currentRecipe = null;
         progress = 0;
     }
 
-    void scanFornewRecipe() {
+    public ItemFluidStacks getNextProducedItems(){
+        ItemFluidStacks r = new ItemFluidStacks();
+        if(currentRecipe != null){
+            for (recipePart i:currentRecipe.outputs){
+                ItemStack istack = getItemStackFromId(i.id, i.actual_num);
+                FluidStack fstack = getFluidStackFromId(i.id, i.actual_num);
+                if(istack!=null)
+                    r.itemStacks.add(istack);
+                if(fstack!=null)
+                    r.fluidStacks.add(fstack);
+            }
+        }
+        return r;
+    }
+
+    public void scanFornewRecipe() {
         for (MachineRecipe r : recipes) {
             if (master.hasinputs(r.inputs) && master.canFitOutputs(r.outputs)) {
                 currentRecipe = r.copy(); // make a copy because they can have different actual_num values for every new recipe
