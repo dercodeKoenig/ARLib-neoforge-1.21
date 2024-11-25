@@ -316,9 +316,11 @@ public class WavefrontObject {
             face.original_vertices[i] = new Vertex(face.vertices[i].x, face.vertices[i].y, face.vertices[i].z);
         }
 
-        face.original_textureCoordinates = new TextureCoordinate[face.textureCoordinates.length];
-        for (int i = 0; i < face.textureCoordinates.length; i++) {
-            face.original_textureCoordinates[i] = new TextureCoordinate(face.textureCoordinates[i].u, face.textureCoordinates[i].v, face.textureCoordinates[i].w);
+        if(face.textureCoordinates != null) {
+            face.original_textureCoordinates = new TextureCoordinate[face.textureCoordinates.length];
+            for (int i = 0; i < face.textureCoordinates.length; i++) {
+                face.original_textureCoordinates[i] = new TextureCoordinate(face.textureCoordinates[i].u, face.textureCoordinates[i].v, face.textureCoordinates[i].w);
+            }
         }
 
         face.original_faceNormal = new Vertex(face.faceNormal.x, face.faceNormal.y, face.faceNormal.z);

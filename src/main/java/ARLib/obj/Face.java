@@ -70,9 +70,11 @@ public class Face {
         }
     }
     public void scaleUV(float u0, float v0, float u1, float v1){
-        for (int i = 0; i < original_textureCoordinates.length; i++) {
-            textureCoordinates[i].u = u0 + original_textureCoordinates[i].u * (u1-u0);
-            textureCoordinates[i].v = v0 + original_textureCoordinates[i].v * (v1-v0);
+        if(original_textureCoordinates != null) {
+            for (int i = 0; i < original_textureCoordinates.length; i++) {
+                textureCoordinates[i].u = u0 + original_textureCoordinates[i].u * (u1 - u0);
+                textureCoordinates[i].v = v0 + original_textureCoordinates[i].v * (v1 - v0);
+            }
         }
     }
 }
