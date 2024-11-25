@@ -22,7 +22,7 @@ import java.util.Map;
 import static ARLib.ARLibRegistry.ENTITY_PLACEHOLDER;
 
 public class BlockMultiblockPlaceholder extends BlockMultiblockPart implements EntityBlock {
-    public final Map<BlockPos, BlockState> replacedStates = new HashMap<>();
+    //public final Map<BlockPos, BlockState> replacedStates = new HashMap<>();
 
     public BlockMultiblockPlaceholder(Properties properties) {
         super(properties);
@@ -37,16 +37,18 @@ public class BlockMultiblockPlaceholder extends BlockMultiblockPart implements E
     @Override
     public boolean onDestroyedByPlayer(BlockState state, Level world, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
         if (!world.isClientSide) {
-            if (replacedStates.containsKey(pos) && replacedStates.get(pos) != null && willHarvest) {
-                ItemStack stack = new ItemStack(replacedStates.get(pos).getBlock());
-                popResource(world, pos, stack);
+            BlockEntity tile = world.getBlockEntity(pos);
+            if (tile instanceof EntityMultiblockPlaceholder tileE) {
+                if (willHarvest) {
+                    ItemStack stack = new ItemStack(tileE.replacedState.getBlock());
+                    popResource(world, pos, stack);
+                }
             }
         }
         return super.onDestroyedByPlayer(state, world, pos, player, willHarvest, fluid);
     }
 
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        replacedStates.remove(pos);
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 

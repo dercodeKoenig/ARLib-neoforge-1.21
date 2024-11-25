@@ -1,6 +1,5 @@
 package ARLib.blocks;
 
-import ARLib.multiblockCore.BlockMultiblockPart;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,9 +18,7 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ARLib.ARLibRegistry.BLOCK_ITEM_INPUT_BLOCK;
 import static ARLib.ARLibRegistry.BLOCK_MOTOR;
-import static ARLib.multiblockCore.BlockMultiblockMaster.STATE_MULTIBLOCK_FORMED;
 
 public class BlockMotor extends Block {
     public BlockMotor(Properties properties) {

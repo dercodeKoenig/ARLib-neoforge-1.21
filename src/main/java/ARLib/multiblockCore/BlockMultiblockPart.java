@@ -18,7 +18,7 @@ import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 
-import static ARLib.multiblockCore.BlockMultiblockMaster.STATE_MULTIBLOCK_FORMED;
+import static ARLib.multiblockCore.BlockMultiblockMaster.STATE_HIDE_BLOCK;
 
 public class BlockMultiblockPart extends Block {
 
@@ -28,7 +28,7 @@ public class BlockMultiblockPart extends Block {
         super(properties.noOcclusion().pushReaction(PushReaction.IGNORE));
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH).
-                setValue(STATE_MULTIBLOCK_FORMED, false));
+                setValue(STATE_HIDE_BLOCK, false));
 
     }
 
@@ -50,18 +50,18 @@ public class BlockMultiblockPart extends Block {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(BlockStateProperties.HORIZONTAL_FACING); // Define the FACING property
-        builder.add(STATE_MULTIBLOCK_FORMED); // Define the state property
+        builder.add(STATE_HIDE_BLOCK); // Define the state property
     }
 
     @Override
     @Nonnull
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(STATE_MULTIBLOCK_FORMED, false).setValue(BlockStateProperties.HORIZONTAL_FACING, context.getHorizontalDirection().getOpposite());
+        return this.defaultBlockState().setValue(STATE_HIDE_BLOCK, false).setValue(BlockStateProperties.HORIZONTAL_FACING, context.getHorizontalDirection().getOpposite());
     }
 
     @Override
     public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nonnull LivingEntity placer, @Nonnull ItemStack stack) {
-        world.setBlock(pos, state.setValue(STATE_MULTIBLOCK_FORMED, false).setValue(BlockStateProperties.HORIZONTAL_FACING, placer.getDirection().getOpposite()), 2);
+        world.setBlock(pos, state.setValue(STATE_HIDE_BLOCK, false).setValue(BlockStateProperties.HORIZONTAL_FACING, placer.getDirection().getOpposite()), 2);
     }
 
 

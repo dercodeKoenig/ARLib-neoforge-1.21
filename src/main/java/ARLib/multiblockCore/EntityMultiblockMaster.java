@@ -5,18 +5,14 @@ import ARLib.network.INetworkTagReceiver;
 import ARLib.network.PacketBlockEntity;
 import ARLib.utils.InventoryUtils;
 import ARLib.utils.ItemFluidStacks;
-import ARLib.utils.MachineRecipe;
 import ARLib.utils.recipePart;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -27,20 +23,37 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static ARLib.ARLibRegistry.*;
-import static ARLib.multiblockCore.BlockMultiblockMaster.STATE_MULTIBLOCK_FORMED;
+import static ARLib.multiblockCore.BlockMultiblockMaster.STATE_HIDE_BLOCK;
 
 public abstract class EntityMultiblockMaster extends BlockEntity implements INetworkTagReceiver {
 
-    abstract public  Object[][][] getStructure();
+    abstract public Object[][][] getStructure();
+
     abstract public HashMap<Character, List<Block>> getCharMapping();
+
+    public boolean[][][] hideBlocks() {
+        Object[][][] structure = getStructure();
+        boolean[][][] booleanArray = new boolean[structure.length][][];
+        for (int i = 0; i < structure.length; i++) {
+            Object[][] subArray = structure[i];
+            booleanArray[i] = new boolean[subArray.length][];
+            for (int j = 0; j < subArray.length; j++) {
+                Object[] innerArray = subArray[j];
+                booleanArray[i][j] = new boolean[innerArray.length];
+                // Fill the boolean array with `true`
+                for (int k = 0; k < innerArray.length; k++) {
+                    booleanArray[i][j][k] = true;
+                }
+            }
+        }
+        return booleanArray;
+    }
 
     // set this to true to make the master block gui open for a click on any machine part block
     // must be implemented on the machine part block
@@ -109,6 +122,7 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
     public boolean hasinputs(List<recipePart> inputs) {
         return InventoryUtils.hasInputs(this.itemInTiles, this.fluidInTiles, inputs);
     }
+
     public boolean canFitOutputs(List<recipePart> outputs) {
         return InventoryUtils.canFitElements(this.itemOutTiles, this.fluidOutTiles, outputs);
     }
@@ -116,12 +130,6 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
 
     public void setMultiblockFormed(boolean formed) {
         this.isMultiblockFormed = formed;
-        setChanged();
-        BlockState masterState = level.getBlockState(getBlockPos());
-        if (masterState.hasProperty(STATE_MULTIBLOCK_FORMED)) {
-            // if the master was removed, this can not be set so it goes in an if()
-            level.setBlock(getBlockPos(), masterState.setValue(STATE_MULTIBLOCK_FORMED, formed), 3);
-        }
         CompoundTag info = new CompoundTag();
         info.putBoolean("isMultiblockFormed", isMultiblockFormed);
         PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(getBlockPos()), PacketBlockEntity.getBlockEntityPacket(this, info));
@@ -143,7 +151,7 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
         }
         if (level.isClientSide) {
             // set isMultiblockFormed from blockstate - after this it will be updated in network packet when it changes
-            isMultiblockFormed = level.getBlockState(getBlockPos()).getValue(STATE_MULTIBLOCK_FORMED);
+            isMultiblockFormed = level.getBlockState(getBlockPos()).getValue(STATE_HIDE_BLOCK);
             if (isMultiblockFormed)
                 onStructureComplete();
         }
@@ -201,7 +209,9 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
                     Block newBlock = blockState.getBlock();
                     if (newBlock instanceof BlockMultiblockPart bmp) {
                         bmp.setMaster(globalPos, null);
-                        level.setBlock(globalPos, blockState.setValue(STATE_MULTIBLOCK_FORMED, false), 3);
+                    }
+                    if (newBlock instanceof BlockMultiblockPart || newBlock instanceof BlockMultiblockMaster ) {
+                        level.setBlock(globalPos, blockState.setValue(STATE_HIDE_BLOCK, false), 3);
                     }
                 }
             }
@@ -226,7 +236,7 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
 
     void replace_blocks() {
         Object[][][] structure = getStructure();
-
+        boolean[][][] hideBlocks = hideBlocks();
         Direction front = getFront();
         if (front == null) return;
 
@@ -261,11 +271,13 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
                         level.setBlock(globalPos, newState, 3);
                         EntityMultiblockPlaceholder tile = (EntityMultiblockPlaceholder) level.getBlockEntity(globalPos);
                         tile.replacedState = blockState;
-                        blockState = level.getBlockState(globalPos);
+                        tile.renderBlock = !hideBlocks[y][z][x];
                     }
 
                     // at this point the block is a multiBlockPart or multiBlockMaster
-                    level.setBlock(globalPos, blockState.setValue(STATE_MULTIBLOCK_FORMED, true), 3);
+                    blockState = level.getBlockState(globalPos);
+                    if (hideBlocks[y][z][x])
+                        level.setBlock(globalPos, blockState.setValue(STATE_HIDE_BLOCK, true), 3);
 
                     blockState = level.getBlockState(globalPos);
                     if (blockState.getBlock() instanceof BlockMultiblockPart t) {
@@ -286,11 +298,12 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
 
     // when structure is assembled it sets all blockstates new because it changes the STATE_MULTIBLOCK_FORMED
     // this triggers re-scan and messes up tiles so block scanning while scanning
-boolean isScanning = false;
+    boolean isScanning = false;
+
     public void scanStructure() {
         System.out.println("try scan");
         if (level.isClientSide) return;
-        if(isScanning)return;
+        if (isScanning) return;
         isScanning = true;
 
         energyInTiles.clear();

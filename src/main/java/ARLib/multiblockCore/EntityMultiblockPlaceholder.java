@@ -34,6 +34,7 @@ import static ARLib.ARLibRegistry.ENTITY_PLACEHOLDER;
 public class EntityMultiblockPlaceholder extends BlockEntity implements INetworkTagReceiver{
 
     public BlockState replacedState = Blocks.AIR.defaultBlockState();
+    public boolean renderBlock = false;
 
     public EntityMultiblockPlaceholder(BlockPos p_155229_, BlockState p_155230_) {
         this(ENTITY_PLACEHOLDER.get(), p_155229_, p_155230_);
@@ -47,11 +48,7 @@ public class EntityMultiblockPlaceholder extends BlockEntity implements INetwork
     public void onLoad() {
         super.onLoad();
         if(!level.isClientSide) {
-            Block p = level.getBlockState(getBlockPos()).getBlock();
-            if (p instanceof BlockMultiblockPlaceholder pp) {
-                pp.replacedStates.put(getBlockPos(), replacedState);
-                System.out.println("set replaced state for " + getBlockPos() + " to " + replacedState);
-            }
+
         }else{
             CompoundTag info = new CompoundTag();
             info.putUUID("client_onload", Minecraft.getInstance().player.getUUID());
@@ -62,6 +59,7 @@ public class EntityMultiblockPlaceholder extends BlockEntity implements INetwork
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+        renderBlock = tag.getBoolean("renderBlock");
         if (tag.contains("BlockState")) {
             CompoundTag blockStateNbt = tag.getCompound("BlockState");
             DataResult<BlockState> decodedBlockState = BlockState.CODEC.parse(NbtOps.INSTANCE, blockStateNbt);
@@ -72,6 +70,7 @@ public class EntityMultiblockPlaceholder extends BlockEntity implements INetwork
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
+        tag.putBoolean("renderBlock", renderBlock);
         if (replacedState != null) {
             DataResult<CompoundTag> encodedBlockState = BlockState.CODEC.encodeStart(NbtOps.INSTANCE, replacedState)
                     .map(nbtTag -> (CompoundTag) nbtTag);
@@ -89,6 +88,7 @@ public class EntityMultiblockPlaceholder extends BlockEntity implements INetwork
             DataResult<CompoundTag> encodedBlockState = BlockState.CODEC.encodeStart(NbtOps.INSTANCE, replacedState)
                     .map(nbtTag -> (CompoundTag) nbtTag);
             response.put("BlockState", encodedBlockState.getOrThrow());
+            response.putBoolean("renderBlock", renderBlock);
             PacketDistributor.sendToPlayer(p,PacketBlockEntity.getBlockEntityPacket(this, response));
 
         }
@@ -100,6 +100,9 @@ public class EntityMultiblockPlaceholder extends BlockEntity implements INetwork
             CompoundTag blockStateNbt = tag.getCompound("BlockState");
             DataResult<BlockState> decodedBlockState = BlockState.CODEC.parse(NbtOps.INSTANCE, blockStateNbt);
             replacedState = decodedBlockState.getOrThrow();
+        }
+        if(tag.contains("renderBlock")) {
+            renderBlock = tag.getBoolean("renderBlock");
         }
     }
 }
