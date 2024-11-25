@@ -16,6 +16,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,7 +43,8 @@ public class WavefrontObject {
     public ArrayList<Vertex> vertices = new ArrayList<>();
     public ArrayList<Vertex> vertexNormals = new ArrayList<>();
     public ArrayList<TextureCoordinate> textureCoordinates = new ArrayList<>();
-    public ArrayList<GroupObject> groupObjects = new ArrayList<>();
+    public Map<String, GroupObject> groupObjects = new HashMap<>();
+    public List<GroupObject> groupObjectsList = new ArrayList<>();
     private GroupObject currentGroupObject;
     private final String fileName;
 
@@ -102,15 +106,18 @@ public class WavefrontObject {
 
                     if (group != null) {
                         if (currentGroupObject != null) {
-                            groupObjects.add(currentGroupObject);
+                            groupObjectsList.add(currentGroupObject);
                         }
                     }
-
                     currentGroupObject = group;
                 }
             }
+            groupObjectsList.add(currentGroupObject);
 
-            groupObjects.add(currentGroupObject);
+            for (GroupObject i : groupObjectsList){
+                groupObjects.put(i.name,i);
+                //System.out.println("added object '"+i.name+"'");
+            }
         } catch (IOException e) {
             throw new ModelFormatException("IO Exception reading model format", e);
         } finally {
@@ -130,7 +137,7 @@ public class WavefrontObject {
 
     public void renderAll(PoseStack stack, MultiBufferSource bufferSource, VertexFormat vertexFormat, RenderType.CompositeState compositeState, int packedLight, int packedOverlay, int color) {
 
-        for (GroupObject groupObject : groupObjects) {
+        for (GroupObject groupObject : groupObjects.values()) {
             groupObject.render(stack, bufferSource, vertexFormat, compositeState, packedLight, packedOverlay, color);
         }
     }
@@ -140,52 +147,28 @@ public class WavefrontObject {
         renderPart(partName,stack,bufferSource,vertexFormat,compositeState,packedLight,packedOverlay,0xFFFFFFFF);
     }
     public void renderPart(String partName, PoseStack stack, MultiBufferSource bufferSource, VertexFormat vertexFormat, RenderType.CompositeState compositeState, int packedLight, int packedOverlay, int color) {
-        for (GroupObject groupObject : groupObjects) {
-            if (partName.equalsIgnoreCase(groupObject.name)) {
-                groupObject.render(stack, bufferSource, vertexFormat, compositeState, packedLight, packedOverlay, color);
-            }
-        }
+                groupObjects.get(partName).render(stack, bufferSource, vertexFormat, compositeState, packedLight, packedOverlay, color);
     }
-
     public void rotateWorldSpace(String partName, Vector3f axis, float angleDegrees) {
-        for (GroupObject groupObject : groupObjects) {
-            if (partName.equalsIgnoreCase(groupObject.name)) {
-                groupObject.rotateWorldSpace(axis,angleDegrees);
-            }
-        }
+        groupObjects.get(partName).rotateWorldSpace(axis,angleDegrees);
     }
     public void rotateModelSpace( String partName, Vector3f axis, float angleDegrees) {
-        for (GroupObject groupObject : groupObjects) {
-            if (partName.equalsIgnoreCase(groupObject.name)) {
-                groupObject.rotateModelSpace(axis,angleDegrees);
-            }
-        }
+        groupObjects.get(partName).rotateModelSpace(axis,angleDegrees);
     }
     public void translateWorldSpace(String partName, Vector3f translation) {
-        for (GroupObject groupObject : groupObjects) {
-            if (partName.equalsIgnoreCase(groupObject.name)) {
-                groupObject.translateWorldSpace(translation);
-            }
-        }
+        groupObjects.get(partName).translateWorldSpace(translation);
     }
     public void translateModelSpace(String partName, Vector3f translation) {
-        for (GroupObject groupObject : groupObjects) {
-            if (partName.equalsIgnoreCase(groupObject.name)) {
-                groupObject.translateModelSpace(translation);
-            }
-        }
+        groupObjects.get(partName).translateModelSpace(translation);
     }
     public void applyTransformations(String partName) {
-        for (GroupObject groupObject : groupObjects) {
-            if (partName.equalsIgnoreCase(groupObject.name)) {
-                groupObject.applyTransformations();
-            }}
+        groupObjects.get(partName).applyTransformations();
     }
     public void resetTransformations(String partName) {
-        for (GroupObject groupObject : groupObjects) {
-            if (partName.equalsIgnoreCase(groupObject.name)) {
-                groupObject.resetTransformations();
-            }}
+        groupObjects.get(partName).resetTransformations();
+    }
+    public void scaleUV(String partName, float u0, float v0, float u1, float v1) {
+        groupObjects.get(partName).scaleUV(u0,v0,u1,v1);
     }
 
     private Vertex parseVertex(String line, int lineCount) throws ModelFormatException {
@@ -331,6 +314,11 @@ public class WavefrontObject {
         face.original_vertices = new Vertex[face.vertices.length];
         for (int i = 0; i < face.vertices.length; i++) {
             face.original_vertices[i] = new Vertex(face.vertices[i].x, face.vertices[i].y, face.vertices[i].z);
+        }
+
+        face.original_textureCoordinates = new TextureCoordinate[face.textureCoordinates.length];
+        for (int i = 0; i < face.textureCoordinates.length; i++) {
+            face.original_textureCoordinates[i] = new TextureCoordinate(face.textureCoordinates[i].u, face.textureCoordinates[i].v, face.textureCoordinates[i].w);
         }
 
         face.original_faceNormal = new Vertex(face.faceNormal.x, face.faceNormal.y, face.faceNormal.z);

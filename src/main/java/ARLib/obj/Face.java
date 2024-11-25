@@ -11,9 +11,11 @@ import java.lang.Math;
 public class Face {
     public Vertex[] vertices;
     public Vertex faceNormal;
+    public TextureCoordinate[] textureCoordinates;
+
     public Vertex[] original_vertices;
     public Vertex original_faceNormal;
-    public TextureCoordinate[] textureCoordinates;
+    public TextureCoordinate[] original_textureCoordinates;
 
     // Apply transformations to vertices
     public void applyTransformations(Matrix4f transformationMatrix) {
@@ -50,18 +52,6 @@ public class Face {
             faceNormal = this.calculateFaceNormal();
         }
 
-        float averageU = 0F;
-        float averageV = 0F;
-
-        if (textureCoordinates != null && textureCoordinates.length > 0) {
-            for (TextureCoordinate textureCoordinate : textureCoordinates) {
-                averageU += textureCoordinate.u;
-                averageV += textureCoordinate.v;
-            }
-            averageU /= textureCoordinates.length;
-            averageV /= textureCoordinates.length;
-        }
-
         for (int i = 0; i < vertices.length; ++i) {
             if (textureCoordinates != null && textureCoordinates.length > 0) {
                 v.addVertex(stack.last(), vertices[i].x, vertices[i].y, vertices[i].z)
@@ -77,6 +67,12 @@ public class Face {
                         .setLight(packedLight)
                         .setOverlay(packedOverlay);
             }
+        }
+    }
+    public void scaleUV(float u0, float v0, float u1, float v1){
+        for (int i = 0; i < original_textureCoordinates.length; i++) {
+            textureCoordinates[i].u = u0 + original_textureCoordinates[i].u * (u1-u0);
+            textureCoordinates[i].v = v0 + original_textureCoordinates[i].v * (v1-v0);
         }
     }
 }

@@ -3,11 +3,13 @@ package ARLib.gui.modules;
 import ARLib.gui.IGuiHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -122,8 +124,22 @@ public class guiModuleFluidTankDisplay extends GuiModuleBase {
         if(!client_myFluidStack.isEmpty()) {
             double relative_fluid_level = (double) client_myFluidStack.getAmount() / maxCapacity;
             int y_offset = (int) ((1 - relative_fluid_level) * bar_size_h);
-            int color = IClientFluidTypeExtensions.of(client_myFluidStack.getFluid()).getTintColor();
-            guiGraphics.fill(onGuiX + fluid_bar_offset_x, onGuiY + fluid_bar_offset_y + y_offset, onGuiX + bar_size_w+1, onGuiY + bar_size_h+1, color);
+            IClientFluidTypeExtensions extensions = IClientFluidTypeExtensions.of(client_myFluidStack.getFluid());
+            int color = extensions.getTintColor();
+            int alpha = (color >> 24) & 0xFF; // Extract alpha (bits 24-31)
+            int red = (color >> 16) & 0xFF;   // Extract red (bits 16-23)
+            int green = (color >> 8) & 0xFF;  // Extract green (bits 8-15)
+            int blue = color & 0xFF;          // Extract blue (bits 0-7)
+            float af = (float) alpha /255f;
+            float rf = (float) red /255f;
+            float gf = (float) green /255f;
+            float bf = (float) blue /255f;
+
+            ResourceLocation fluidtexture = extensions.getStillTexture();
+            TextureAtlasSprite sprite = Minecraft.getInstance()
+                    .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
+                    .apply(fluidtexture);
+            guiGraphics.blit(onGuiX+fluid_bar_offset_x, onGuiY+fluid_bar_offset_y+y_offset,0,bar_size_w,bar_size_h-y_offset,sprite,rf,gf,bf,af);
         }
 
         guiGraphics.blit(fluid_bar_grading, onGuiX, onGuiY, 0, 0, w, h, fluid_bar_background_tw, fluid_bar_background_th);

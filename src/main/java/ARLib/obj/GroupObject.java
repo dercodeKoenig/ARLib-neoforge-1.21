@@ -39,9 +39,6 @@ public class GroupObject {
             .add("Normal", VertexFormatElement.NORMAL)
             .build();
 
-    public GroupObject() {
-        this("");
-    }
 
     public GroupObject(String name) {
         this(name, VertexFormat.Mode.DEBUG_LINES);
@@ -106,4 +103,8 @@ public class GroupObject {
         transformationMatrix.rotateLocal(quaternion, transformationMatrix);
     }
 
+    public void scaleUV(float u0, float v0, float u1, float v1){
+        for (Face i : faces)
+            i.scaleUV(u0,v0,u1,v1);
+    }
 }
