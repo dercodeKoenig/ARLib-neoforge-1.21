@@ -280,21 +280,28 @@ public class EntityFluidInputBlock extends BlockEntity implements IItemHandler,I
                         // Tank has fluid; calculate maximum fillable amount
                         int maxFill = tankCapacity - fluidInTank.getAmount();
                         drained = fluidHandler.drain(maxFill, FluidAction.EXECUTE);
+                        int filled = tile.fill(drained, FluidAction.SIMULATE);
                         ItemStack resultItem = fluidHandler.getContainer();
 
                         // Try inserting result item into slot 1
-                        if(!drained.isEmpty()) {
+                        if(!drained.isEmpty() && filled == drained.getAmount()) {
                             if (tile.insertItem(1, resultItem, true, true).isEmpty()) {
                                 // Commit the drain, fluid transfer, and item movement
                                 ((IFluidHandler) tile).fill(drained, FluidAction.EXECUTE);
                                 tile.extractItem(0, 1, false);
                                 tile.insertItem(1, resultItem, false, true);
                             }
+                        }else{
+                            drained = FluidStack.EMPTY;
                         }
                     }
 
                     // 2. If draining yielded no fluid, try filling the item instead
                     if (drained.isEmpty()) {
+                        //make new copy because it may have been modified in tee code above
+                        currentItem = stack.copyWithCount(1);
+                        fluidHandler = currentItem.getCapability(Capabilities.FluidHandler.ITEM);
+
                         FluidStack wasInTank = fluidInTank.copy();
                         // Execute the fill operation and get the transformed container item
                         int filled = fluidHandler.fill(wasInTank, FluidAction.EXECUTE);
