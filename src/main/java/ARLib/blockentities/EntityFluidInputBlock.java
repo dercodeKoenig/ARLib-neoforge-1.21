@@ -7,7 +7,6 @@ import ARLib.gui.modules.guiModuleImage;
 import ARLib.gui.modules.guiModuleItemHandlerSlot;
 import ARLib.gui.modules.guiModulePlayerInventorySlot;
 import ARLib.network.INetworkTagReceiver;
-import ARLib.utils.simpleOneTankFluidHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -22,8 +21,8 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import net.neoforged.neoforge.items.IItemHandler;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +32,7 @@ import static net.minecraft.world.level.block.Block.popResource;
 
 public class EntityFluidInputBlock extends BlockEntity implements IItemHandler,IFluidHandler, INetworkTagReceiver {
 
-    simpleOneTankFluidHandler myTank;
+    FluidTank myTank;
     IGuiHandler guiHandler;
 
     List<ItemStack> inventory;
@@ -44,7 +43,7 @@ public class EntityFluidInputBlock extends BlockEntity implements IItemHandler,I
 
     public EntityFluidInputBlock(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
-        myTank = new simpleOneTankFluidHandler(4000);
+        myTank = new FluidTank(4000);
 
         guiHandler = new GuiHandlerBlockEntity(this);
         guiHandler.registerModule(new guiModuleFluidTankDisplay(0, this, 0, guiHandler, 10, 10));
@@ -85,7 +84,7 @@ public class EntityFluidInputBlock extends BlockEntity implements IItemHandler,I
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        myTank.loadFromTag(tag.getCompound("tank"), registries);
+        myTank.readFromNBT(registries, tag.getCompound("tank"));
         if (tag.getBoolean("inv1"))
             inventory.set(0, ItemStack.parse(registries, tag.getCompound("inventorySlot1")).get());
         if (tag.getBoolean("inv2"))
@@ -95,7 +94,9 @@ public class EntityFluidInputBlock extends BlockEntity implements IItemHandler,I
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.put("tank", myTank.save(registries));
+        CompoundTag tankNBT = new CompoundTag();
+        myTank.writeToNBT(registries, tankNBT);
+        tag.put("tank", tankNBT);
 
         if (!inventory.get(0).isEmpty()) {
             Tag inventorySlot = inventory.get(0).save(registries);
@@ -121,17 +122,17 @@ public class EntityFluidInputBlock extends BlockEntity implements IItemHandler,I
 
     @Override
     public FluidStack getFluidInTank(int tank) {
-        return myTank.getFluidInTank();
+        return myTank.getFluidInTank(tank);
     }
 
     @Override
     public int getTankCapacity(int tank) {
-        return myTank.getTankCapacity();
+        return myTank.getTankCapacity(tank);
     }
 
     @Override
     public boolean isFluidValid(int tank, FluidStack stack) {
-        return true;
+        return myTank.isFluidValid(tank,stack);
     }
 
     @Override
