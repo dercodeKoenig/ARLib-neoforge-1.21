@@ -27,7 +27,7 @@ public class PacketPlayerMainHand implements CustomPacketPayload {
 
 
     public static final Type<PacketPlayerMainHand> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath("arlib", "my_data2"));
+            new Type<>(ResourceLocation.fromNamespaceAndPath("arlib", "packetplayermainhand"));
 
     public PacketPlayerMainHand(UUID id, CompoundTag tag) {
         this.tag = tag;

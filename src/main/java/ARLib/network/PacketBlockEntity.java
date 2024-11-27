@@ -22,7 +22,7 @@ public class PacketBlockEntity implements CustomPacketPayload {
 
 
     public static final CustomPacketPayload.Type<PacketBlockEntity> TYPE =
-            new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath("arlib", "my_data"));
+            new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath("arlib", "packetblockentity"));
 
 
     public PacketBlockEntity(String dim, int x, int y, int z, CompoundTag tag) {
