@@ -66,7 +66,7 @@ public class BlockItemInputBlock extends BlockMultiblockPart implements EntityBl
     @Override
     protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
         List<ItemStack> drops = new ArrayList<>();
-        drops.add(new ItemStack(BLOCK_ITEM_INPUT_BLOCK.get(),1));
+        drops.add(new ItemStack(this,1));
         return drops;
     }
 }

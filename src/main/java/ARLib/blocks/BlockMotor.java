@@ -53,7 +53,7 @@ public class BlockMotor extends Block {
     @Override
     protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
         List<ItemStack> drops = new ArrayList<>();
-        drops.add(new ItemStack(BLOCK_MOTOR.get(),1));
+        drops.add(new ItemStack(this,1));
         return drops;
     }
 }
