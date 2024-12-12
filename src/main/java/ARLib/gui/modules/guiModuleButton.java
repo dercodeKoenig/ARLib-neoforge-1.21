@@ -14,10 +14,12 @@ public class guiModuleButton extends GuiModuleBase {
 
     @Override
     public void client_onMouseCLick(double x, double y, int button) {
-        if (client_isMouseOver(x, y, onGuiX, onGuiY, w, h) && button == 0) {
-            CompoundTag tag = new CompoundTag();
-            tag.putInt("guiButtonClick", id);
-            guiHandler.sendToServer(tag);
+        if(isEnabled) {
+            if (client_isMouseOver(x, y, onGuiX, onGuiY, w, h) && button == 0) {
+                CompoundTag tag = new CompoundTag();
+                tag.putInt("guiButtonClick", id);
+                guiHandler.sendToServer(tag);
+            }
         }
     }
 
@@ -38,7 +40,9 @@ public class guiModuleButton extends GuiModuleBase {
             int mouseY,
             float partialTick
     ) {
-        guiGraphics.blit(image, onGuiX, onGuiY, w, h, 0f, 0f, textureW, textureH, textureW, textureH);
-        guiGraphics.drawString(Minecraft.getInstance().font, text, onGuiX + w / 2 - Minecraft.getInstance().font.width(text)/2, onGuiY + h / 2 - Minecraft.getInstance().font.lineHeight / 2, 0xFFFFFFFF, true);
+        if(isEnabled) {
+            guiGraphics.blit(image, onGuiX, onGuiY, w, h, 0f, 0f, textureW, textureH, textureW, textureH);
+            guiGraphics.drawString(Minecraft.getInstance().font, text, onGuiX + w / 2 - Minecraft.getInstance().font.width(text) / 2, onGuiY + h / 2 - Minecraft.getInstance().font.lineHeight / 2, 0xFFFFFFFF, true);
+        }
     }
 }

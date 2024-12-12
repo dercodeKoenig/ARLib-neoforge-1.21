@@ -27,11 +27,17 @@ public class guiModuleItemHandlerSlot extends guiModuleInventorySlotBase {
     public void server_writeDataToSyncToClient(CompoundTag tag){
         CompoundTag myTag = new CompoundTag();
         RegistryAccess registryAccess = ServerLifecycleHooks.getCurrentServer().registryAccess();
+
+        myTag.putBoolean("isEmpty", itemHandler.getStackInSlot(targetSlot).isEmpty());
         if (!itemHandler.getStackInSlot(targetSlot).isEmpty()) {
             CompoundTag itemTag = new CompoundTag();
             myTag.put("ItemStack", itemHandler.getStackInSlot(targetSlot).save(registryAccess, itemTag));
         }
+
         tag.put(getMyTagKey(),myTag);
+
+        super.server_writeDataToSyncToClient(tag);
+
     }
     @Override
     public void serverTick(){
@@ -50,9 +56,11 @@ public class guiModuleItemHandlerSlot extends guiModuleInventorySlotBase {
             if (myTag.contains("ItemStack")) {
                 this.stack = ItemStack.parse(registryAccess, myTag.getCompound("ItemStack")).orElse(ItemStack.EMPTY);
             } else {
-                this.stack = ItemStack.EMPTY;
+                if (myTag.contains("isEmpty") && myTag.getBoolean("isEmpty"))
+                    this.stack = ItemStack.EMPTY;
             }
         }
+        super.client_handleDataSyncedToClient(tag);
     }
 
     public guiModuleItemHandlerSlot(int id, IItemHandler itemHandler, int targetSlot, int inventoryGroupId, int instantTransferTargetGroup, IGuiHandler guiHandler, int x, int y) {

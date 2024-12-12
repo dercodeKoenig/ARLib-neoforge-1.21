@@ -43,12 +43,12 @@ public class guiModuleEnergy extends GuiModuleBase {
     @Override
     public void server_writeDataToSyncToClient(CompoundTag tag){
         CompoundTag myTag = new CompoundTag();
-        myTag.putInt("moduleId",this.id);
         myTag.putInt("energy",energyStorage.getEnergyStored());
         myTag.putLong("time",System.currentTimeMillis());
         myTag.putInt("maxEnergy", energyStorage.getMaxEnergyStored());
-
         tag.put(getMyTagKey(),myTag);
+
+        super.server_writeDataToSyncToClient(tag);
     }
 
     int last_update = 0;
@@ -72,13 +72,16 @@ public class guiModuleEnergy extends GuiModuleBase {
     public void client_handleDataSyncedToClient(CompoundTag tag){
         if(tag.contains(getMyTagKey())){
             CompoundTag myTag = tag.getCompound(getMyTagKey());
-            long update_time = myTag.getLong("time");
-            if(update_time > last_packet_time) {
-                last_packet_time = update_time;
-                this.energy = myTag.getInt("energy");
-                this.maxEnergy = myTag.getInt("maxEnergy");
+            if(myTag.contains("time") && myTag.contains("energy") && myTag.contains("maxEnergy")) {
+                long update_time = myTag.getLong("time");
+                if (update_time > last_packet_time) {
+                    last_packet_time = update_time;
+                    this.energy = myTag.getInt("energy");
+                    this.maxEnergy = myTag.getInt("maxEnergy");
+                }
             }
         }
+        super.client_handleDataSyncedToClient(tag);
     }
 
     public guiModuleEnergy(int id, IEnergyStorage energyStorage, IGuiHandler guiHandler, int x, int y){
@@ -93,27 +96,28 @@ public class guiModuleEnergy extends GuiModuleBase {
             int mouseY,
             float partialTick
     ) {
+        if(isEnabled) {
 
-        double relative_energy_level = (double)  energy / maxEnergy;
-        int v_offset = (int) ((1-relative_energy_level)*bar_size_h);
-        int v_offset_tex = (int) ((1-relative_energy_level)*energy_bar_th);
+            double relative_energy_level = (double) energy / maxEnergy;
+            int v_offset = (int) ((1 - relative_energy_level) * bar_size_h);
+            int v_offset_tex = (int) ((1 - relative_energy_level) * energy_bar_th);
 
-        guiGraphics.blit(energy_bar_background,onGuiX,onGuiY,0,0,w, h,energy_bar_background_tw,energy_bar_background_th);
+            guiGraphics.blit(energy_bar_background, onGuiX, onGuiY, 0, 0, w, h, energy_bar_background_tw, energy_bar_background_th);
 
-        //guiGraphics.blit(energy_bar,x+left+energy_bar_offset_x,y+top+energy_bar_offset_y,0,v_offset,energy_bar_tw, energy_bar_th-v_offset);
+            //guiGraphics.blit(energy_bar,x+left+energy_bar_offset_x,y+top+energy_bar_offset_y,0,v_offset,energy_bar_tw, energy_bar_th-v_offset);
 
-        guiGraphics.blit(
-                energy_bar,
-                onGuiX+energy_bar_offset_x,onGuiY+v_offset+energy_bar_offset_y,
-                bar_size_w,bar_size_h-v_offset,
-                (float)0,(float)0+v_offset_tex,
-                energy_bar_tw,energy_bar_th-v_offset_tex,
-                energy_bar_tw,energy_bar_th
-                );
-        if(client_isMouseOver(mouseX,mouseY,onGuiX,onGuiY,w,h)){
-            String info = energy+"/"+maxEnergy+"RF";
-            guiGraphics.renderTooltip(Minecraft.getInstance().font, Component.literal(info),mouseX,mouseY);
+            guiGraphics.blit(
+                    energy_bar,
+                    onGuiX + energy_bar_offset_x, onGuiY + v_offset + energy_bar_offset_y,
+                    bar_size_w, bar_size_h - v_offset,
+                    (float) 0, (float) 0 + v_offset_tex,
+                    energy_bar_tw, energy_bar_th - v_offset_tex,
+                    energy_bar_tw, energy_bar_th
+            );
+            if (client_isMouseOver(mouseX, mouseY, onGuiX, onGuiY, w, h)) {
+                String info = energy + "/" + maxEnergy + "RF";
+                guiGraphics.renderTooltip(Minecraft.getInstance().font, Component.literal(info), mouseX, mouseY);
+            }
         }
-
     }
 }

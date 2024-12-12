@@ -55,6 +55,7 @@ int backgroundColor;
         for (GuiModuleBase i: modules){
             i.client_handleDataSyncedToClient(tag);
         }
+        super.client_handleDataSyncedToClient(tag);
     }
 
     public void serverTick() {
@@ -67,6 +68,7 @@ int backgroundColor;
         for (GuiModuleBase i: modules){
             i.server_writeDataToSyncToClient(tag);
         }
+        super.server_writeDataToSyncToClient(tag);
     }
 
     public  void render(
@@ -75,12 +77,14 @@ int backgroundColor;
             int mouseY,
             float partialTick
     ) {
-        guiGraphics.fill(onGuiX,onGuiY,onGuiX+w,onGuiY+h,backgroundColor);
-        guiGraphics.enableScissor(onGuiX,onGuiY,onGuiX+w,onGuiY+h);
-        for (GuiModuleBase i: modules){
-            i.render(guiGraphics,mouseX,mouseY,partialTick);
+        if(isEnabled) {
+            guiGraphics.fill(onGuiX, onGuiY, onGuiX + w, onGuiY + h, backgroundColor);
+            guiGraphics.enableScissor(onGuiX, onGuiY, onGuiX + w, onGuiY + h);
+            for (GuiModuleBase i : modules) {
+                i.render(guiGraphics, mouseX, mouseY, partialTick);
+            }
+            guiGraphics.disableScissor();
         }
-        guiGraphics.disableScissor();
     }
 
     protected String getMyTagKey(){

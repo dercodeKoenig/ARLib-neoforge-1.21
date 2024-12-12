@@ -69,6 +69,9 @@ public class guiModuleFluidTankDisplay extends GuiModuleBase {
         myTag.putLong("time",System.currentTimeMillis());
 
         tag.put(getMyTagKey(), myTag);
+
+        super.server_writeDataToSyncToClient(tag);
+
     }
 
     long last_packet_time = 0; // sometimes older packets can come in after newer ones. so this will make sure only the most recent data will be used
@@ -76,19 +79,25 @@ public class guiModuleFluidTankDisplay extends GuiModuleBase {
     public void client_handleDataSyncedToClient(CompoundTag tag) {
         if (tag.contains(getMyTagKey())) {
             CompoundTag myTag = tag.getCompound(getMyTagKey());
-            this.maxCapacity = myTag.getInt("maxCapacity");
-            long update_time = myTag.getLong("time");
-            if(update_time > last_packet_time) {
-                last_packet_time = update_time;
-                if (myTag.getBoolean("hasFluid")) {
-                    Tag fluid = myTag.get("fluid");
-                    RegistryAccess registryAccess = Minecraft.getInstance().level.registryAccess();
-                    client_myFluidStack = FluidStack.parse(registryAccess, fluid).get();
-                } else {
-                    client_myFluidStack = FluidStack.EMPTY;
+            if (myTag.contains("maxCapacity"))
+                this.maxCapacity = myTag.getInt("maxCapacity");
+            if (myTag.contains("time")) {
+                long update_time = myTag.getLong("time");
+                if (update_time > last_packet_time) {
+                    last_packet_time = update_time;
+                    if (myTag.contains("hasFluid")) {
+                        if (myTag.getBoolean("hasFluid")) {
+                            Tag fluid = myTag.get("fluid");
+                            RegistryAccess registryAccess = Minecraft.getInstance().level.registryAccess();
+                            client_myFluidStack = FluidStack.parse(registryAccess, fluid).get();
+                        } else {
+                            client_myFluidStack = FluidStack.EMPTY;
+                        }
+                    }
                 }
             }
         }
+        super.client_handleDataSyncedToClient(tag);
     }
 
     int last_update = 0;
@@ -119,38 +128,40 @@ public class guiModuleFluidTankDisplay extends GuiModuleBase {
             float partialTick
     ) {
 
-        guiGraphics.blit(fluid_bar_background, onGuiX, onGuiY, 0, 0, w, h, fluid_bar_background_tw, fluid_bar_background_th);
+        if(isEnabled) {
 
-        if(!client_myFluidStack.isEmpty()) {
-            double relative_fluid_level = (double) client_myFluidStack.getAmount() / maxCapacity;
-            int y_offset = (int) ((1 - relative_fluid_level) * bar_size_h);
-            IClientFluidTypeExtensions extensions = IClientFluidTypeExtensions.of(client_myFluidStack.getFluid());
-            int color = extensions.getTintColor();
-            int alpha = (color >> 24) & 0xFF; // Extract alpha (bits 24-31)
-            int red = (color >> 16) & 0xFF;   // Extract red (bits 16-23)
-            int green = (color >> 8) & 0xFF;  // Extract green (bits 8-15)
-            int blue = color & 0xFF;          // Extract blue (bits 0-7)
-            float af = (float) alpha /255f;
-            float rf = (float) red /255f;
-            float gf = (float) green /255f;
-            float bf = (float) blue /255f;
+            guiGraphics.blit(fluid_bar_background, onGuiX, onGuiY, 0, 0, w, h, fluid_bar_background_tw, fluid_bar_background_th);
 
-            ResourceLocation fluidtexture = extensions.getStillTexture();
-            TextureAtlasSprite sprite = Minecraft.getInstance()
-                    .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
-                    .apply(fluidtexture);
-            guiGraphics.blit(onGuiX+fluid_bar_offset_x, onGuiY+fluid_bar_offset_y+y_offset,0,bar_size_w,bar_size_h-y_offset,sprite,rf,gf,bf,af);
-        }
+            if (!client_myFluidStack.isEmpty()) {
+                double relative_fluid_level = (double) client_myFluidStack.getAmount() / maxCapacity;
+                int y_offset = (int) ((1 - relative_fluid_level) * bar_size_h);
+                IClientFluidTypeExtensions extensions = IClientFluidTypeExtensions.of(client_myFluidStack.getFluid());
+                int color = extensions.getTintColor();
+                int alpha = (color >> 24) & 0xFF; // Extract alpha (bits 24-31)
+                int red = (color >> 16) & 0xFF;   // Extract red (bits 16-23)
+                int green = (color >> 8) & 0xFF;  // Extract green (bits 8-15)
+                int blue = color & 0xFF;          // Extract blue (bits 0-7)
+                float af = (float) alpha / 255f;
+                float rf = (float) red / 255f;
+                float gf = (float) green / 255f;
+                float bf = (float) blue / 255f;
 
-        guiGraphics.blit(fluid_bar_grading, onGuiX, onGuiY, 0, 0, w, h, fluid_bar_background_tw, fluid_bar_background_th);
-
-        if (client_isMouseOver(mouseX, mouseY, onGuiX, onGuiY, w, h)) {
-            String info = "0/"+maxCapacity+"mb)";
-            if(!client_myFluidStack.isEmpty()) {
-                info = client_myFluidStack.getHoverName().getString() + ":" + client_myFluidStack.getAmount() + "/" + maxCapacity + "mb";
+                ResourceLocation fluidtexture = extensions.getStillTexture();
+                TextureAtlasSprite sprite = Minecraft.getInstance()
+                        .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
+                        .apply(fluidtexture);
+                guiGraphics.blit(onGuiX + fluid_bar_offset_x, onGuiY + fluid_bar_offset_y + y_offset, 0, bar_size_w, bar_size_h - y_offset, sprite, rf, gf, bf, af);
             }
-            guiGraphics.renderTooltip(Minecraft.getInstance().font, Component.literal(info),mouseX,mouseY);
-        }
 
+            guiGraphics.blit(fluid_bar_grading, onGuiX, onGuiY, 0, 0, w, h, fluid_bar_background_tw, fluid_bar_background_th);
+
+            if (client_isMouseOver(mouseX, mouseY, onGuiX, onGuiY, w, h)) {
+                String info = "0/" + maxCapacity + "mb)";
+                if (!client_myFluidStack.isEmpty()) {
+                    info = client_myFluidStack.getHoverName().getString() + ":" + client_myFluidStack.getAmount() + "/" + maxCapacity + "mb";
+                }
+                guiGraphics.renderTooltip(Minecraft.getInstance().font, Component.literal(info), mouseX, mouseY);
+            }
+        }
     }
 }

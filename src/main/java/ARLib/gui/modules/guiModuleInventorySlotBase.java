@@ -98,27 +98,28 @@ public abstract class guiModuleInventorySlotBase extends GuiModuleBase {
 
     @Override
     public void client_onMouseCLick(double mx, double my, int button) {
-        boolean isShiftDown =
-                InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), InputConstants.KEY_LSHIFT) ||
-                        InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(),InputConstants.KEY_RSHIFT);
+        if (isEnabled) {
+            boolean isShiftDown =
+                    InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), InputConstants.KEY_LSHIFT) ||
+                            InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), InputConstants.KEY_RSHIFT);
 
-        if (client_isMouseOver(mx, my, onGuiX, onGuiY, w, h)) {
-            CompoundTag tag = new CompoundTag();
-            CompoundTag myTag = new CompoundTag();
+            if (client_isMouseOver(mx, my, onGuiX, onGuiY, w, h)) {
+                CompoundTag tag = new CompoundTag();
+                CompoundTag myTag = new CompoundTag();
 
-            // add client id to the tag
-            UUID myId = Minecraft.getInstance().player.getUUID();
-            myTag.putUUID("uuid_from",myId);
-            myTag.putInt("mouseButtonClicked",button);
-            myTag.putBoolean("isShift",isShiftDown);
+                // add client id to the tag
+                UUID myId = Minecraft.getInstance().player.getUUID();
+                myTag.putUUID("uuid_from", myId);
+                myTag.putInt("mouseButtonClicked", button);
+                myTag.putBoolean("isShift", isShiftDown);
 
-            tag.put(getMyTagKey(), myTag);
-            guiHandler.sendToServer(tag);
+                tag.put(getMyTagKey(), myTag);
+                guiHandler.sendToServer(tag);
 
-            //server_handleInventoryClick(Minecraft.getInstance().player,button,isShiftDown);
+                //server_handleInventoryClick(Minecraft.getInstance().player,button,isShiftDown);
+            }
         }
     }
-
 
     @Override
     public void server_readNetworkData(CompoundTag tag) {
@@ -150,16 +151,18 @@ public abstract class guiModuleInventorySlotBase extends GuiModuleBase {
             int mouseY,
             float partialTick
     ) {
-        guiGraphics.blit(slot_background,onGuiX,onGuiY,0f,0f,w,h,slot_bg_w,slot_bg_h);
-        ModularScreen.renderItemStack(guiGraphics,onGuiX,onGuiY, client_getItemStackToRender());
+        if (isEnabled) {
 
-        if(!client_getItemStackToRender().isEmpty() && client_isMouseOver(mouseX,mouseY,onGuiX,onGuiY,w,h)){
-            guiGraphics.fill(onGuiX,onGuiY,w+onGuiX,h+onGuiY, 0x30FFFFFF); // Semi-transparent white
-            guiGraphics.renderTooltip(Minecraft.getInstance().font, client_getItemStackToRender(),mouseX,mouseY);
+            guiGraphics.blit(slot_background, onGuiX, onGuiY, 0f, 0f, w, h, slot_bg_w, slot_bg_h);
+            ModularScreen.renderItemStack(guiGraphics, onGuiX, onGuiY, client_getItemStackToRender());
+
+            if (!client_getItemStackToRender().isEmpty() && client_isMouseOver(mouseX, mouseY, onGuiX, onGuiY, w, h)) {
+                guiGraphics.fill(onGuiX, onGuiY, w + onGuiX, h + onGuiY, 0x30FFFFFF); // Semi-transparent white
+                guiGraphics.renderTooltip(Minecraft.getInstance().font, client_getItemStackToRender(), mouseX, mouseY);
+            }
+
         }
-
     }
-
 
     public abstract ItemStack getStackInSlot(Player p) ;
 

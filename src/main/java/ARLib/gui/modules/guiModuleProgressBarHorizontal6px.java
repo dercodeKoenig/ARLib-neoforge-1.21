@@ -18,6 +18,7 @@ public class guiModuleProgressBarHorizontal6px extends GuiModuleBase {
 
     public ResourceLocation background = ResourceLocation.fromNamespaceAndPath("arlib", "textures/gui/gui_horizontal_progress_bar_background.png");
 
+    // sync it yourself!
     @OnlyIn(Dist.CLIENT)
     public void setProgress(double progress) {
         this.progress = progress;
@@ -31,8 +32,9 @@ public class guiModuleProgressBarHorizontal6px extends GuiModuleBase {
             int mouseY,
             float partialTick
     ) {
-        guiGraphics.blit(background, onGuiX, onGuiY, 0, 0, 54, 6, 54, 6);
-        guiGraphics.fill(onGuiX + 1, onGuiY + 1, onGuiX+(int) (52 * progress)+1, onGuiY+4+1, color);
-
+        if(isEnabled) {
+            guiGraphics.blit(background, onGuiX, onGuiY, 0, 0, 54, 6, 54, 6);
+            guiGraphics.fill(onGuiX + 1, onGuiY + 1, onGuiX + (int) (52 * progress) + 1, onGuiY + 4 + 1, color);
+        }
     }
 }
