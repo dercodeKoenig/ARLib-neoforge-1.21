@@ -5,12 +5,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLEnvironment;
 
 public class guiModuleButton extends GuiModuleBase {
-    int w, h;
-    int textureW, textureH;
-    ResourceLocation image;
-    String text;
+    public int w, h;
+    public int textureW, textureH;
+    public ResourceLocation image;
+    public String text;
+    public int color;
 
     @Override
     public void client_onMouseCLick(double x, double y, int button) {
@@ -22,6 +25,46 @@ public class guiModuleButton extends GuiModuleBase {
             }
         }
     }
+
+    public void setText(String text){
+        this.text = text;
+        if(FMLEnvironment.dist != Dist.CLIENT){
+            CompoundTag tag = new CompoundTag();
+            server_writeDataToSyncToClient(tag);
+            this.guiHandler. sendToTrackingClients(tag);
+        }
+    }
+    public void setColor(int color){
+        this.color = color;
+        if(FMLEnvironment.dist != Dist.CLIENT){
+            CompoundTag tag = new CompoundTag();
+            server_writeDataToSyncToClient(tag);
+            this.guiHandler. sendToTrackingClients(tag);
+        }
+    }
+    @Override
+    public void server_writeDataToSyncToClient(CompoundTag tag){
+        CompoundTag myTag = new CompoundTag();
+        myTag.putString("text", this.text);
+        myTag.putInt("color", this.color);
+        tag.put(getMyTagKey(),myTag);
+
+        super.server_writeDataToSyncToClient(tag);
+    }
+    @Override
+    public void client_handleDataSyncedToClient(CompoundTag tag){
+        if(tag.contains(getMyTagKey())){
+            CompoundTag myTag = tag.getCompound(getMyTagKey());
+            if(myTag.contains("text")) {
+                this.text = myTag.getString("text");
+            }
+            if(myTag.contains("color")) {
+                this.color = myTag.getInt("color");
+            }
+        }
+        super.client_handleDataSyncedToClient(tag);
+    }
+
 
     public guiModuleButton(int id, String text, IGuiHandler guiHandler, int x, int y, int w, int h, ResourceLocation image, int textureW, int textureH) {
         super(id, guiHandler, x, y);
@@ -42,7 +85,7 @@ public class guiModuleButton extends GuiModuleBase {
     ) {
         if(isEnabled) {
             guiGraphics.blit(image, onGuiX, onGuiY, w, h, 0f, 0f, textureW, textureH, textureW, textureH);
-            guiGraphics.drawString(Minecraft.getInstance().font, text, onGuiX + w / 2 - Minecraft.getInstance().font.width(text) / 2, onGuiY + h / 2 - Minecraft.getInstance().font.lineHeight / 2, 0xFFFFFFFF, true);
+            guiGraphics.drawString(Minecraft.getInstance().font, text, onGuiX + w / 2 - Minecraft.getInstance().font.width(text) / 2, onGuiY + h / 2 - Minecraft.getInstance().font.lineHeight / 2, color, true);
         }
     }
 }
