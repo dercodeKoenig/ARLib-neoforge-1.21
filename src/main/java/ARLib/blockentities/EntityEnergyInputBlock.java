@@ -3,7 +3,7 @@ package ARLib.blockentities;
 import ARLib.gui.IGuiHandler;
 import ARLib.gui.GuiHandlerBlockEntity;
 import ARLib.gui.modules.guiModuleEnergy;
-import ARLib.utils.UniversalBattery;
+import ARLib.utils.BlockEntityBattery;
 import ARLib.network.INetworkTagReceiver;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -18,7 +18,7 @@ import static ARLib.ARLibRegistry.ENTITY_ENERGY_INPUT_BLOCK;
 
 public class EntityEnergyInputBlock extends BlockEntity implements IEnergyStorage, INetworkTagReceiver {
 
-    protected UniversalBattery energyStorage;
+    protected BlockEntityBattery energyStorage;
     IGuiHandler guiHandler;
 
     public EntityEnergyInputBlock(BlockPos p_155229_, BlockState p_155230_) {
@@ -26,7 +26,7 @@ public class EntityEnergyInputBlock extends BlockEntity implements IEnergyStorag
     }
     public EntityEnergyInputBlock(BlockEntityType type, BlockPos p_155229_, BlockState p_155230_) {
         super(type, p_155229_, p_155230_);
-        energyStorage = new UniversalBattery(10000);
+        energyStorage = new BlockEntityBattery(this, 10000);
         this.guiHandler = new GuiHandlerBlockEntity(this);
         this.guiHandler.registerModule(new guiModuleEnergy(0,this,this.guiHandler,10,10));
     }

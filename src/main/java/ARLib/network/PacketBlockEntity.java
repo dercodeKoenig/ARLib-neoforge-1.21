@@ -74,6 +74,7 @@ public class PacketBlockEntity implements CustomPacketPayload {
     }
     public static void readServer(final PacketBlockEntity data, final IPayloadContext context) {
         Level world = DimensionUtils.getDimensionLevelServer(data.dim);
+        //System.out.println(data.dim);;
         BlockEntity tile = world.getBlockEntity(new BlockPos(data.x(),data.y(),data.z()));
         if (tile instanceof INetworkTagReceiver){
             ((INetworkTagReceiver) tile).readServer(data.getTag());

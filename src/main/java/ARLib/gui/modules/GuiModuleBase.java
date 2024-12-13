@@ -95,9 +95,9 @@ public class GuiModuleBase {
 
     public void server_writeDataToSyncToClient(CompoundTag tag){
         CompoundTag myTag = new CompoundTag();
-        tag.putInt("updateLocationX", x);
-        tag.putInt("updateLocationY", y);
-        tag.putBoolean("updateIsEnabled", isEnabled);
+        myTag.putInt("updateLocationX", x);
+        myTag.putInt("updateLocationY", y);
+        myTag.putBoolean("updateIsEnabled", isEnabled);
         tag.put(getMySuperTagKey(),myTag);
     }
 
