@@ -14,8 +14,8 @@ public class guiModuleText extends GuiModuleBase {
     public int color;
     public boolean makeShadow;
 
-    public guiModuleText(String text, IGuiHandler guiHandler, int x, int y, int color, boolean makeShadow) {
-        super(-1, guiHandler, x, y);
+    public guiModuleText(int id,String text, IGuiHandler guiHandler, int x, int y, int color, boolean makeShadow) {
+        super(id, guiHandler, x, y);
         this.text = text;
         this.color = color;
         this.makeShadow = makeShadow;
@@ -23,19 +23,17 @@ public class guiModuleText extends GuiModuleBase {
 
     public void setText(String text){
         this.text = text;
-        if(FMLEnvironment.dist != Dist.CLIENT){
             CompoundTag tag = new CompoundTag();
             server_writeDataToSyncToClient(tag);
             this.guiHandler. sendToTrackingClients(tag);
-        }
+
     }
     public void setColor(int color){
         this.color = color;
-        if(FMLEnvironment.dist != Dist.CLIENT){
             CompoundTag tag = new CompoundTag();
             server_writeDataToSyncToClient(tag);
             this.guiHandler. sendToTrackingClients(tag);
-        }
+
     }
     @Override
     public void server_writeDataToSyncToClient(CompoundTag tag){

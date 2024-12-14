@@ -30,8 +30,9 @@ public class GuiModuleBase {
     }
 
     public void setIsEnabled(boolean isEnabled) {
+        boolean needsUpdate = isEnabled != this.isEnabled;
         this.isEnabled = isEnabled;
-        if (FMLEnvironment.dist != Dist.CLIENT) {
+        if (needsUpdate) {
             CompoundTag tag = new CompoundTag();
             server_writeDataToSyncToClient(tag);
             this.guiHandler. sendToTrackingClients(tag);
@@ -41,13 +42,11 @@ public class GuiModuleBase {
     public void setLocation(int x, int y){
         this.x = x;
         this.y = y;
-        if(FMLEnvironment.dist == Dist.CLIENT){
             client_setGuiOffset(lastLeft,lastTop);
-        }else{
             CompoundTag tag = new CompoundTag();
             server_writeDataToSyncToClient(tag);
             this.guiHandler. sendToTrackingClients(tag);
-        }
+
     }
 
     public void client_setGuiOffset(int left, int top){
