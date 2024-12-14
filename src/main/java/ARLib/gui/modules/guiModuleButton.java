@@ -8,6 +8,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
 
+import java.util.Objects;
+
 public class guiModuleButton extends GuiModuleBase {
     public int w, h;
     public int textureW, textureH;
@@ -27,17 +29,22 @@ public class guiModuleButton extends GuiModuleBase {
     }
 
     public void setText(String text){
+        boolean needsUpdate = !Objects.equals(this.text, text);
         this.text = text;
+        if(needsUpdate) {
             CompoundTag tag = new CompoundTag();
             server_writeDataToSyncToClient(tag);
-            this.guiHandler. sendToTrackingClients(tag);
-
+            this.guiHandler.sendToTrackingClients(tag);
+        }
     }
     public void setColor(int color){
-        this.color = color;
-            CompoundTag tag = new CompoundTag();
-            server_writeDataToSyncToClient(tag);
-            this.guiHandler. sendToTrackingClients(tag);
+        boolean needsUpdate = this.color != color;
+                this.color = color;
+                if(needsUpdate) {
+                    CompoundTag tag = new CompoundTag();
+                    server_writeDataToSyncToClient(tag);
+                    this.guiHandler.sendToTrackingClients(tag);
+                }
 
     }
     @Override

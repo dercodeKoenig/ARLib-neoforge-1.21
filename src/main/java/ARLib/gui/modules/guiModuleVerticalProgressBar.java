@@ -13,6 +13,8 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.util.LogicalSidedProvider;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
+import java.util.Objects;
+
 public class guiModuleVerticalProgressBar extends GuiModuleBase {
     public ResourceLocation background = ResourceLocation.fromNamespaceAndPath("arlib", "textures/gui/gui_vertical_progress_bar_background.png");
     public ResourceLocation bar = ResourceLocation.fromNamespaceAndPath("arlib", "textures/gui/gui_vertical_progress_bar.png");
@@ -37,12 +39,13 @@ public class guiModuleVerticalProgressBar extends GuiModuleBase {
     }
 
 public void setHoverInfo(String s){
+        boolean needsUpdate = !Objects.equals(s, this.info);
         this.info = s;
-
-        CompoundTag tag = new CompoundTag();
-        this.server_writeDataToSyncToClient(tag);
-        this.guiHandler.sendToTrackingClients(tag);
-
+if(needsUpdate) {
+    CompoundTag tag = new CompoundTag();
+    this.server_writeDataToSyncToClient(tag);
+    this.guiHandler.sendToTrackingClients(tag);
+}
 }
 
     public void setProgress(double progress) {
