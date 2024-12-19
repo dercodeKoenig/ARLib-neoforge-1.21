@@ -45,7 +45,7 @@ public class BlockItemInputBlock extends BlockMultiblockPart implements EntityBl
         if (!world.isClientSide) {
             CompoundTag info = new CompoundTag();
             BlockPos master = getMaster(pos);
-            if (master != null && world.getBlockEntity(master) instanceof EntityMultiblockMaster masterTile && masterTile.alwaysOpenMasterGui) {
+            if (master != null && world.getBlockEntity(master) instanceof EntityMultiblockMaster masterTile && masterTile.forwardInteractionToMaster) {
                 info.putByte("openGui", (byte) 0);
                 PacketDistributor.sendToPlayer((ServerPlayer) player, PacketBlockEntity.getBlockEntityPacket(world, master, info));
             } else {

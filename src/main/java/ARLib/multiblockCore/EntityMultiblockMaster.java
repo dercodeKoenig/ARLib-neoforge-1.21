@@ -12,7 +12,10 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -21,6 +24,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -29,13 +33,17 @@ import java.util.HashMap;
 import java.util.List;
 
 import static ARLib.ARLibRegistry.*;
-import static ARLib.multiblockCore.BlockMultiblockMaster.STATE_HIDE_BLOCK;
+import static ARLib.multiblockCore.BlockMultiblockMaster.STATE_MULTIBLOCK_FORMED;
 
 public abstract class EntityMultiblockMaster extends BlockEntity implements INetworkTagReceiver {
 
     abstract public Object[][][] getStructure();
 
     abstract public HashMap<Character, List<Block>> getCharMapping();
+
+    public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hitResult) {
+    return InteractionResult.PASS;
+    }
 
     public boolean[][][] hideBlocks() {
         Object[][][] structure = getStructure();
@@ -57,9 +65,8 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
 
     // set this to true to make the master block gui open for a click on any machine part block
     // must be implemented on the machine part block
-    public boolean alwaysOpenMasterGui = false;
+    public boolean forwardInteractionToMaster = false;
 
-    private boolean isMultiblockFormed = false;
     private Direction facing = Direction.EAST;
 
     protected List<EntityEnergyOutputBlock> energyOutTiles = new ArrayList<>();
@@ -129,14 +136,13 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
 
 
     public void setMultiblockFormed(boolean formed) {
-        this.isMultiblockFormed = formed;
         CompoundTag info = new CompoundTag();
-        info.putBoolean("isMultiblockFormed", isMultiblockFormed);
+        info.putBoolean("isMultiblockFormed", formed);
         PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(getBlockPos()), PacketBlockEntity.getBlockEntityPacket(this, info));
     }
 
     public boolean isMultiblockFormed() {
-        return isMultiblockFormed;
+        return getBlockState().getValue(STATE_MULTIBLOCK_FORMED);
     }
 
     public Direction getFacing() {
@@ -150,9 +156,7 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
             scanStructure();
         }
         if (level.isClientSide) {
-            // set isMultiblockFormed from blockstate - after this it will be updated in network packet when it changes
-            isMultiblockFormed = level.getBlockState(getBlockPos()).getValue(STATE_HIDE_BLOCK);
-            if (isMultiblockFormed)
+            if (getBlockState().getValue(STATE_MULTIBLOCK_FORMED))
                 onStructureComplete();
         }
         this.facing = level.getBlockState(getBlockPos()).getValue(BlockStateProperties.HORIZONTAL_FACING);
@@ -211,7 +215,7 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
                         bmp.setMaster(globalPos, null);
                     }
                     if (newBlock instanceof BlockMultiblockPart || newBlock instanceof BlockMultiblockMaster ) {
-                        level.setBlock(globalPos, blockState.setValue(STATE_HIDE_BLOCK, false), 3);
+                        level.setBlock(globalPos, blockState.setValue(STATE_MULTIBLOCK_FORMED, false), 3);
                     }
                 }
             }
@@ -277,7 +281,7 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
                     // at this point the block is a multiBlockPart or multiBlockMaster
                     blockState = level.getBlockState(globalPos);
                     if (hideBlocks[y][z][x])
-                        level.setBlock(globalPos, blockState.setValue(STATE_HIDE_BLOCK, true), 3);
+                        level.setBlock(globalPos, blockState.setValue(STATE_MULTIBLOCK_FORMED, true), 3);
 
                     blockState = level.getBlockState(globalPos);
                     if (blockState.getBlock() instanceof BlockMultiblockPart t) {
@@ -422,10 +426,6 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
 
     @Override
     public void readClient(CompoundTag tag) {
-        if (tag.contains("isMultiblockFormed")) {
-            this.isMultiblockFormed = tag.getBoolean("isMultiblockFormed");
-            if (this.isMultiblockFormed)
-                onStructureComplete();
-        }
+
     }
 }

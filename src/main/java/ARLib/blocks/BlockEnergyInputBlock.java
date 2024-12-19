@@ -16,7 +16,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -25,7 +24,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ARLib.ARLibRegistry.BLOCK_ENERGY_INPUT_BLOCK;
 import static ARLib.ARLibRegistry.ENTITY_ENERGY_INPUT_BLOCK;
 
 
@@ -47,7 +45,7 @@ public class BlockEnergyInputBlock extends BlockMultiblockPart implements Entity
         if (!world.isClientSide) {
             CompoundTag info = new CompoundTag();
             BlockPos master = getMaster(pos);
-            if (master != null && world.getBlockEntity(master) instanceof EntityMultiblockMaster masterTile && masterTile.alwaysOpenMasterGui) {
+            if (master != null && world.getBlockEntity(master) instanceof EntityMultiblockMaster masterTile && masterTile.forwardInteractionToMaster) {
                 info.putByte("openGui", (byte) 0);
                 PacketDistributor.sendToPlayer((ServerPlayer) player, PacketBlockEntity.getBlockEntityPacket(world, master, info));
             } else {

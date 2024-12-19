@@ -24,11 +24,11 @@ import javax.annotation.Nonnull;
 
 public abstract class BlockMultiblockMaster extends Block implements EntityBlock {
 
-    public static final BooleanProperty STATE_HIDE_BLOCK = BooleanProperty.create("state");
+    public static final BooleanProperty STATE_MULTIBLOCK_FORMED = BooleanProperty.create("state");
 
     public BlockMultiblockMaster(Properties p_49795_) {
         super(p_49795_.noOcclusion().pushReaction(PushReaction.IGNORE));
-        this.registerDefaultState(this.stateDefinition.any().setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH).setValue(STATE_HIDE_BLOCK, false));
+        this.registerDefaultState(this.stateDefinition.any().setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH).setValue(STATE_MULTIBLOCK_FORMED, false));
     }
 
     @Override
@@ -38,7 +38,7 @@ public abstract class BlockMultiblockMaster extends Block implements EntityBlock
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(BlockStateProperties.HORIZONTAL_FACING); // Define the FACING property
-        builder.add(STATE_HIDE_BLOCK); // Define the state property
+        builder.add(STATE_MULTIBLOCK_FORMED); // Define the state property
     }
 
     @Override
@@ -50,12 +50,12 @@ public abstract class BlockMultiblockMaster extends Block implements EntityBlock
     @Override
     @Nonnull
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(STATE_HIDE_BLOCK, false).setValue(BlockStateProperties.HORIZONTAL_FACING, context.getHorizontalDirection().getOpposite());
+        return this.defaultBlockState().setValue(STATE_MULTIBLOCK_FORMED, false).setValue(BlockStateProperties.HORIZONTAL_FACING, context.getHorizontalDirection().getOpposite());
     }
 
     @Override
     public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nonnull LivingEntity placer, @Nonnull ItemStack stack) {
-        world.setBlock(pos, state.setValue(STATE_HIDE_BLOCK, false).setValue(BlockStateProperties.HORIZONTAL_FACING, placer.getDirection().getOpposite()), 2);
+        world.setBlock(pos, state.setValue(STATE_MULTIBLOCK_FORMED, false).setValue(BlockStateProperties.HORIZONTAL_FACING, placer.getDirection().getOpposite()), 2);
     }
 
 
@@ -66,6 +66,9 @@ public abstract class BlockMultiblockMaster extends Block implements EntityBlock
             if (e instanceof EntityMultiblockMaster ee) {
                 if(!ee.isMultiblockFormed())
                     ee.scanStructure();
+                else{
+                    return ee.useWithoutItem(state, world, pos, player, hitResult);
+                }
             }
         }
         return InteractionResult.SUCCESS;

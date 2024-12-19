@@ -1,8 +1,6 @@
-package ARLib.multiblockCore;
+package ARLib.utils;
 
-import ARLib.utils.ItemFluidStacks;
-import ARLib.utils.MachineRecipe;
-import ARLib.utils.recipePart;
+import ARLib.multiblockCore.EntityMultiblockMaster;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 
