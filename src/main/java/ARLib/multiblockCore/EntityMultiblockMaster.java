@@ -3,6 +3,7 @@ package ARLib.multiblockCore;
 import ARLib.blockentities.*;
 import ARLib.network.INetworkTagReceiver;
 import ARLib.network.PacketBlockEntity;
+import ARLib.utils.DimensionUtils;
 import ARLib.utils.InventoryUtils;
 import ARLib.utils.ItemFluidStacks;
 import ARLib.utils.recipePart;
@@ -212,7 +213,7 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
                     BlockState blockState = level.getBlockState(globalPos);
                     Block newBlock = blockState.getBlock();
                     if (newBlock instanceof BlockMultiblockPart bmp) {
-                        bmp.setMaster(globalPos, null);
+                        bmp.setMaster(new BlockMultiblockPart.BlockIdentifier(DimensionUtils.getLevelId(level), globalPos), null);
                     }
                     if (newBlock instanceof BlockMultiblockPart || newBlock instanceof BlockMultiblockMaster ) {
                         level.setBlock(globalPos, blockState.setValue(STATE_MULTIBLOCK_FORMED, false), 3);
@@ -285,7 +286,7 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
 
                     blockState = level.getBlockState(globalPos);
                     if (blockState.getBlock() instanceof BlockMultiblockPart t) {
-                        t.setMaster(globalPos, getBlockPos());
+                        t.setMaster(new BlockMultiblockPart.BlockIdentifier(DimensionUtils.getLevelId(level), globalPos), getBlockPos());
                     }
 
                     // scan blockentity if any to add to in/out tiles

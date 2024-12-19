@@ -1,5 +1,6 @@
 package ARLib.multiblockCore;
 
+import ARLib.utils.DimensionUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -23,8 +24,16 @@ import static ARLib.multiblockCore.BlockMultiblockMaster.STATE_MULTIBLOCK_FORMED
 
 public class BlockMultiblockPart extends Block {
 
-    //TODO this will probably make problems because different dims can have same blockpos
-    static final Map<BlockPos, BlockPos> multiblockMasterPositions = new HashMap<>();
+    public static class BlockIdentifier{
+        String levelId;
+        BlockPos pos;
+        public BlockIdentifier(String level, BlockPos pos){
+            this.levelId = level;
+            this.pos = pos;
+        }
+    }
+    
+    static final Map<BlockIdentifier, BlockPos> multiblockMasterPositions = new HashMap<>();
 
     public BlockMultiblockPart(Properties properties) {
         super(properties.noOcclusion().pushReaction(PushReaction.IGNORE));
@@ -33,7 +42,7 @@ public class BlockMultiblockPart extends Block {
 
     }
 
-    public void setMaster(BlockPos mypos, BlockPos masterpos) {
+    public void setMaster(BlockIdentifier mypos, BlockPos masterpos) {
         if (masterpos == null && multiblockMasterPositions.containsKey(mypos))
             multiblockMasterPositions.remove(mypos);
         else
@@ -68,12 +77,14 @@ public class BlockMultiblockPart extends Block {
     @Override
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         super.onRemove(state, level, pos, newState, movedByPiston);
-        if (state.getBlock() instanceof BlockMultiblockPart t) {
-            BlockPos master = t.getMaster(pos);
-            if (master != null && level.getBlockEntity(master) instanceof EntityMultiblockMaster masterTile) {
-                masterTile.scanStructure();
+        if(!level.isClientSide) {
+            if (state.getBlock() instanceof BlockMultiblockPart t) {
+                BlockPos master = t.getMaster(pos);
+                if (master != null && level.getBlockEntity(master) instanceof EntityMultiblockMaster masterTile) {
+                    masterTile.scanStructure();
+                }
+                multiblockMasterPositions.remove(new BlockIdentifier(DimensionUtils.getLevelId(level), pos));
             }
-            multiblockMasterPositions.remove(pos);
         }
     }
 
