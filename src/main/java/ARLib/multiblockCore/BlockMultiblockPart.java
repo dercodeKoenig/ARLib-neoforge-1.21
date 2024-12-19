@@ -32,7 +32,7 @@ public class BlockMultiblockPart extends Block {
             this.pos = pos;
         }
     }
-    
+
     static final Map<BlockIdentifier, BlockPos> multiblockMasterPositions = new HashMap<>();
 
     public BlockMultiblockPart(Properties properties) {
@@ -48,7 +48,7 @@ public class BlockMultiblockPart extends Block {
         else
             multiblockMasterPositions.put(mypos, masterpos);
     }
-    public BlockPos getMaster(BlockPos mypos){
+    public BlockPos getMaster(BlockIdentifier mypos){
         return multiblockMasterPositions.get(mypos);
     }
 
@@ -79,7 +79,7 @@ public class BlockMultiblockPart extends Block {
         super.onRemove(state, level, pos, newState, movedByPiston);
         if(!level.isClientSide) {
             if (state.getBlock() instanceof BlockMultiblockPart t) {
-                BlockPos master = t.getMaster(pos);
+                BlockPos master = t.getMaster(new BlockIdentifier(DimensionUtils.getLevelId(level),pos));
                 if (master != null && level.getBlockEntity(master) instanceof EntityMultiblockMaster masterTile) {
                     masterTile.scanStructure();
                 }
@@ -90,11 +90,11 @@ public class BlockMultiblockPart extends Block {
 
 
     @Override
-    public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (!world.isClientSide) {
-            BlockPos master = getMaster(pos);
-            if (master != null && world.getBlockEntity(master) instanceof EntityMultiblockMaster masterTile && masterTile.forwardInteractionToMaster) {
-                return masterTile.useWithoutItem(state, world, pos, player, hitResult);
+    public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        if (!level.isClientSide) {
+            BlockPos master = getMaster(new BlockIdentifier(DimensionUtils.getLevelId(level),pos));
+            if (master != null && level.getBlockEntity(master) instanceof EntityMultiblockMaster masterTile && masterTile.forwardInteractionToMaster) {
+                return masterTile.useWithoutItem(state, level, pos, player, hitResult);
             }
         }
         return InteractionResult.PASS;
