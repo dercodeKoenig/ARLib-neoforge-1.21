@@ -19,17 +19,37 @@ import javax.annotation.Nonnull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static ARLib.multiblockCore.BlockMultiblockMaster.STATE_MULTIBLOCK_FORMED;
 
 public class BlockMultiblockPart extends Block {
 
-    public static class BlockIdentifier{
+    public static class BlockIdentifier {
         String levelId;
         BlockPos pos;
-        public BlockIdentifier(String level, BlockPos pos){
+
+        public BlockIdentifier(String level, BlockPos pos) {
             this.levelId = level;
             this.pos = pos;
+        }
+
+
+        // Override equals() to compare logical equality
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true; // Check if the same instance
+            if (obj == null || getClass() != obj.getClass()) return false; // Ensure correct class
+
+            BlockIdentifier that = (BlockIdentifier) obj;
+
+            return Objects.equals(levelId, that.levelId) && Objects.equals(pos, that.pos);
+        }
+
+        // Override hashCode() to compute hash based on fields
+        @Override
+        public int hashCode() {
+            return Objects.hash(levelId, pos);
         }
     }
 
@@ -48,7 +68,8 @@ public class BlockMultiblockPart extends Block {
         else
             multiblockMasterPositions.put(mypos, masterpos);
     }
-    public BlockPos getMaster(BlockIdentifier mypos){
+
+    public BlockPos getMaster(BlockIdentifier mypos) {
         return multiblockMasterPositions.get(mypos);
     }
 
@@ -77,11 +98,11 @@ public class BlockMultiblockPart extends Block {
     @Override
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         super.onRemove(state, level, pos, newState, movedByPiston);
-        if(!level.isClientSide) {
+        if (!level.isClientSide) {
             if (state.getBlock() instanceof BlockMultiblockPart t) {
-                BlockPos master = t.getMaster(new BlockIdentifier(DimensionUtils.getLevelId(level),pos));
+                BlockPos master = t.getMaster(new BlockIdentifier(DimensionUtils.getLevelId(level), pos));
                 if (master != null && level.getBlockEntity(master) instanceof EntityMultiblockMaster masterTile) {
-                    masterTile.scanStructure();
+                    masterTile.scanStructure(); // returns on clientside by itself
                 }
                 multiblockMasterPositions.remove(new BlockIdentifier(DimensionUtils.getLevelId(level), pos));
             }
@@ -91,12 +112,18 @@ public class BlockMultiblockPart extends Block {
 
     @Override
     public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (!level.isClientSide) {
-            BlockPos master = getMaster(new BlockIdentifier(DimensionUtils.getLevelId(level),pos));
-            if (master != null && level.getBlockEntity(master) instanceof EntityMultiblockMaster masterTile && masterTile.forwardInteractionToMaster) {
-                return masterTile.useWithoutItem(state, level, pos, player, hitResult);
-            }
+        // because client does not have the map for master blocks I just return OK
+        // I dont want to implement a custom network packet for this bc
+        // when mc updates and changes shit around again it would just be additional work for something that has not
+        // too much of an impact. if it is a PASS and a block can be placed the server should update the blockstate to the client
+        // if it is a SUCCESS and item is used the server should update the inventory and send the changes
+        if (level.isClientSide) return InteractionResult.SUCCESS_NO_ITEM_USED;
+
+        BlockPos master = getMaster(new BlockIdentifier(DimensionUtils.getLevelId(level), pos));
+        if (master != null && level.getBlockEntity(master) instanceof EntityMultiblockMaster masterTile && masterTile.forwardInteractionToMaster) {
+            return masterTile.useWithoutItem(state, level, pos, player, hitResult);
         }
+
         return InteractionResult.PASS;
     }
 }

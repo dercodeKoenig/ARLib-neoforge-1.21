@@ -306,7 +306,6 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
     boolean isScanning = false;
 
     public void scanStructure() {
-        System.out.println("try scan");
         if (level.isClientSide) return;
         if (isScanning) return;
         isScanning = true;
@@ -319,7 +318,7 @@ public abstract class EntityMultiblockMaster extends BlockEntity implements INet
         fluidOutTiles.clear();
 
         boolean canComplete = canCompleteStructure();
-        System.out.println(canComplete);
+
         if (!canComplete) {
             un_replace_blocks();
         } else {
