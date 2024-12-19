@@ -43,15 +43,10 @@ public class BlockEnergyInputBlock extends BlockMultiblockPart implements Entity
     @Override
     public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!world.isClientSide) {
-            CompoundTag info = new CompoundTag();
-            BlockPos master = getMaster(pos);
-            if (master != null && world.getBlockEntity(master) instanceof EntityMultiblockMaster masterTile && masterTile.forwardInteractionToMaster) {
-                info.putByte("openGui", (byte) 0);
-                PacketDistributor.sendToPlayer((ServerPlayer) player, PacketBlockEntity.getBlockEntityPacket(world, master, info));
-            } else {
+            if (super.useWithoutItem(state, world, pos, player, hitResult) == InteractionResult.PASS) {
+                CompoundTag info = new CompoundTag();
                 info.putByte("openGui", (byte) 0);
                 PacketDistributor.sendToPlayer((ServerPlayer) player, PacketBlockEntity.getBlockEntityPacket(world, pos, info));
-
             }
         }
         return InteractionResult.SUCCESS;
