@@ -2,11 +2,13 @@ package ARLib.multiblockCore;
 
 import ARLib.network.PacketBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -14,6 +16,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,6 +36,16 @@ public class BlockMultiblockPlaceholder extends BlockMultiblockPart implements E
         return ENTITY_PLACEHOLDER.get().create(blockPos, blockState);
     }
 
+
+    @Override
+    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        BlockEntity me = world.getBlockEntity(pos);
+        if(me instanceof  EntityMultiblockPlaceholder emp){
+            return emp.replacedState.getBlock().defaultBlockState().getShape(world,pos, context);
+        }
+         return Shapes.create(0.25, 0.25, 0.25, 0.75, 0.75, 0.75);
+    }
+
     // This method will drop the replaced block when the placeholder block is broken
     @Override
     public boolean onDestroyedByPlayer(BlockState state, Level world, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
@@ -44,20 +59,5 @@ public class BlockMultiblockPlaceholder extends BlockMultiblockPart implements E
             }
         }
         return super.onDestroyedByPlayer(state, world, pos, player, willHarvest, fluid);
-    }
-
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        super.onRemove(state, level, pos, newState, movedByPiston);
-    }
-
-    @Override
-    public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (!world.isClientSide) {
-            BlockPos master = getMaster(pos);
-            if (master != null && world.getBlockEntity(master) instanceof EntityMultiblockMaster masterTile && masterTile.forwardInteractionToMaster) {
-                return masterTile.useWithoutItem(state, world, pos, player, hitResult);
-            }
-        }
-        return InteractionResult.PASS;
     }
 }
