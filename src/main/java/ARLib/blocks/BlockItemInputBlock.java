@@ -4,6 +4,7 @@ import ARLib.blockentities.EntityItemInputBlock;
 import ARLib.multiblockCore.EntityMultiblockMaster;
 import ARLib.multiblockCore.BlockMultiblockPart;
 import ARLib.network.PacketBlockEntity;
+import ARLib.utils.DimensionUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
@@ -57,6 +58,16 @@ public class BlockItemInputBlock extends BlockMultiblockPart implements EntityBl
         return EntityItemInputBlock::tick;
     }
 
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (!level.isClientSide) {
+            BlockEntity me = level.getBlockEntity(pos);
+            if(me instanceof  EntityItemInputBlock i){
+                i.popItems();
+            }
+        }
+        super.onRemove(state, level, pos, newState, movedByPiston);
+    }
 
     @Override
     protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {

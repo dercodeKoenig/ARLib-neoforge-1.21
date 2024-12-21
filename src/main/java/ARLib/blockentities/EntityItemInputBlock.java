@@ -27,17 +27,7 @@ public class EntityItemInputBlock extends BlockEntity implements IItemHandler, I
     BlockEntityItemStackHandler inventory;
     IGuiHandler guiHandler;
 
-    @Override
-    public void setRemoved() {
-        if (!level.isClientSide) {
-            for (int i = 0; i < inventory.getSlots(); i++) {
-                ItemStack stack = inventory.getStackInSlot(i).copy();
-                popResource(level, getBlockPos(), stack);
-                inventory.extractItem(i, inventory.getStackInSlot(i).getCount(), false);
-            }
-        }
-        super.setRemoved();
-    }
+
     public EntityItemInputBlock(BlockPos pos, BlockState blockState) {
         this(ENTITY_ITEM_INPUT_BLOCK.get(),pos,blockState);
     }
@@ -101,6 +91,15 @@ public class EntityItemInputBlock extends BlockEntity implements IItemHandler, I
         guiHandler.        openGui(176, 126);
     }
 
+    public void popItems() {
+        if (!level.isClientSide) {
+            for (int i = 0; i < inventory.getSlots(); i++) {
+                ItemStack stack = inventory.getStackInSlot(i).copy();
+                popResource(level, getBlockPos(), stack);
+                inventory.setStackInSlot(i,ItemStack.EMPTY);
+            }
+        }
+    }
 
     @Override
     public int getSlots() {
